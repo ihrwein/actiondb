@@ -1,0 +1,4 @@
+[package]
+name = "actiondb"
+version = "0.1.0"
+authors = ["Tibor Benke <ihrwein@gmail.com>"]
