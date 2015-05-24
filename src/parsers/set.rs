@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 use std::iter::FromIterator;
 
 use parsers::{Parser,
-            MatchResult};
+            ParseResult};
 
 pub struct SetParser {
     character_set: BTreeSet<u8>,
@@ -66,13 +66,13 @@ impl SetParser {
 }
 
 impl <'a, 'b> Parser<'a, 'b> for SetParser {
-    fn parse(&'a self, value: &'b str) -> MatchResult<'b> {
+    fn parse(&'a self, value: &'b str) -> ParseResult<'b> {
         let match_len = self.calculate_match_length(value);
-        
+
         if self.is_match_length_ok(match_len) {
-            return MatchResult::Matched(&value[..match_len])
+            return ParseResult::Parsed(&value[..match_len])
         } else {
-            return MatchResult::NotMatched;
+            return ParseResult::NotParsed;
         }
     }
 }
@@ -81,21 +81,21 @@ impl <'a, 'b> Parser<'a, 'b> for SetParser {
 fn test_given_empty_string_when_parsed_it_wont_match() {
     let p = SetParser::new("");
     assert_eq!(p.parse("almafa"),
-               MatchResult::NotMatched);
+               ParseResult::NotParsed);
 }
 
 #[test]
 fn test_given_not_matching_string_when_parsed_it_wont_match() {
     let p = SetParser::new("123");
     assert_eq!(p.parse("almafa"),
-               MatchResult::NotMatched);
+               ParseResult::NotParsed);
 }
 
 #[test]
 fn test_given_matching_string_when_parsed_it_matches() {
     let p = SetParser::new("0123");
     assert_eq!(p.parse("11230almafa"),
-               MatchResult::Matched("11230"));
+               ParseResult::Parsed("11230"));
 }
 
 #[test]
@@ -103,7 +103,7 @@ fn test_given_minimum_match_length_when_a_match_is_shorter_it_doesnt_count_as_a_
     let mut p = SetParser::new("0123");
     p.set_min_length(7);
     assert_eq!(p.parse("11230almafa"),
-               MatchResult::NotMatched);
+               ParseResult::NotParsed);
 }
 
 #[test]
@@ -111,7 +111,7 @@ fn test_given_maximum_match_length_when_a_match_is_longer_it_doesnt_count_as_a_m
     let mut p = SetParser::new("0123");
     p.set_max_length(3);
     assert_eq!(p.parse("11230almafa"),
-               MatchResult::NotMatched);
+               ParseResult::NotParsed);
 }
 
 #[test]
@@ -120,5 +120,5 @@ fn test_given_minimum_and_maximum_match_length_when_a_proper_length_match_occure
     p.set_min_length(3);
     p.set_max_length(7);
     assert_eq!(p.parse("11230almafa"),
-               MatchResult::Matched("11230"));
+               ParseResult::Parsed("11230"));
 }

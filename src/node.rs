@@ -4,7 +4,7 @@ use std::iter::FromIterator;
 use std::slice::Iter;
 use std::vec::IntoIter as VecIntoIter;
 
-use parsers::{Parser, SetParser, MatchResult};
+use parsers::{Parser, SetParser, ParseResult};
 
 struct Node<'a, 'b> {
     literal: String,
@@ -12,7 +12,7 @@ struct Node<'a, 'b> {
     child_nodes: Vec<Box<Node<'a, 'b>>>
 }
 
-type ParseResult<'a> = Option<BTreeMap<&'a str, &'a str>>;
+type MatchResult<'a> = Option<BTreeMap<&'a str, &'a str>>;
 
 impl <'a, 'b> Node<'a, 'b> {
     pub fn new(literal: &str) -> Node<'a, 'b> {
@@ -33,7 +33,7 @@ impl <'a, 'b> Node<'a, 'b> {
         self.child_nodes.push(node);
     }
 
-    pub fn parse(&mut self, value: &str) -> ParseResult {
+    pub fn parse(&mut self, value: &str) -> MatchResult {
         None
     }
 }

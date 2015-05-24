@@ -3,11 +3,11 @@ mod set;
 pub use self::set::SetParser;
 
 #[derive(PartialEq, Debug)]
-pub enum MatchResult<'a> {
-    Matched(&'a str),
-    NotMatched
+pub enum ParseResult<'a> {
+    Parsed(&'a str),
+    NotParsed
 }
 
 pub trait Parser<'a, 'b> {
-    fn parse(&'a self, value: &'b str) -> MatchResult<'b>;
+    fn parse(&'a self, value: &'b str) -> ParseResult<'b>;
 }
