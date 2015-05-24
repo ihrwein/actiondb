@@ -11,11 +11,6 @@ pub struct SetParser {
 }
 
 impl SetParser {
-    fn create_set_from_str(set: &str) -> BTreeSet<u8> {
-        let vset: Vec<u8> = set.bytes().collect();
-        BTreeSet::from_iter(vset)
-    }
-
     pub fn new(set: &str) -> SetParser {
         SetParser{ character_set: SetParser::create_set_from_str(set),
                         min_length: None,
@@ -28,6 +23,11 @@ impl SetParser {
 
     pub fn set_max_length(&mut self, length: usize) {
         self.max_length = Some(length);
+    }
+
+    fn create_set_from_str(set: &str) -> BTreeSet<u8> {
+        let vset: Vec<u8> = set.bytes().collect();
+        BTreeSet::from_iter(vset)
     }
 
     fn is_match_length_ok(&self, match_length: usize) -> bool {
