@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 use std::iter::FromIterator;
 
 use parsers::{Parser,
-                MatchResult};
+            MatchResult};
 
 pub struct SetParser {
     character_set: BTreeSet<u8>,
@@ -23,8 +23,8 @@ impl SetParser {
     }
 }
 
-impl Parser for SetParser {
-    fn parse(&self, value: &str) -> MatchResult {
+impl <'s, 'a> Parser<'s, 'a> for SetParser {
+    fn parse(&'s self, value: &'a str) -> MatchResult<'a> {
         let mut match_len = 0;
 
         for c in value.bytes() {
@@ -36,7 +36,7 @@ impl Parser for SetParser {
         }
 
         if match_len > 0 {
-            return MatchResult::Matched(match_len)
+            return MatchResult::Matched(&value[..match_len])
         } else {
             return MatchResult::NotMatched;
         }

@@ -6,30 +6,30 @@ use std::vec::IntoIter as VecIntoIter;
 
 use parsers::{Parser, SetParser, MatchResult};
 
-struct Node {
+struct Node<'s, 'a> {
     literal: String,
-    child_parsers: Vec<Box<Parser>>,
-    child_nodes: Vec<Box<Node>>
+    child_parsers: Vec<Box<Parser<'s, 'a>>>,
+    child_nodes: Vec<Box<Node<'s, 'a>>>
 }
 
 type ParseResult<'a> = Option<BTreeMap<&'a str, &'a str>>;
 
-impl Node {
-    pub fn new(literal: &str) -> Node {
+impl <'s, 'a> Node<'s, 'a> {
+    pub fn new(literal: &str) -> Node<'s, 'a> {
         Node{ literal: literal.to_owned(),
               child_parsers: vec!(),
               child_nodes: vec!()}
     }
 
-    pub fn new_root() -> Node {
+    pub fn new_root() -> Node<'s, 'a> {
         Node::new("")
     }
 
-    pub fn add_child_parser(&mut self, parser: Box<Parser>) {
+    pub fn add_child_parser(&mut self, parser: Box<Parser<'s, 'a>>) {
         self.child_parsers.push(parser);
     }
 
-    pub fn add_child_node(&mut self, node: Box<Node>) {
+    pub fn add_child_node(&mut self, node: Box<Node<'s, 'a>>) {
         self.child_nodes.push(node);
     }
 
@@ -39,12 +39,12 @@ impl Node {
 }
 
 
-enum NodeType {
-    Parser(Box<Parser>),
+enum NodeType<'s, 'a> {
+    Parser(Box<Parser<'s, 'a>>),
     Literal(String)
 }
 
-type CompiledPattern = Vec<NodeType>;
+type CompiledPattern<'s, 'a> = Vec<NodeType<'s, 'a>>;
 
 #[test]
 fn test_given_pattern_when_iterated_on_it_yields_expected_items() {
