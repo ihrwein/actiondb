@@ -23,8 +23,8 @@ impl SetParser {
     }
 }
 
-impl <'s, 'a> Parser<'s, 'a> for SetParser {
-    fn parse(&'s self, value: &'a str) -> MatchResult<'a> {
+impl <'a, 'b> Parser<'a, 'b> for SetParser {
+    fn parse(&'a self, value: &'b str) -> MatchResult<'b> {
         let mut match_len = 0;
 
         for c in value.bytes() {
