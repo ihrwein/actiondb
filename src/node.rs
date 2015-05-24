@@ -54,7 +54,7 @@ fn test_given_pattern_when_iterated_on_it_yields_expected_items() {
     cp.push(NodeType::Literal("alma".to_owned()));
     cp.push(NodeType::Parser(pn));
     cp.push(NodeType::Literal("fa".to_owned()));
-    cp.push(NodeType::Parser(Box::new(SetParserNode::new("0123456789"))));
+    cp.push(NodeType::Parser(Box::new(SetParser::new("0123456789"))));
 
     for i in cp {
     }
@@ -65,7 +65,7 @@ fn it_works() {
     let mut root = Node::new_root();
     let alma = Node::new("alma");
     let bela = Node::new("bela");
-    let p = Box::new(SetParserNode::new("123a"));
+    let p = Box::new(SetParser::new("123a"));
     root.add_child_parser(p);
     root.add_child_node(Box::new(alma));
     root.add_child_node(Box::new(bela));

@@ -1,7 +1,8 @@
 use std::collections::BTreeSet;
 use std::iter::FromIterator;
 
-use parsers::{Parser, MatchResult};
+use parsers::{Parser,
+                MatchResult};
 
 pub struct SetParser {
     character_set: BTreeSet<u8>,
