@@ -77,48 +77,53 @@ impl <'a, 'b> Parser<'a, 'b> for SetParser {
     }
 }
 
-#[test]
-fn test_given_empty_string_when_parsed_it_wont_match() {
-    let p = SetParser::new("");
-    assert_eq!(p.parse("almafa"),
-               ParseResult::NotParsed);
-}
+#[cfg(test)]
+mod test {
+    use parsers::{Parser, SetParser, ParseResult};
 
-#[test]
-fn test_given_not_matching_string_when_parsed_it_wont_match() {
-    let p = SetParser::new("123");
-    assert_eq!(p.parse("almafa"),
-               ParseResult::NotParsed);
-}
+    #[test]
+    fn test_given_empty_string_when_parsed_it_wont_match() {
+        let p = SetParser::new("");
+        assert_eq!(p.parse("almafa"),
+                   ParseResult::NotParsed);
+    }
 
-#[test]
-fn test_given_matching_string_when_parsed_it_matches() {
-    let p = SetParser::new("0123");
-    assert_eq!(p.parse("11230almafa"),
-               ParseResult::Parsed("11230"));
-}
+    #[test]
+    fn test_given_not_matching_string_when_parsed_it_wont_match() {
+        let p = SetParser::new("123");
+        assert_eq!(p.parse("almafa"),
+                   ParseResult::NotParsed);
+    }
 
-#[test]
-fn test_given_minimum_match_length_when_a_match_is_shorter_it_doesnt_count_as_a_match() {
-    let mut p = SetParser::new("0123");
-    p.set_min_length(7);
-    assert_eq!(p.parse("11230almafa"),
-               ParseResult::NotParsed);
-}
+    #[test]
+    fn test_given_matching_string_when_parsed_it_matches() {
+        let p = SetParser::new("0123");
+        assert_eq!(p.parse("11230almafa"),
+                   ParseResult::Parsed("11230"));
+    }
 
-#[test]
-fn test_given_maximum_match_length_when_a_match_is_longer_it_doesnt_count_as_a_match() {
-    let mut p = SetParser::new("0123");
-    p.set_max_length(3);
-    assert_eq!(p.parse("11230almafa"),
-               ParseResult::NotParsed);
-}
+    #[test]
+    fn test_given_minimum_match_length_when_a_match_is_shorter_it_doesnt_count_as_a_match() {
+        let mut p = SetParser::new("0123");
+        p.set_min_length(7);
+        assert_eq!(p.parse("11230almafa"),
+                   ParseResult::NotParsed);
+    }
 
-#[test]
-fn test_given_minimum_and_maximum_match_length_when_a_proper_length_match_occures_it_counts_as_a_match() {
-    let mut p = SetParser::new("0123");
-    p.set_min_length(3);
-    p.set_max_length(7);
-    assert_eq!(p.parse("11230almafa"),
-               ParseResult::Parsed("11230"));
+    #[test]
+    fn test_given_maximum_match_length_when_a_match_is_longer_it_doesnt_count_as_a_match() {
+        let mut p = SetParser::new("0123");
+        p.set_max_length(3);
+        assert_eq!(p.parse("11230almafa"),
+                   ParseResult::NotParsed);
+    }
+
+    #[test]
+    fn test_given_minimum_and_maximum_match_length_when_a_proper_length_match_occures_it_counts_as_a_match() {
+        let mut p = SetParser::new("0123");
+        p.set_min_length(3);
+        p.set_max_length(7);
+        assert_eq!(p.parse("11230almafa"),
+                   ParseResult::Parsed("11230"));
+    }
 }
