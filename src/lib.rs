@@ -13,8 +13,8 @@ enum MatchResult {
 
 struct Node {
     literal: String,
-    childParsers: Vec<Box<ParserNode>>,
-    childNodes: Vec<Box<Node>>
+    child_parsers: Vec<Box<ParserNode>>,
+    child_nodes: Vec<Box<Node>>
 }
 
 type ParseResult<'a> = Option<BTreeMap<&'a str, &'a str>>;
@@ -22,8 +22,8 @@ type ParseResult<'a> = Option<BTreeMap<&'a str, &'a str>>;
 impl Node {
     pub fn new(literal: &str) -> Node {
         Node{ literal: literal.to_owned(),
-              childParsers: vec!(),
-              childNodes: vec!()}
+              child_parsers: vec!(),
+              child_nodes: vec!()}
     }
 
     pub fn new_root() -> Node {
@@ -31,11 +31,11 @@ impl Node {
     }
 
     pub fn add_child_parser(&mut self, parser: Box<ParserNode>) {
-        self.childParsers.push(parser);
+        self.child_parsers.push(parser);
     }
 
     pub fn add_child_node(&mut self, node: Box<Node>) {
-        self.childNodes.push(node);
+        self.child_nodes.push(node);
     }
 
     pub fn parse(&mut self, value: &str) -> ParseResult {
@@ -50,9 +50,9 @@ trait ParserNode {
 }
 
 struct SetParserNode {
-    characterSet: BTreeSet<u8>,
-    minLength: Option<i32>,
-    maxLength: Option<i32>
+    character_set: BTreeSet<u8>,
+    min_length: Option<i32>,
+    max_length: Option<i32>
 }
 
 impl SetParserNode {
@@ -62,9 +62,9 @@ impl SetParserNode {
     }
 
     pub fn new(set: &str) -> SetParserNode {
-        SetParserNode{ characterSet: SetParserNode::create_set_from_str(set),
-                        minLength: None,
-                        maxLength: None}
+        SetParserNode{ character_set: SetParserNode::create_set_from_str(set),
+                        min_length: None,
+                        max_length: None}
     }
 }
 
@@ -114,6 +114,7 @@ fn test_given_pattern_when_iterated_on_it_yields_expected_items() {
     cp.push_literal("alma".to_owned());
     cp.push_parser(pn);
     cp.push_literal("fa".to_owned());
+    cp.push_parser(Box::new(SetParserNode::new("0123456789")));
 
     for i in cp.pattern.into_iter() {
     }
