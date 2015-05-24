@@ -4,11 +4,11 @@ use std::iter::FromIterator;
 use std::slice::Iter;
 use std::vec::IntoIter as VecIntoIter;
 
-use parsers::{ParserNode, SetParserNode, MatchResult};
+use parsers::{Parser, SetParser, MatchResult};
 
 struct Node {
     literal: String,
-    child_parsers: Vec<Box<ParserNode>>,
+    child_parsers: Vec<Box<Parser>>,
     child_nodes: Vec<Box<Node>>
 }
 
@@ -25,7 +25,7 @@ impl Node {
         Node::new("")
     }
 
-    pub fn add_child_parser(&mut self, parser: Box<ParserNode>) {
+    pub fn add_child_parser(&mut self, parser: Box<Parser>) {
         self.child_parsers.push(parser);
     }
 
@@ -40,7 +40,7 @@ impl Node {
 
 
 enum NodeType {
-    Parser(Box<ParserNode>),
+    Parser(Box<Parser>),
     Literal(String)
 }
 
@@ -49,7 +49,7 @@ type CompiledPattern = Vec<NodeType>;
 #[test]
 fn test_given_pattern_when_iterated_on_it_yields_expected_items() {
     let mut cp = CompiledPattern::new();
-    let pn = Box::new(SetParserNode::new("0123456789"));
+    let pn = Box::new(SetParser::new("0123456789"));
 
     cp.push(NodeType::Literal("alma".to_owned()));
     cp.push(NodeType::Parser(pn));
