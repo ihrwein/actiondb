@@ -1,10 +1,7 @@
 use std::collections::BTreeMap;
 use std::borrow::ToOwned;
-use std::iter::FromIterator;
-use std::slice::Iter;
-use std::vec::IntoIter as VecIntoIter;
 
-use parsers::{Parser, SetParser, ParseResult};
+use parsers::{Parser, SetParser};
 
 struct Node<'a, 'b> {
     literal: String,
