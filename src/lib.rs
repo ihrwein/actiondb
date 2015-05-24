@@ -2,6 +2,8 @@ use std::collections::{BTreeSet,
                        BTreeMap};
 use std::borrow::ToOwned;
 use std::iter::FromIterator;
+use std::slice::Iter;
+use std::vec::IntoIter as VecIntoIter;
 
 enum MatchResult {
     Partial{ length: i32 },
@@ -30,6 +32,10 @@ impl Node {
 
     pub fn add_child_parser(&mut self, parser: Box<ParserNode>) {
         self.childParsers.push(parser);
+    }
+
+    pub fn add_child_node(&mut self, node: Box<Node>) {
+        self.childNodes.push(node);
     }
 
     pub fn parse(&mut self, value: &str) -> ParseResult {
@@ -68,9 +74,58 @@ impl ParserNode for SetParserNode {
     }
 }
 
+enum NodeType {
+    Parser(Box<ParserNode>),
+    Literal(String)
+}
+
+struct CompiledPattern {
+    pattern: Vec<NodeType>
+}
+
+impl CompiledPattern {
+    pub fn new() -> CompiledPattern {
+        CompiledPattern{ pattern: vec!() }
+    }
+
+    pub fn push_parser(&mut self, parser: Box<ParserNode>) {
+        self.pattern.push(NodeType::Parser(parser));
+    }
+
+    pub fn push_literal(&mut self, literal: String) {
+        self.pattern.push(NodeType::Literal(literal));
+    }
+}
+
+impl IntoIterator for CompiledPattern {
+    type Item = NodeType;
+    type IntoIter = VecIntoIter<NodeType>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.pattern.into_iter()
+    }
+}
+
+#[test]
+fn test_given_pattern_when_iterated_on_it_yields_expected_items() {
+    let mut cp = CompiledPattern::new();
+    let pn = Box::new(SetParserNode::new("0123456789"));
+
+    cp.push_literal("alma".to_owned());
+    cp.push_parser(pn);
+    cp.push_literal("fa".to_owned());
+
+    for i in cp.pattern.into_iter() {
+    }
+}
+
 #[test]
 fn it_works() {
     let mut root = Node::new_root();
+    let alma = Node::new("alma");
+    let bela = Node::new("bela");
     let p = Box::new(SetParserNode::new("123a"));
     root.add_child_parser(p);
+    root.add_child_node(Box::new(alma));
+    root.add_child_node(Box::new(bela));
 }
