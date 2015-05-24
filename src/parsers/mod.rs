@@ -1,7 +1,7 @@
 use std::collections::BTreeSet;
 use std::iter::FromIterator;
 
-enum MatchResult {
+pub enum MatchResult {
     Matched(usize),
     NotMatched
 }
