@@ -49,10 +49,8 @@ impl SetParser {
             None => true
         }
     }
-}
 
-impl <'a, 'b> Parser<'a, 'b> for SetParser {
-    fn parse(&'a self, value: &'b str) -> MatchResult<'b> {
+    fn calculate_match_length(&self, value: &str) -> usize {
         let mut match_len = 0;
 
         for c in value.bytes() {
@@ -63,6 +61,14 @@ impl <'a, 'b> Parser<'a, 'b> for SetParser {
             }
         }
 
+        match_len
+    }
+}
+
+impl <'a, 'b> Parser<'a, 'b> for SetParser {
+    fn parse(&'a self, value: &'b str) -> MatchResult<'b> {
+        let match_len = self.calculate_match_length(value);
+        
         if self.is_match_length_ok(match_len) {
             return MatchResult::Matched(&value[..match_len])
         } else {
@@ -106,4 +112,13 @@ fn test_given_maximum_match_length_when_a_match_is_longer_it_doesnt_count_as_a_m
     p.set_max_length(3);
     assert_eq!(p.parse("11230almafa"),
                MatchResult::NotMatched);
+}
+
+#[test]
+fn test_given_minimum_and_maximum_match_length_when_a_proper_length_match_occures_it_counts_as_a_match() {
+    let mut p = SetParser::new("0123");
+    p.set_min_length(3);
+    p.set_max_length(7);
+    assert_eq!(p.parse("11230almafa"),
+               MatchResult::Matched("11230"));
 }
