@@ -26,9 +26,26 @@ impl SetParser {
         self.min_length = Some(length);
     }
 
+    pub fn set_max_length(&mut self, length: usize) {
+        self.max_length = Some(length);
+    }
+
+    fn is_match_length_ok(&self, match_length: usize) -> bool {
+        match_length > 0 &&
+            self.is_min_length_ok(match_length) &&
+            self.is_max_length_ok(match_length)
+    }
+
     fn is_min_length_ok(&self, match_length: usize) -> bool {
         match self.min_length {
             Some(x) => match_length >= x,
+            None => true
+        }
+    }
+
+    fn is_max_length_ok(&self, match_length: usize) -> bool {
+        match self.max_length {
+            Some(x) => match_length <= x,
             None => true
         }
     }
@@ -46,7 +63,7 @@ impl <'a, 'b> Parser<'a, 'b> for SetParser {
             }
         }
 
-        if match_len > 0 && self.is_min_length_ok(match_len) {
+        if self.is_match_length_ok(match_len) {
             return MatchResult::Matched(&value[..match_len])
         } else {
             return MatchResult::NotMatched;
@@ -79,6 +96,14 @@ fn test_given_matching_string_when_parsed_it_matches() {
 fn test_given_minimum_match_length_when_a_match_is_shorter_it_doesnt_count_as_a_match() {
     let mut p = SetParser::new("0123");
     p.set_min_length(7);
+    assert_eq!(p.parse("11230almafa"),
+               MatchResult::NotMatched);
+}
+
+#[test]
+fn test_given_maximum_match_length_when_a_match_is_longer_it_doesnt_count_as_a_match() {
+    let mut p = SetParser::new("0123");
+    p.set_max_length(3);
     assert_eq!(p.parse("11230almafa"),
                MatchResult::NotMatched);
 }
