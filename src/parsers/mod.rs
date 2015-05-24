@@ -2,6 +2,7 @@ mod set;
 
 pub use self::set::SetParser;
 
+#[derive(PartialEq, Debug)]
 pub enum MatchResult<'a> {
     Matched(&'a str),
     NotMatched
