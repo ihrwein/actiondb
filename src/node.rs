@@ -3,7 +3,7 @@ use std::borrow::ToOwned;
 
 use parsers::{Parser, SetParser};
 
-type MatchResult<'a> = Option<BTreeMap<&'a str, &'a str>>;
+type MatchResult<'a, 'b> = Option<BTreeMap<&'a str, &'b str>>;
 type CompiledPattern<'a, 'b> = Vec<NodeType<'a, 'b>>;
 
 enum NodeType<'a, 'b> {
@@ -16,10 +16,14 @@ struct Node<'a, 'b> {
     parser_children: Vec<Box<ParserNode<'a, 'b>>>
 }
 
-impl <'a, 'b> Node<'a, 'b> {
+impl <'a, 'b, 'c> Node<'a, 'b> {
     pub fn new() -> Node<'a, 'b> {
         Node{ literal_children: vec!(),
               parser_children: vec!() }
+    }
+
+    pub fn parse(&'a mut self, value: &'b str) -> MatchResult<'c, 'b> {
+        None
     }
 }
 
