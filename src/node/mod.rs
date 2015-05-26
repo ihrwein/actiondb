@@ -31,7 +31,27 @@ impl <'a, 'b, 'c> Node<'a, 'b> {
         None
     }
 
-    pub fn add_pattern(&'a mut self, pattern: &'a CompiledPattern<'a, 'b>) -> bool {
-        false
+    pub fn add_pattern(&'a mut self, pattern: CompiledPattern<'a, 'b>) {
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use node::{CompiledPattern, NodeType, Node};
+    use parsers::{Parser, SetParser};
+
+    #[test]
+    fn test_given_patterns_when_inserted_into_the_prefix_tree_then_the_proper_tree_is_built() {
+        let mut root = Node::new();
+        let mut cp1 = CompiledPattern::new();
+        cp1.push(NodeType::Literal("app".to_owned()));
+        cp1.push(NodeType::Parser(Box::new(SetParser::new("01234"))));
+        cp1.push(NodeType::Literal("le".to_owned()));
+
+        let mut cp2 = CompiledPattern::new();
+        cp2.push(NodeType::Literal("applause".to_owned()));
+
+        root.add_pattern(cp1);
+        root.add_pattern(cp2);
     }
 }
