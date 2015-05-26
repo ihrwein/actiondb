@@ -1,7 +1,12 @@
+mod literal;
+mod parser;
+
 use std::collections::BTreeMap;
 use std::borrow::ToOwned;
 
 use parsers::{Parser, SetParser};
+use self::literal::LiteralNode;
+use self::parser::ParserNode;
 
 type MatchResult<'a, 'b> = Option<BTreeMap<&'a str, &'b str>>;
 type CompiledPattern<'a, 'b> = Vec<NodeType<'a, 'b>>;
@@ -25,28 +30,8 @@ impl <'a, 'b, 'c> Node<'a, 'b> {
     pub fn parse(&'a mut self, value: &'b str) -> MatchResult<'c, 'b> {
         None
     }
-}
 
-struct LiteralNode <'a, 'b> {
-    literal: String,
-    node: Option<Box<Node<'a, 'b>>>,
-}
-
-impl <'a, 'b> LiteralNode<'a, 'b> {
-    pub fn new(literal: &str) -> LiteralNode<'a, 'b> {
-        LiteralNode{ literal: literal.to_owned(),
-                     node: None}
-    }
-}
-
-struct ParserNode<'a, 'b> {
-    parser: Box<Parser<'a, 'b>>,
-    node: Option<Box<Node<'a, 'b>>>,
-}
-
-impl <'a, 'b> ParserNode<'a, 'b> {
-    pub fn new(parser: Box<Parser<'a, 'b>>) -> ParserNode<'a, 'b> {
-        ParserNode{ parser: parser,
-                    node: None}
+    pub fn add_pattern(&'a mut self, pattern: &'a CompiledPattern<'a, 'b>) -> bool {
+        false
     }
 }
