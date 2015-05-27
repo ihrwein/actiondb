@@ -1,3 +1,5 @@
+use std::cmp::{Ord, Ordering};
+
 use node::Node;
 
 pub struct LiteralNode <'a, 'b> {
@@ -14,5 +16,29 @@ impl <'a, 'b> LiteralNode<'a, 'b> {
     pub fn new(literal: String) -> LiteralNode<'a, 'b> {
         LiteralNode{ literal: literal,
                      node: None}
+    }
+}
+
+impl <'a, 'b> Eq for LiteralNode<'a, 'b> {}
+
+impl <'a, 'b> PartialEq for LiteralNode<'a, 'b> {
+    fn eq(&self, other: &Self) -> bool {
+        self.literal == other.literal
+    }
+
+    fn ne(&self, other: &Self) -> bool {
+        self.literal != other.literal
+    }
+}
+
+impl <'a, 'b> Ord for LiteralNode<'a, 'b> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.literal.cmp(other.literal)
+    }
+}
+
+impl <'a, 'b> PartialOrd for LiteralNode<'a, 'b> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.literal.cmp(other.literal)
     }
 }

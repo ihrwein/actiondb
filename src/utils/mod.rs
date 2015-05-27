@@ -5,7 +5,7 @@ pub struct SortedVec<T> {
     array: Vec<T>
 }
 
-impl <T: Ord + Eq> SortedVec<T> {
+impl <T: Ord> SortedVec<T> {
     pub fn new() -> SortedVec<T> {
         SortedVec{ array: vec!() }
     }
