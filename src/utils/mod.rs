@@ -1,13 +1,26 @@
 use std::cmp::Ordering;
 
 #[derive(Debug)]
-struct SortedVec<T> {
+pub struct SortedVec<T> {
     array: Vec<T>
 }
 
 impl <T: Ord + Eq> SortedVec<T> {
     pub fn new() -> SortedVec<T> {
         SortedVec{ array: vec!() }
+    }
+
+    pub fn push(&mut self, value: T) {
+        self.array.push(value);
+        self.insertion_sort();
+    }
+
+    pub fn find_pos(&self, value: &T) -> Option<usize> {
+        self.binary_search(value)
+    }
+
+    pub fn get(&self, index: usize) -> Option<&T> {
+        self.array.get(index)
     }
 
     fn insertion_sort(&mut self) {
@@ -20,12 +33,6 @@ impl <T: Ord + Eq> SortedVec<T> {
             }
         }
     }
-
-    pub fn push(&mut self, value: T) {
-        self.array.push(value);
-        self.insertion_sort();
-    }
-
 
     fn binary_search<'a>(&self, needle: &T) -> Option<usize> {
         let mut low  = 0;
@@ -42,14 +49,6 @@ impl <T: Ord + Eq> SortedVec<T> {
         }
 
         None
-    }
-
-    pub fn find_pos(&self, value: &T) -> Option<usize> {
-        self.binary_search(value)
-    }
-
-    pub fn get(&self, index: usize) -> Option<&T> {
-        self.array.get(index)
     }
 }
 
