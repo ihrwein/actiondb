@@ -6,8 +6,13 @@ pub struct LiteralNode <'a, 'b> {
 }
 
 impl <'a, 'b> LiteralNode<'a, 'b> {
-    pub fn new(literal: &str) -> LiteralNode<'a, 'b> {
+    pub fn from_str(literal: &str) -> LiteralNode<'a, 'b> {
         LiteralNode{ literal: literal.to_owned(),
+                     node: None}
+    }
+
+    pub fn new(literal: String) -> LiteralNode<'a, 'b> {
+        LiteralNode{ literal: literal,
                      node: None}
     }
 }
