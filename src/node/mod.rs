@@ -5,6 +5,7 @@ use std::collections::BTreeMap;
 use std::borrow::ToOwned;
 
 use parsers::{Parser, SetParser};
+use utils::SortedVec;
 use self::literal::LiteralNode;
 use self::parser::ParserNode;
 
@@ -17,21 +18,55 @@ enum NodeType<'a, 'b> {
 }
 
 struct Node<'a, 'b> {
-    literal_children: Vec<Box<LiteralNode<'a, 'b>>>,
-    parser_children: Vec<Box<ParserNode<'a, 'b>>>
+    literal_children: SortedVec<Box<LiteralNode<'a, 'b>>>,
+    parser_children: SortedVec<Box<ParserNode<'a, 'b>>>
 }
 
 impl <'a, 'b, 'c> Node<'a, 'b> {
     pub fn new() -> Node<'a, 'b> {
-        Node{ literal_children: vec!(),
-              parser_children: vec!() }
+        Node{ literal_children: SortedVec::new(),
+              parser_children: SortedVec::new() }
     }
 
-    pub fn parse(&'a mut self, value: &'b str) -> MatchResult<'c, 'b> {
+    pub fn parse(&mut self, value: &'b str) -> MatchResult<'c, 'b> {
         None
     }
 
-    pub fn add_pattern(&'a mut self, pattern: CompiledPattern<'a, 'b>) {
+    fn find(&mut self, literal: &str) -> (&mut Node<'a, 'b>, usize) {
+        if self.literal_children.len() == 0 {
+            return (self, 0);
+        }
+        (self, 0)
+    }
+
+    fn add_literal(&mut self, literal: String) {
+        let (parent, matching_prefix_length) = self.find(&literal);
+
+        if matching_prefix_length == 0 {
+            let literal_node = Box::new(LiteralNode::new(literal));
+            parent.literal_children.push(literal_node);
+        } else {
+            let literal_without_common_prefix = &literal[matching_prefix_length..];
+            let literal_node = Box::new(LiteralNode::from_str(literal_without_common_prefix));
+            parent.literal_children.push(literal_node);
+        }
+    }
+
+    fn add_parser(&mut self, boxed_parser: Box<Parser<'c, 'b>>) {
+
+    }
+
+    pub fn add_pattern(&mut self, pattern: CompiledPattern<'c, 'b>)  {
+        for i in pattern.into_iter() {
+            match i {
+                NodeType::Literal(literal) => {
+                    self.add_literal(literal);
+                },
+                NodeType::Parser(boxed_parser) => {
+                    self.add_parser(boxed_parser);
+                }
+            }
+        }
     }
 }
 
