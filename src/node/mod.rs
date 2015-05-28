@@ -19,13 +19,13 @@ enum NodeType<'a, 'b> {
 
 struct Node<'a, 'b> {
     literal_children: SortedVec<Box<LiteralNode<'a, 'b>>>,
-    parser_children: SortedVec<Box<ParserNode<'a, 'b>>>
+    parser_children: Vec<Box<ParserNode<'a, 'b>>>
 }
 
 impl <'a, 'b, 'c> Node<'a, 'b> {
     pub fn new() -> Node<'a, 'b> {
         Node{ literal_children: SortedVec::new(),
-              parser_children: SortedVec::new() }
+              parser_children: Vec::new() }
     }
 
     pub fn parse(&mut self, value: &'b str) -> MatchResult<'c, 'b> {
