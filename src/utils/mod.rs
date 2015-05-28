@@ -23,6 +23,10 @@ impl <T: Ord> SortedVec<T> {
         self.array.get(index)
     }
 
+    pub fn len(&self) -> usize {
+        self.array.len()
+    }
+
     fn insertion_sort(&mut self) {
         for i in 1..(self.array.len() - 1) {
             let mut j = i;
@@ -93,5 +97,15 @@ mod test {
 
         assert_eq!(sv.find_pos(&"beta".to_owned()).unwrap(), 1);
         assert_eq!(sv.find_pos(&"zeta".to_owned()).unwrap(), 4);
+    }
+
+    #[test]
+    fn test_given_sorted_vector_when_length_is_queried_it_is_ok() {
+        let mut sv = SortedVec::new();
+
+        sv.push("epsilon".to_owned());
+        sv.push("beta".to_owned());
+
+        assert_eq!(sv.len(), 2);
     }
 }
