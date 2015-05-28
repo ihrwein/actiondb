@@ -33,12 +33,12 @@ impl <'a, 'b> PartialEq for LiteralNode<'a, 'b> {
 
 impl <'a, 'b> Ord for LiteralNode<'a, 'b> {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.literal.cmp(other.literal)
+        self.literal.cmp(&other.literal)
     }
 }
 
 impl <'a, 'b> PartialOrd for LiteralNode<'a, 'b> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.literal.cmp(other.literal)
+        Some(self.literal.cmp(&other.literal))
     }
 }
