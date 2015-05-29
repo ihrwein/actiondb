@@ -59,7 +59,6 @@ impl <T: Ord> SortedVec<T> {
 #[cfg(test)]
 mod test {
     use utils::SortedVec;
-    use std::convert::AsRef;
 
     #[test]
     fn test_given_sorted_vector_when_values_are_pushed_they_be_get() {
