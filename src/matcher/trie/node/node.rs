@@ -1,8 +1,8 @@
 use std::collections::BTreeMap;
 use parsers::{Parser, SetParser};
 use utils::SortedVec;
-use matcher::trie::node::literal::LiteralNode;
-use matcher::trie::node::parser::ParserNode;
+use matcher::trie::node::LiteralNode;
+use matcher::trie::node::ParserNode;
 
 pub type MatchResult<'a, 'b> = Option<BTreeMap<&'a str, &'b str>>;
 pub type CompiledPattern<'a, 'b> = Vec<NodeType<'a, 'b>>;
