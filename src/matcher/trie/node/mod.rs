@@ -17,7 +17,7 @@ enum NodeType<'a, 'b> {
     Literal(String)
 }
 
-struct Node<'a, 'b> {
+pub struct Node<'a, 'b> {
     literal_children: SortedVec<LiteralNode<'a, 'b, String>>,
     parser_children: Vec<ParserNode<'a, 'b>>
 }
@@ -72,7 +72,7 @@ impl <'a, 'b, 'c> Node<'a, 'b> {
 
 #[cfg(test)]
 mod test {
-    use node::{CompiledPattern, NodeType, Node};
+    use matcher::trie::node::{CompiledPattern, NodeType, Node};
     use parsers::{Parser, SetParser};
 
     #[test]

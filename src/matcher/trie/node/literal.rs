@@ -1,7 +1,7 @@
 use std::cmp::{Ord, Ordering};
 use std::borrow::Borrow;
 
-use node::Node;
+use matcher::trie::node::Node;
 
 pub struct LiteralNode <'a, 'b, T: Borrow<str>> {
     literal: T,

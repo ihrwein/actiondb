@@ -1,4 +1,4 @@
-use node::Node;
+use matcher::trie::node::Node;
 use parsers::Parser;
 
 pub struct ParserNode<'a, 'b> {
