@@ -18,7 +18,7 @@ enum NodeType<'a, 'b> {
 }
 
 struct Node<'a, 'b> {
-    literal_children: SortedVec<Box<LiteralNode<'a, 'b>>>,
+    literal_children: SortedVec<Box<LiteralNode<'a, 'b, String>>>,
     parser_children: Vec<Box<ParserNode<'a, 'b>>>
 }
 
@@ -47,7 +47,7 @@ impl <'a, 'b, 'c> Node<'a, 'b> {
             parent.literal_children.push(literal_node);
         } else {
             let literal_without_common_prefix = &literal[matching_prefix_length..];
-            let literal_node = Box::new(LiteralNode::from_str(literal_without_common_prefix));
+            let literal_node = Box::new(LiteralNode::new(literal_without_common_prefix.to_owned()));
             parent.literal_children.push(literal_node);
         }
     }
