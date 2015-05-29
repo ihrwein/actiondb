@@ -9,11 +9,6 @@ pub struct LiteralNode <'a, 'b, T: Borrow<str>> {
 }
 
 impl <'a, 'b, T: Borrow<str>> LiteralNode<'a, 'b, T> {
-    /*pub fn from_str(literal: &str) -> LiteralNode<'a, 'b, T> {
-        LiteralNode{ literal: literal.to_owned(),
-                     node: None}
-    }*/
-
     pub fn new(literal: T) -> LiteralNode<'a, 'b, T> {
         LiteralNode{ literal: literal,
                      node: None}
