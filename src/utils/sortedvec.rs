@@ -27,8 +27,16 @@ impl <T: Ord> SortedVec<T> {
         }
     }
 
+    pub fn remove(&mut self, index: usize) -> T {
+        self.array.remove(index)
+    }
+
     pub fn get(&self, index: usize) -> Option<&T> {
         self.array.get(index)
+    }
+
+    pub fn get_mut(&mut self, index: usize) -> Option<&mut T> {
+        self.array.get_mut(index)
     }
 
     pub fn len(&self) -> usize {
