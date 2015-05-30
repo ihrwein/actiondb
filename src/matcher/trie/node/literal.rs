@@ -14,6 +14,10 @@ impl <'a, 'b> LiteralNode<'a, 'b> {
                      node: None}
     }
 
+    pub fn literal(&self) -> &str {
+        self.literal
+    }
+
     fn compare_first_chars(&self, other : &LiteralNode) -> Ordering {
         if self.literal.is_empty() && other.literal.is_empty() {
             Ordering::Equal
