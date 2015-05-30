@@ -19,6 +19,14 @@ impl <T: Ord> SortedVec<T> {
         self.binary_search(value)
     }
 
+    pub fn find(&self, value: &T) -> Option<&T> {
+        if let Some(index) = self.binary_search(value) {
+            self.array.get(index)
+        } else {
+            None
+        }
+    }
+
     pub fn get(&self, index: usize) -> Option<&T> {
         self.array.get(index)
     }
@@ -106,5 +114,21 @@ mod test {
         sv.push("beta".to_owned());
 
         assert_eq!(sv.len(), 2);
+    }
+
+    #[test]
+    fn test_given_sorted_vector_when_values_are_found_then_their_references_are_returned() {
+        let mut sv = SortedVec::new();
+
+        sv.push("epsilon");
+        sv.push("beta");
+        sv.push("alpha");
+        sv.push("delta");
+        sv.push("zeta");
+
+        assert_eq!(sv.find(&"beta"), Some(&"beta"));
+        assert_eq!(sv.find(&"zeta"), Some(&"zeta"));
+        // Half-Life 3 hasn't been released yet, how could we find it?
+        assert_eq!(sv.find(&"<3 HL3"), None);
     }
 }
