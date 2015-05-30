@@ -3,21 +3,21 @@ use std::borrow::Borrow;
 
 use matcher::trie::node::Node;
 
-pub struct LiteralNode <'a, 'b, T: Borrow<str>> {
-    literal: T,
+pub struct LiteralNode <'a, 'b> {
+    literal: &'a str,
     node: Option<Box<Node<'a, 'b>>>,
 }
 
-impl <'a, 'b, T: Borrow<str>> LiteralNode<'a, 'b, T> {
-    pub fn new(literal: T) -> LiteralNode<'a, 'b, T> {
+impl <'a, 'b> LiteralNode<'a, 'b> {
+    pub fn new(literal: &'a str) -> LiteralNode<'a, 'b> {
         LiteralNode{ literal: literal,
                      node: None}
     }
 }
 
-impl <'a, 'b, T: Borrow<str> + Eq> Eq for LiteralNode<'a, 'b, T> {}
+impl <'a, 'b> Eq for LiteralNode<'a, 'b> {}
 
-impl <'a, 'b, T: Borrow<str> + PartialEq> PartialEq for LiteralNode<'a, 'b, T> {
+impl <'a, 'b> PartialEq for LiteralNode<'a, 'b> {
     fn eq(&self, other: &Self) -> bool {
         self.literal == other.literal
     }
@@ -27,14 +27,20 @@ impl <'a, 'b, T: Borrow<str> + PartialEq> PartialEq for LiteralNode<'a, 'b, T> {
     }
 }
 
-impl <'a, 'b, T: Borrow<str> + Ord> Ord for LiteralNode<'a, 'b, T> {
+impl <'a, 'b> Ord for LiteralNode<'a, 'b> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.literal.cmp(&other.literal)
     }
 }
 
-impl <'a, 'b, T: Borrow<str> + Ord> PartialOrd for LiteralNode<'a, 'b, T> {
+impl <'a, 'b> PartialOrd for LiteralNode<'a, 'b> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.literal.cmp(&other.literal))
+    }
+}
+
+impl <'a, 'b> Borrow<str> for LiteralNode<'a, 'b> {
+    fn borrow(&self) -> &str {
+        self.literal
     }
 }
