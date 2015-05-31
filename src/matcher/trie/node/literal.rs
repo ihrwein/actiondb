@@ -1,5 +1,6 @@
 use std::cmp::{Ord, Ordering};
 use std::borrow::Borrow;
+use utils::common_prefix::CommonPrefix;
 
 use matcher::trie::node::Node;
 
@@ -42,28 +43,24 @@ impl <'a, 'b> LiteralNode<'a, 'b> {
     pub fn split(self,
                  common_prefix_len: usize,
                  literal: &str) -> LiteralNode<'a, 'b> {
-        if common_prefix_len < self.literal.len() {
-            let LiteralNode{ literal: self_literal, node: self_node} = self;
+        let LiteralNode{ literal: self_literal, node: self_node} = self;
 
-            let common_prefix = &literal[0..common_prefix_len];
-            let left_branch = &literal[common_prefix_len..];
-            let right_branch = &self_literal[common_prefix_len..];
+        let common_prefix = literal.rtrunc(literal.len() - common_prefix_len);
+        let left_branch = literal.ltrunc(common_prefix_len);
+        let right_branch = literal.ltrunc(common_prefix_len);
 
-            let mut node_to_return = LiteralNode::from_str(common_prefix);
+        let mut node_to_return = LiteralNode::from_str(common_prefix);
 
-            let mut new_node = Box::new(Node::new());
-            let mut left_node = LiteralNode::from_str(left_branch);
-            let mut right_node = LiteralNode::from_str(right_branch);
+        let mut new_node = Box::new(Node::new());
+        let mut left_node = LiteralNode::from_str(left_branch);
+        let mut right_node = LiteralNode::from_str(right_branch);
 
-            right_node.set_node(self_node);
+        right_node.set_node(self_node);
 
-            new_node.add_literal_node(left_node);
-            new_node.add_literal_node(right_node);
-            node_to_return.set_node(Some(new_node));
-            node_to_return
-        } else {
-            unimplemented!();
-        }
+        new_node.add_literal_node(left_node);
+        new_node.add_literal_node(right_node);
+        node_to_return.set_node(Some(new_node));
+        node_to_return
     }
 
     fn compare_first_chars(&self, other : &LiteralNode) -> Ordering {
