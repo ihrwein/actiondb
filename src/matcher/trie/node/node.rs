@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::cmp::Ordering;
 use parsers::{Parser, SetParser};
 use utils::{SortedVec, CommonPrefix};
 use matcher::trie::node::LiteralNode;
@@ -39,31 +40,31 @@ impl <'a, 'b, 'c> Node<'a, 'b> {
         (self, 0)
     }
 
-    pub fn insert(&mut self, pattern: &CompiledPattern<'a, 'b>) -> Result<&'static str, &'static str> {
-        if let Some(value) = pattern.first() {
-            match value {
-                &NodeType::Literal(literal) => {
+    pub fn insert(&mut self, pattern: CompiledPattern<'a, 'b>) -> Result<&'static str, &'static str> {
+        for i in pattern.into_iter() {
+            match i {
+                NodeType::Literal(literal) => {
                     return self.insert_literal(literal);
                 },
-                &NodeType::Parser(ref parser) => {
+                NodeType::Parser(parser) => {
                     unimplemented!();
                 }
             }
-        } else {
-            unimplemented!();
         }
         Err("err")
     }
 
-    fn insert_literal(&mut self, literal: &'c str) -> Result<&'static str, &'static str> {
-        let lit_node = LiteralNode::new(literal);
-        if let Some(hit_pos) = self.literal_children.find_pos(&lit_node) {
-            if let Some(prefix_len) = self.literal_children.get(hit_pos).unwrap().literal().has_common_prefix(literal) {
+    fn insert_literal(&mut self, literal: &str) -> Result<&'static str, &'static str> {
+        let cmp_str = |x: &LiteralNode| {
+            x.cmp_str(literal)
+        };
+
+        if let Ok(hit_pos) = self.literal_children.binary_search_by(&cmp_str) {
+            if let Some(common_prefix_len) = self.literal_children.get(hit_pos).unwrap().literal().has_common_prefix(&literal) {
                 let hit: LiteralNode<'a, 'b> = self.literal_children.remove(hit_pos);
-                let common_prefix: &str = &literal[0..prefix_len];
-                let left_branch: &str = &literal[prefix_len..];
-                let right_branch: &str = &hit.literal()[prefix_len..];
-                //let new_node = literal::split(hit, common_prefix, left_branch, right_branch);
+                let new_node = literal::split(hit, common_prefix_len, literal);
+                self.add_literal_node(new_node);
+                return Ok("splitted");
             } else {
                 unreachable!("There is a bug in the CommonPrefix implementation for str, or in LiteralNode's find() funciton")
             }

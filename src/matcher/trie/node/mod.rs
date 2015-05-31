@@ -29,7 +29,7 @@ mod test {
         let mut cp2 = CompiledPattern::new();
         cp2.push(NodeType::Literal("applause"));
 
-        root.insert(&cp1);
-        root.insert(&cp2);
+        root.insert(cp1);
+        root.insert(cp2);
     }
 }
