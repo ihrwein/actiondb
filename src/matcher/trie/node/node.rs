@@ -36,30 +36,28 @@ impl <'a, 'b> Node<'a> {
     }
 
     pub fn lookup_literal(&mut self, literal: &str) -> Option<&mut Node<'a>> {
-        let mut traverse_node: Option<&mut Node<>> = Some(self);
-        let mut elements_found: usize = 0;
-
-        while traverse_node.is_some() &&
-            !traverse_node.as_ref().unwrap().is_leaf() &&
-            (elements_found < literal.len()) {
-
-            let ignore_prefix_len = elements_found;
+        if !self.is_leaf() && (0 < literal.len()) {
             let cmp_str = |x: &LiteralNode| {
-                x.cmp_str(literal.ltrunc(ignore_prefix_len))
+                x.cmp_str(literal)
             };
 
-            match traverse_node.as_ref().unwrap().literal_children.binary_search_by(&cmp_str) {
+            match self.literal_children.binary_search_by(&cmp_str) {
                 Ok(pos) => {
-                    elements_found = elements_found + traverse_node.as_ref().unwrap().literal_children.get(pos).unwrap().literal().len();
-                    //traverse_node = traverse_node.as_mut().unwrap().literal_children.get_mut(pos).unwrap().node_mut();
+                    let elements_found = self.literal_children.get(pos).unwrap().literal().len();
+                    match self.literal_children.get_mut(pos).unwrap().node_mut() {
+                        Some(node) => {
+                            node.lookup_literal(literal.ltrunc(elements_found))
+                        },
+                        None => None
+                    }
                 },
                 Err(pos) => {
-                    traverse_node = None;
+                    None
                 }
             }
+        } else {
+            None
         }
-
-        None
     }
 
     pub fn insert(&mut self, pattern: CompiledPattern<'a, 'b>) -> Result<&'static str, &'static str>{
