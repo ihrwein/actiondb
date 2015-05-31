@@ -1,13 +1,13 @@
 use matcher::trie::node::Node;
 use parsers::Parser;
 
-pub struct ParserNode<'a, 'b> {
-    parser: Box<Parser<'a, 'b>>,
-    node: Option<Box<Node<'a, 'b>>>,
+pub struct ParserNode<'a> {
+    parser: Box<Parser<'a>>,
+    node: Option<Box<Node<'a>>>,
 }
 
-impl <'a, 'b> ParserNode<'a, 'b> {
-    pub fn new(parser: Box<Parser<'a, 'b>>) -> ParserNode<'a, 'b> {
+impl <'a> ParserNode<'a> {
+    pub fn new(parser: Box<Parser<'a>>) -> ParserNode<'a> {
         ParserNode{ parser: parser,
                     node: None}
     }

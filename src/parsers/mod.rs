@@ -8,6 +8,6 @@ pub enum ParseResult<'a> {
     NotParsed
 }
 
-pub trait Parser<'a, 'b> {
-    fn parse(&self, value: &'b str) -> ParseResult<'b>;
+pub trait Parser<'a> {
+    fn parse(&self, value: &'a str) -> ParseResult<'a>;
 }

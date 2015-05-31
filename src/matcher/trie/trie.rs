@@ -1,12 +1,12 @@
 use matcher::trie::node::{Node, NodeType, LiteralNode};
 use matcher::trie::node::CompiledPattern;
 
-pub struct PatternTrie<'a, 'b> {
-    root: Node<'a, 'b>,
+pub struct PatternTrie<'a> {
+    root: Node<'a>,
 }
 
-impl <'a, 'b> PatternTrie<'a, 'b> {
-    pub fn new() -> PatternTrie<'a, 'b> {
+impl <'a, 'b> PatternTrie<'a> {
+    pub fn new() -> PatternTrie<'a> {
         PatternTrie{ root: Node::new() }
     }
 

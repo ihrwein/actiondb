@@ -4,18 +4,18 @@ use utils::common_prefix::CommonPrefix;
 
 use matcher::trie::node::Node;
 
-pub struct LiteralNode <'a, 'b> {
+pub struct LiteralNode <'a> {
     literal: String,
-    node: Option<Box<Node<'a, 'b>>>,
+    node: Option<Box<Node<'a>>>,
 }
 
-impl <'a, 'b> LiteralNode<'a, 'b> {
-    pub fn new(literal: String) -> LiteralNode<'a, 'b> {
+impl <'a> LiteralNode<'a> {
+    pub fn new(literal: String) -> LiteralNode<'a> {
         LiteralNode{ literal: literal,
                      node: None}
     }
 
-    pub fn from_str(literal: &str) -> LiteralNode<'a, 'b> {
+    pub fn from_str(literal: &str) -> LiteralNode<'a> {
         LiteralNode{ literal: literal.to_string(),
                      node: None}
     }
@@ -24,11 +24,11 @@ impl <'a, 'b> LiteralNode<'a, 'b> {
         &self.literal[..]
     }
 
-    pub fn set_node(&mut self, node: Option<Box<Node<'a, 'b>>>) {
+    pub fn set_node(&mut self, node: Option<Box<Node<'a>>>) {
         self.node = node;
     }
 
-    pub fn node_mut(&mut self) -> Option<&mut Node<'a, 'b>> {
+    pub fn node_mut(&mut self) -> Option<&mut Node<'a>> {
         match self.node {
             Some(ref mut boxed_node) => {
                 Some(boxed_node)
@@ -51,7 +51,7 @@ impl <'a, 'b> LiteralNode<'a, 'b> {
 
     pub fn split(self,
                  common_prefix_len: usize,
-                 literal: &str) -> LiteralNode<'a, 'b> {
+                 literal: &str) -> LiteralNode<'a> {
         let LiteralNode{ literal: self_literal, node: self_node} = self;
 
         let common_prefix = literal.rtrunc(literal.len() - common_prefix_len);
@@ -78,9 +78,9 @@ impl <'a, 'b> LiteralNode<'a, 'b> {
 }
 
 
-impl <'a, 'b> Eq for LiteralNode<'a, 'b> {}
+impl <'a> Eq for LiteralNode<'a> {}
 
-impl <'a, 'b> PartialEq for LiteralNode<'a, 'b> {
+impl <'a> PartialEq for LiteralNode<'a> {
     fn eq(&self, other: &Self) -> bool {
         self.compare_first_chars(other) == Ordering::Equal
     }
@@ -90,13 +90,13 @@ impl <'a, 'b> PartialEq for LiteralNode<'a, 'b> {
     }
 }
 
-impl <'a, 'b> Ord for LiteralNode<'a, 'b> {
+impl <'a> Ord for LiteralNode<'a> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.compare_first_chars(other)
     }
 }
 
-impl <'a, 'b> PartialOrd for LiteralNode<'a, 'b> {
+impl <'a> PartialOrd for LiteralNode<'a> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.compare_first_chars(other))
     }
