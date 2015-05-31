@@ -42,25 +42,30 @@ impl CommonPrefix for str {
     }
 }
 
-#[test]
-fn given_a_string_when_longest_common_prefix_is_calulated_then_the_result_is_right() {
-    let alpha = "alpha";
-    let aleph = "aleph";
-    let beta = "beta";
+#[cfg(test)]
+mod test {
+    use utils::common_prefix::CommonPrefix;
 
-    assert_eq!(alpha.has_common_prefix(aleph).unwrap(), 2);
-    assert_eq!(alpha.has_common_prefix(beta), None);
-    assert_eq!(alpha.common_prefix_len(aleph), 2);
-}
+    #[test]
+    fn given_a_string_when_longest_common_prefix_is_calulated_then_the_result_is_right() {
+        let alpha = "alpha";
+        let aleph = "aleph";
+        let beta = "beta";
 
-#[test]
-fn test_given_a_string_when_truncated_by_left_then_the_result_is_the_expected() {
-    assert_eq!("alpha".rtrunc(0), "alpha");
-    assert_eq!("alpha".rtrunc(2), "alp");
-}
+        assert_eq!(alpha.has_common_prefix(aleph).unwrap(), 2);
+        assert_eq!(alpha.has_common_prefix(beta), None);
+        assert_eq!(alpha.common_prefix_len(aleph), 2);
+    }
 
-#[test]
-fn test_given_a_string_when_truncated_by_right_then_the_result_is_the_expected() {
-    assert_eq!("alpha".rtrunc(0), "alpha");
-    assert_eq!("alpha".rtrunc(2), "alp");
+    #[test]
+    fn test_given_a_string_when_truncated_by_left_then_the_result_is_the_expected() {
+        assert_eq!("alpha".rtrunc(0), "alpha");
+        assert_eq!("alpha".rtrunc(2), "alp");
+    }
+
+    #[test]
+    fn test_given_a_string_when_truncated_by_right_then_the_result_is_the_expected() {
+        assert_eq!("alpha".rtrunc(0), "alpha");
+        assert_eq!("alpha".rtrunc(2), "alp");
+    }
 }
