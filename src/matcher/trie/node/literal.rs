@@ -18,6 +18,18 @@ impl <'a, 'b> LiteralNode<'a, 'b> {
         self.literal
     }
 
+    pub fn lstrip_literal_by_len(&mut self, len_to_remove: usize) {
+        self.literal = &self.literal[len_to_remove..];
+    }
+
+    pub fn rstrip_literal_to_len(&mut self, len: usize) {
+        self.literal = &self.literal[..len];
+    }
+
+    pub fn set_node(&mut self, node: Option<Box<Node<'a, 'b>>>) {
+        self.node = node;
+    }
+
     fn compare_first_chars(&self, other : &LiteralNode) -> Ordering {
         if self.literal.is_empty() && other.literal.is_empty() {
             Ordering::Equal
@@ -28,6 +40,29 @@ impl <'a, 'b> LiteralNode<'a, 'b> {
         } else {
             self.literal[0..1].cmp(&other.literal[0..1])
         }
+    }
+}
+
+pub fn split<'a, 'b>(this: LiteralNode<'a, 'b>,
+                    common_prefix: &'a str,
+                    left_branch: &'a str,
+                    right_branch: &'a str) -> LiteralNode<'a, 'b> {
+    if common_prefix.len() < this.literal.len() {
+        let LiteralNode{literal: self_literal, node: self_node} = this;
+        let mut node_to_return = LiteralNode::new(common_prefix);
+
+        /*let mut new_node = Box::new(Node::new());
+        let mut left_node = LiteralNode::new(left_branch);
+        let mut right_node = LiteralNode::new(right_branch);
+
+        right_node.node = self_node;
+
+        new_node.add_literal_node(left_node);
+        //new_node.add_literal_node(right_node);
+        node_to_return.set_node(Some(new_node));*/
+        node_to_return
+    } else {
+        unimplemented!();
     }
 }
 

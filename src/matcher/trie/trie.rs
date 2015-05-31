@@ -12,7 +12,7 @@ impl <'a, 'b> PatternTrie<'a, 'b> {
                      patterns: vec!() }
     }
 
-    pub fn insert(&mut self, pattern: CompiledPattern<'a, 'b>) -> Result<&str, &str> {
+    pub fn insert(&mut self, pattern: CompiledPattern<'a, 'b>) -> Result<&'static str, &'static str> {
         self.patterns.push(pattern);
         self.root.insert(self.patterns.last().unwrap())
     }

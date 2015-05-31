@@ -1,4 +1,4 @@
-mod literal;
+pub mod literal;
 mod parser;
 mod node;
 
@@ -9,7 +9,7 @@ pub use self::node::MatchResult;
 pub use self::node::CompiledPattern;
 pub use self::node::NodeType;
 pub use self::node::Node;
-pub use self::literal::LiteralNode;
+pub use self::literal::{LiteralNode};
 pub use self::parser::ParserNode;
 
 
