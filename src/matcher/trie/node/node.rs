@@ -56,7 +56,7 @@ impl <'a, 'b, 'c> Node<'a, 'b> {
         Err("err")
     }
 
-    fn insert_literal(&mut self, literal: &str) -> Result<&mut Option<Box<Node<'a, 'b>>>, &'static str> {
+    fn insert_literal(&mut self, literal: &str) -> Result<Option<&mut Node<'a, 'b>>, &'static str> {
         let cmp_str = |x: &LiteralNode| {
             x.cmp_str(literal)
         };

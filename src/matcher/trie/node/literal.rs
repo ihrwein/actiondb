@@ -28,8 +28,13 @@ impl <'a, 'b> LiteralNode<'a, 'b> {
         self.node = node;
     }
 
-    pub fn node_mut(&mut self) -> &mut Option<Box<Node<'a, 'b>>> {
-        &mut self.node
+    pub fn node_mut(&mut self) -> Option<&mut Node<'a, 'b>> {
+        match self.node {
+            Some(ref mut boxed_node) => {
+                Some(boxed_node)
+            },
+            None => None
+        }
     }
 
     pub fn cmp_str(&self, other: &str) -> Ordering {
