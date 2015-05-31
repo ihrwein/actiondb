@@ -12,6 +12,8 @@ pub trait CommonPrefix {
     }
 
     fn common_prefix_len(&self, other: &Self) -> usize;
+    fn ltrunc(&self, len: usize) -> &Self;
+    fn rtrunc(&self, len: usize) -> &Self;
 }
 
 impl CommonPrefix for str {
@@ -30,6 +32,14 @@ impl CommonPrefix for str {
         }
         return min_len;
     }
+
+    fn ltrunc(&self, len: usize) -> &Self {
+        &self[len..]
+    }
+    fn rtrunc(&self, len: usize) -> &Self {
+        let new_len = self.len() - len;
+        &self[..new_len]
+    }
 }
 
 #[test]
@@ -41,4 +51,16 @@ fn given_a_string_when_longest_common_prefix_is_calulated_then_the_result_is_rig
     assert_eq!(alpha.has_common_prefix(aleph).unwrap(), 2);
     assert_eq!(alpha.has_common_prefix(beta), None);
     assert_eq!(alpha.common_prefix_len(aleph), 2);
+}
+
+#[test]
+fn test_given_a_string_when_truncated_by_left_then_the_result_is_the_expected() {
+    assert_eq!("alpha".rtrunc(0), "alpha");
+    assert_eq!("alpha".rtrunc(2), "alp");
+}
+
+#[test]
+fn test_given_a_string_when_truncated_by_right_then_the_result_is_the_expected() {
+    assert_eq!("alpha".rtrunc(0), "alpha");
+    assert_eq!("alpha".rtrunc(2), "alp");
 }
