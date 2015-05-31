@@ -26,19 +26,40 @@ impl <'a, 'b> Node<'a> {
               parser_children: Vec::new() }
     }
 
-    pub fn parse(&mut self, value: &'b str) -> MatchResult<'a, 'b> {
-        None
-    }
-
     pub fn add_literal_node(&mut self, lnode: LiteralNode<'a>) {
         self.literal_children.push(lnode);
     }
 
-    fn find(&mut self, literal: &str) -> (&mut Node<'a>, usize) {
-        if self.literal_children.len() == 0 {
-            return (self, 0);
+    pub fn is_leaf(&self) -> bool {
+        self.literal_children.is_empty() &&
+            self.parser_children.is_empty()
+    }
+
+    pub fn lookup_literal(&mut self, literal: &str) -> Option<&mut Node<'a>> {
+        let mut traverse_node: Option<&mut Node<>> = Some(self);
+        let mut elements_found: usize = 0;
+
+        while traverse_node.is_some() &&
+            !traverse_node.as_ref().unwrap().is_leaf() &&
+            (elements_found < literal.len()) {
+
+            let ignore_prefix_len = elements_found;
+            let cmp_str = |x: &LiteralNode| {
+                x.cmp_str(literal.ltrunc(ignore_prefix_len))
+            };
+
+            match traverse_node.as_ref().unwrap().literal_children.binary_search_by(&cmp_str) {
+                Ok(pos) => {
+                    elements_found = elements_found + traverse_node.as_ref().unwrap().literal_children.get(pos).unwrap().literal().len();
+                    //traverse_node = traverse_node.as_mut().unwrap().literal_children.get_mut(pos).unwrap().node_mut();
+                },
+                Err(pos) => {
+                    traverse_node = None;
+                }
+            }
         }
-        (self, 0)
+
+        None
     }
 
     pub fn insert(&mut self, pattern: CompiledPattern<'a, 'b>) -> Result<&'static str, &'static str>{
@@ -64,7 +85,7 @@ impl <'a, 'b> Node<'a> {
         match self.literal_children.binary_search_by(&cmp_str) {
             Ok(hit_pos) => {
                 if let Some(common_prefix_len) = self.literal_children.get(hit_pos).unwrap().literal().has_common_prefix(&literal) {
-                    let hit: LiteralNode<'a> = self.literal_children.remove(hit_pos);
+                    let hit = self.literal_children.remove(hit_pos);
                     let new_node = hit.split(common_prefix_len, literal);
                     self.add_literal_node(new_node);
                     Ok(self.literal_children.get_mut(hit_pos).unwrap().node_mut())
