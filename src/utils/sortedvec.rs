@@ -43,6 +43,10 @@ impl <T: Ord> SortedVec<T> {
         self.array.len()
     }
 
+    pub fn binary_search_by<F>(&self, f: F) -> Result<usize, usize> where F: FnMut(&T) -> Ordering {
+        self.array.binary_search_by(f)
+    }
+
     fn insertion_sort(&mut self) {
         for i in 1..(self.array.len() - 1) {
             let mut j = i;
@@ -75,6 +79,7 @@ impl <T: Ord> SortedVec<T> {
 #[cfg(test)]
 mod test {
     use utils::SortedVec;
+    use std::cmp::Ordering;
 
     #[test]
     fn test_given_sorted_vector_when_values_are_pushed_they_be_get() {
@@ -138,5 +143,19 @@ mod test {
         assert_eq!(sv.find(&"zeta"), Some(&"zeta"));
         // Half-Life 3 hasn't been released yet, how could we find it?
         assert_eq!(sv.find(&"<3 HL3"), None);
+    }
+
+    #[test]
+    fn test_given_sorted_vector_when_values_are_searched_by_custom_cmp_func_they_can_be_found() {
+        let mut sv = SortedVec::new();
+
+        sv.push("epsilon");
+        sv.push("beta");
+        sv.push("alpha");
+        sv.push("delta");
+        sv.push("zeta");
+
+        assert_eq!(sv.binary_search_by(|x: &&str| {x.cmp(&"iota")}), Err(4));
+        assert_eq!(sv.binary_search_by(|x: &&str| {x.cmp(&"beta")}), Ok(1));
     }
 }
