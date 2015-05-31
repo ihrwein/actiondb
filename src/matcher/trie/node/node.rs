@@ -62,7 +62,7 @@ impl <'a, 'b, 'c> Node<'a, 'b> {
         if let Ok(hit_pos) = self.literal_children.binary_search_by(&cmp_str) {
             if let Some(common_prefix_len) = self.literal_children.get(hit_pos).unwrap().literal().has_common_prefix(&literal) {
                 let hit: LiteralNode<'a, 'b> = self.literal_children.remove(hit_pos);
-                let new_node = literal::split(hit, common_prefix_len, literal);
+                let new_node = hit.split(common_prefix_len, literal);
                 self.add_literal_node(new_node);
                 return Ok("splitted");
             } else {

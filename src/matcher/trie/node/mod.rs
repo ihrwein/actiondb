@@ -1,4 +1,4 @@
-pub mod literal;
+mod literal;
 mod parser;
 mod node;
 
