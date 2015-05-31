@@ -87,6 +87,21 @@ impl <'a, 'b> Node<'a> {
     fn insert_literal(&mut self, literal: &str) -> Result<Option<&mut Node<'a>>, &'static str> {
         let place_to_insert = self.lookup_literal(literal);
 
-        Err("asd")
+        match place_to_insert {
+            Ok(node) => {
+                Ok(Some(node))
+            },
+            Err(parent) => {
+                Err("asd")
+            }
+        }
     }
+}
+
+#[test]
+fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
+    let mut node = Node::new();
+
+    node.insert_literal("alma");
+    assert_eq!(node.lookup_literal("alma").is_ok(), true);
 }
