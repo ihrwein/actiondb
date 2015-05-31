@@ -35,28 +35,37 @@ impl <'a, 'b> Node<'a> {
             self.parser_children.is_empty()
     }
 
-    pub fn lookup_literal(&mut self, literal: &str) -> Option<&mut Node<'a>> {
-        if !self.is_leaf() && (0 < literal.len()) {
-            let cmp_str = |x: &LiteralNode| {
-                x.cmp_str(literal)
-            };
+    fn lookup_literal_recurse(&mut self, literal: &str) -> Result<&mut Node<'a>, &mut Node<'a>> {
+        let cmp_str = |x: &LiteralNode| {
+            x.cmp_str(literal)
+        };
 
-            match self.literal_children.binary_search_by(&cmp_str) {
-                Ok(pos) => {
-                    let elements_found = self.literal_children.get(pos).unwrap().literal().len();
-                    match self.literal_children.get_mut(pos).unwrap().node_mut() {
-                        Some(node) => {
-                            node.lookup_literal(literal.ltrunc(elements_found))
-                        },
-                        None => None
-                    }
-                },
-                Err(pos) => {
-                    None
+        match self.literal_children.binary_search_by(&cmp_str) {
+            Ok(pos) => {
+                let found_len = self.literal_children.get(pos).unwrap().literal().len();
+
+                if self.literal_children.get_mut(pos).unwrap().is_leaf() {
+                    let mut literal_node = self.literal_children.get_mut(pos).unwrap();
+                    literal_node.node_mut().unwrap().lookup_literal(literal.ltrunc(found_len))
+                } else if self.literal_children.get_mut(pos).unwrap().literal() == literal {
+                    Ok(self)
+                } else {
+                    Err(self)
                 }
+            },
+            Err(pos) => {
+                Err(self)
             }
+        }
+    }
+
+    pub fn lookup_literal(&mut self, literal: &str) -> Result<&mut Node<'a>, &mut Node<'a>> {
+        if !self.is_leaf() && !literal.is_empty() {
+            self.lookup_literal_recurse(literal)
+        } else if self.is_leaf() && literal.is_empty() {
+            Ok(self)
         } else {
-            None
+            Err(self)
         }
     }
 
@@ -76,26 +85,8 @@ impl <'a, 'b> Node<'a> {
     }
 
     fn insert_literal(&mut self, literal: &str) -> Result<Option<&mut Node<'a>>, &'static str> {
-        let cmp_str = |x: &LiteralNode| {
-            x.cmp_str(literal)
-        };
+        let place_to_insert = self.lookup_literal(literal);
 
-        match self.literal_children.binary_search_by(&cmp_str) {
-            Ok(hit_pos) => {
-                if let Some(common_prefix_len) = self.literal_children.get(hit_pos).unwrap().literal().has_common_prefix(&literal) {
-                    let hit = self.literal_children.remove(hit_pos);
-                    let new_node = hit.split(common_prefix_len, literal);
-                    self.add_literal_node(new_node);
-                    Ok(self.literal_children.get_mut(hit_pos).unwrap().node_mut())
-                } else {
-                    unreachable!("There is a bug in the CommonPrefix implementation for str, or in LiteralNode's find() funciton")
-                }
-            },
-            Err(would_be_pos) => {
-                let new_node = LiteralNode::from_str(literal);
-                self.add_literal_node(new_node);
-                Ok(self.literal_children.get_mut(would_be_pos).unwrap().node_mut())
-            }
-        }
+        Err("asd")
     }
 }
