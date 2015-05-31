@@ -43,6 +43,10 @@ impl <T: Ord> SortedVec<T> {
         self.array.len()
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.array.is_empty()
+    }
+
     pub fn binary_search_by<F>(&self, f: F) -> Result<usize, usize> where F: FnMut(&T) -> Ordering {
         self.array.binary_search_by(f)
     }
