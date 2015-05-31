@@ -28,6 +28,10 @@ impl <'a, 'b> LiteralNode<'a, 'b> {
         self.node = node;
     }
 
+    pub fn node_mut(&mut self) -> &mut Option<Box<Node<'a, 'b>>> {
+        &mut self.node
+    }
+
     pub fn cmp_str(&self, other: &str) -> Ordering {
         if self.literal.is_empty() && other.is_empty() {
             Ordering::Equal
