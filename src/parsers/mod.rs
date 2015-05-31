@@ -9,5 +9,5 @@ pub enum ParseResult<'a> {
 }
 
 pub trait Parser<'a, 'b> {
-    fn parse(&'a self, value: &'b str) -> ParseResult<'b>;
+    fn parse(&self, value: &'b str) -> ParseResult<'b>;
 }

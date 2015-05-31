@@ -66,7 +66,7 @@ impl SetParser {
 }
 
 impl <'a, 'b> Parser<'a, 'b> for SetParser {
-    fn parse(&'a self, value: &'b str) -> ParseResult<'b> {
+    fn parse(&self, value: &'b str) -> ParseResult<'b> {
         let match_len = self.calculate_match_length(value);
 
         if self.is_match_length_ok(match_len) {
