@@ -8,6 +8,7 @@ use matcher::trie::node::literal;
 
 pub type MatchResult<'a, 'b> = Option<BTreeMap<&'a str, &'b str>>;
 pub type CompiledPattern<'a, 'b> = Vec<NodeType<'a, 'b>>;
+type InsertResult<'a, 'b> = Result<&'a mut Node<'a, 'b>, &'static str>;
 
 pub enum NodeType<'a, 'b> {
     Parser(Box<Parser<'a, 'b>>),
@@ -40,11 +41,12 @@ impl <'a, 'b, 'c> Node<'a, 'b> {
         (self, 0)
     }
 
-    pub fn insert(&mut self, pattern: CompiledPattern<'a, 'b>) -> Result<&'static str, &'static str> {
+    pub fn insert(&mut self, pattern: CompiledPattern<'a, 'b>) -> Result<&'static str, &'static str>{
         for i in pattern.into_iter() {
             match i {
                 NodeType::Literal(literal) => {
-                    return self.insert_literal(literal);
+                    if let Ok(node) = self.insert_literal(literal) {
+                    }
                 },
                 NodeType::Parser(parser) => {
                     unimplemented!();
@@ -54,7 +56,7 @@ impl <'a, 'b, 'c> Node<'a, 'b> {
         Err("err")
     }
 
-    fn insert_literal(&mut self, literal: &str) -> Result<&'static str, &'static str> {
+    fn insert_literal(&mut self, literal: &str) -> Result<&mut Option<Box<Node<'a, 'b>>>, &'static str> {
         let cmp_str = |x: &LiteralNode| {
             x.cmp_str(literal)
         };
@@ -65,7 +67,7 @@ impl <'a, 'b, 'c> Node<'a, 'b> {
                     let hit: LiteralNode<'a, 'b> = self.literal_children.remove(hit_pos);
                     let new_node = hit.split(common_prefix_len, literal);
                     self.add_literal_node(new_node);
-                    Ok("splitted")
+                    Ok(self.literal_children.get_mut(hit_pos).unwrap().node_mut())
                 } else {
                     unreachable!("There is a bug in the CommonPrefix implementation for str, or in LiteralNode's find() funciton")
                 }
@@ -73,7 +75,7 @@ impl <'a, 'b, 'c> Node<'a, 'b> {
             Err(would_be_pos) => {
                 let new_node = LiteralNode::from_str(literal);
                 self.add_literal_node(new_node);
-                Ok("new inserted")
+                Ok(self.literal_children.get_mut(would_be_pos).unwrap().node_mut())
             }
         }
     }
