@@ -72,6 +72,10 @@ impl <'a> LiteralNode<'a> {
         node_to_return
     }
 
+    pub fn is_leaf(&self) -> bool {
+        self.node.is_none()
+    }
+
     fn compare_first_chars(&self, other : &LiteralNode) -> Ordering {
         self.cmp_str(other.literal())
     }
@@ -106,6 +110,13 @@ impl <'a> PartialOrd for LiteralNode<'a> {
 mod test {
     use matcher::trie::node::LiteralNode;
     use std::cmp::Ordering;
+
+    #[test]
+    fn given_literal_node_when_its_leafness_is_checked_the_right_result_is_returned() {
+        let aleph = LiteralNode::from_str("aleph");
+
+        assert_eq!(aleph.is_leaf(), true);
+    }
 
     #[test]
     fn given_literal_node_when_it_is_compared_to_an_other_literal_node_then_only_their_first_chars_are_checked() {
