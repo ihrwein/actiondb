@@ -35,10 +35,6 @@ impl <T: Ord> SortedVec<T> {
         self.array.get(index)
     }
 
-    pub fn get_mut(&mut self, index: usize) -> Option<&mut T> {
-        self.array.get_mut(index)
-    }
-
     pub fn len(&self) -> usize {
         self.array.len()
     }
