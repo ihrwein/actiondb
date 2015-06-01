@@ -8,7 +8,6 @@ use matcher::trie::node::literal;
 
 pub type MatchResult<'a, 'b> = Option<BTreeMap<&'a str, &'b str>>;
 pub type CompiledPattern<'a, 'b> = Vec<NodeType<'a, 'b>>;
-type InsertResult<'a, 'b> = Result<&'a mut Node<'a>, &'static str>;
 
 pub enum NodeType<'a, 'b> {
     Parser(Box<Parser<'a>>),
@@ -35,7 +34,7 @@ impl <'a, 'b> Node<'a> {
             self.parser_children.is_empty()
     }
 
-    fn lookup_literal_recurse(&mut self, literal: &str) -> Result<&mut Node<'a>, &mut Node<'a>> {
+    fn lookup_literal_recurse(&mut self, literal: &str) -> Result<Option<(&mut Node<'a>, usize)>, Option<(&mut Node<'a>, usize)>> {
         let cmp_str = |x: &LiteralNode| {
             x.cmp_str(literal)
         };
@@ -44,28 +43,34 @@ impl <'a, 'b> Node<'a> {
             Ok(pos) => {
                 let found_len = self.literal_children.get(pos).unwrap().literal().len();
 
-                if self.literal_children.get_mut(pos).unwrap().is_leaf() {
-                    let mut literal_node = self.literal_children.get_mut(pos).unwrap();
-                    literal_node.node_mut().unwrap().lookup_literal(literal.ltrunc(found_len))
-                } else if self.literal_children.get_mut(pos).unwrap().literal() == literal {
-                    Ok(self)
-                } else {
-                    Err(self)
+                match self.literal_children.binary_search_by(&cmp_str) {
+                    Ok(pos) => {
+                        let elements_found = self.literal_children.get(pos).unwrap().literal().len();
+                        match self.literal_children.get_mut(pos).unwrap().node_mut() {
+                            Some(node) => {
+                                node.lookup_literal(literal.ltrunc(elements_found))
+                            },
+                            None => Err(None)
+                        }
+                    },
+                    Err(pos) => {
+                        Err(None)
+                    }
                 }
             },
             Err(pos) => {
-                Err(self)
+                Err(Some((self, literal.len())))
             }
         }
     }
 
-    pub fn lookup_literal(&mut self, literal: &str) -> Result<&mut Node<'a>, &mut Node<'a>> {
+    pub fn lookup_literal(&mut self, literal: &str) -> Result<Option<(&mut Node<'a>, usize)>, Option<(&mut Node<'a>, usize)>> {
         if !self.is_leaf() && !literal.is_empty() {
             self.lookup_literal_recurse(literal)
         } else if self.is_leaf() && literal.is_empty() {
-            Ok(self)
+            Ok(Some((self, literal.len())))
         } else {
-            Err(self)
+            Err(Some((self, literal.len())))
         }
     }
 
@@ -89,12 +94,18 @@ impl <'a, 'b> Node<'a> {
 
         match place_to_insert {
             Ok(node) => {
-                Ok(Some(node))
+                println!("I should insert it here")
             },
             Err(parent) => {
-                Err("asd")
+                match parent {
+                    Some(p) => {
+                        println!("it had a parent")
+                    },
+                    None => println!("doesn't have a parent")
+                }
             }
         }
+        Err("asdas")
     }
 }
 
