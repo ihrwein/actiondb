@@ -35,30 +35,33 @@ impl <'a, 'b> Node<'a> {
     }
 
     fn lookup_literal_recurse(&mut self, literal: &str) -> Result<Option<(&mut Node<'a>, usize)>, Option<(&mut Node<'a>, usize)>> {
+        println!("lookup_literal_recurse(): stepped in");
         let cmp_str = |x: &LiteralNode| {
             x.cmp_str(literal)
         };
 
         match self.literal_children.binary_search_by(&cmp_str) {
             Ok(pos) => {
-                let found_len = self.literal_children.get(pos).unwrap().literal().len();
+                let elements_found = self.literal_children.get(pos).unwrap().literal().len();
 
-                match self.literal_children.binary_search_by(&cmp_str) {
-                    Ok(pos) => {
-                        let elements_found = self.literal_children.get(pos).unwrap().literal().len();
-                        match self.literal_children.get_mut(pos).unwrap().node_mut() {
-                            Some(node) => {
-                                node.lookup_literal(literal.ltrunc(elements_found))
-                            },
-                            None => Err(None)
-                        }
-                    },
-                    Err(pos) => {
-                        Err(None)
+                if !self.literal_children.get(pos).unwrap().is_leaf() {
+                    if let Some(node) = self.literal_children.get_mut(pos).unwrap().node_mut() {
+                        println!("lookup_literal(): going deeper");
+                        node.lookup_literal(literal.ltrunc(elements_found))
+                    } else {
+                        unreachable!();
+                    }
+                } else {
+                    println!("lookup_literal(): we found a prefix, but it's a leaf");
+                    if self.literal_children.get(pos).unwrap().literal() == literal {
+                        Ok(Some((self, 0)))
+                    } else {
+                        Err(Some((self, literal.len())))
                     }
                 }
             },
             Err(pos) => {
+                println!("lookup_literal(): there is no common prefix with this literal");
                 Err(Some((self, literal.len())))
             }
         }
@@ -66,10 +69,13 @@ impl <'a, 'b> Node<'a> {
 
     pub fn lookup_literal(&mut self, literal: &str) -> Result<Option<(&mut Node<'a>, usize)>, Option<(&mut Node<'a>, usize)>> {
         if !self.is_leaf() && !literal.is_empty() {
+            println!("lookup_literal(): it's not a leaf nor is empty");
             self.lookup_literal_recurse(literal)
         } else if self.is_leaf() && literal.is_empty() {
+            println!("lookup_literal(): we got it");
             Ok(Some((self, literal.len())))
         } else {
+            println!("lookup_literal(): we can't go deeper");
             Err(Some((self, literal.len())))
         }
     }
@@ -90,19 +96,30 @@ impl <'a, 'b> Node<'a> {
     }
 
     fn insert_literal(&mut self, literal: &str) -> Result<Option<&mut Node<'a>>, &'static str> {
+        println!("inserting literal: '{}'", literal);
         let place_to_insert = self.lookup_literal(literal);
 
         match place_to_insert {
-            Ok(node) => {
-                println!("I should insert it here")
-            },
-            Err(parent) => {
-                match parent {
-                    Some(p) => {
-                        println!("it had a parent")
+            Ok(option) => {
+                match option {
+                    Some(tuple) => {
+                        println!("remaining len: {}", tuple.1);
                     },
-                    None => println!("doesn't have a parent")
+                    None => {
+                        println!("I should insert it here");
+                    }
                 }
+            },
+            Err(option) => {
+                match option {
+                    Some(tuple) => {
+                        println!("remaining len: {}", tuple.1);
+                        tuple.0.add_literal_node(LiteralNode::from_str(literal.ltrunc(literal.len() - tuple.1)));
+                    },
+                    None => {
+                        //self.add_literal_node(LiteralNode::from_str(literal));
+                        println!("doesn't have a parent");
+                    }                }
             }
         }
         Err("asdas")
