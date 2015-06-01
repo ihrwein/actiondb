@@ -132,4 +132,7 @@ fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
 
     node.insert_literal("alma");
     assert_eq!(node.lookup_literal("alma").is_ok(), true);
+    assert_eq!(node.lookup_literal("alm").is_ok(), false);
+    node.insert_literal("alma");
+    assert_eq!(node.lookup_literal("alm").is_ok(), true);
 }
