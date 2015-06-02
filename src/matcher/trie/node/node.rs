@@ -72,7 +72,7 @@ impl <'a, 'b> Node<'a> {
         if !self.is_leaf() && !literal.is_empty() {
             println!("lookup_literal(): it's not a leaf nor is empty");
             self.lookup_literal_recurse(literal)
-        } else if self.is_leaf() && literal.is_empty() {
+        } else if literal.is_empty() {
             println!("lookup_literal(): we got it");
             Ok(Some((self, literal.len())))
         } else {
@@ -96,31 +96,47 @@ impl <'a, 'b> Node<'a> {
         Err("err")
     }
 
-    fn insert_literal(&mut self, literal: &str) -> Result<Option<&mut Node<'a>>, &'static str> {
-        println!("inserting literal: '{}'", literal);
-        let place_to_insert = self.lookup_literal(literal);
+    fn insert_literal_tail(&mut self, tail: &str) {
+        let cmp_str = |x: &LiteralNode| {
+            x.cmp_str(tail)
+        };
 
-        match place_to_insert {
-            Ok(option) => {
-                match option {
-                    Some(tuple) => {
-                        println!("remaining len: {}", tuple.1);
-                    },
-                    None => {
-                        println!("I should insert it here");
-                    }
+        match self.literal_children.binary_search_by(&cmp_str) {
+            Ok(pos) => {
+                if let Some(common_prefix_len) = self.literal_children.get(pos).unwrap().literal().has_common_prefix(&tail) {
+                    println!("insert_literal_tail(): common_prefix_len = {}", common_prefix_len);
+                    let hit = self.literal_children.remove(pos);
+                    println!("insert_literal_tail(): to_be_split = {}", hit.literal());
+                    println!("insert_literal_tail(): tail = {}", tail);
+                    let new_node = hit.split(common_prefix_len, tail);
+                    self.add_literal_node(new_node);
+                    println!("splitted");
+                } else {
+                    unreachable!()
                 }
             },
-            Err(option) => {
-                match option {
-                    Some(tuple) => {
-                        println!("remaining len: {}", tuple.1);
-                        tuple.0.add_literal_node(LiteralNode::from_str(literal.ltrunc(literal.len() - tuple.1)));
-                    },
-                    None => {
-                        //self.add_literal_node(LiteralNode::from_str(literal));
-                        println!("doesn't have a parent");
-                    }                }
+            Err(pos) => {
+                self.add_literal_node(LiteralNode::from_str(tail));
+            }
+        };
+
+    }
+
+    fn insert_literal(&mut self, literal: &str) -> Result<Option<&mut Node<'a>>, &'static str> {
+        println!("inserting literal: '{}'", literal);
+
+        match self.lookup_literal(literal) {
+            Ok(option) => {
+                println!("insert_literal(): it was already inserted");
+                return Ok(Some(option.unwrap().0));
+            },
+            Err(Some(tuple)) => {
+                println!("INSERTED({}), remaining len: {}", literal, tuple.1);
+                let tail = literal.ltrunc(literal.len() - tuple.1);
+                tuple.0.insert_literal_tail(tail);
+            },
+            _ => {
+                unreachable!();
             }
         }
         Err("asdas")
@@ -133,7 +149,12 @@ fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
 
     node.insert_literal("alma");
     assert_eq!(node.lookup_literal("alma").is_ok(), true);
-    assert_eq!(node.lookup_literal("alm").is_ok(), false);
-    node.insert_literal("alma");
+    assert_eq!(node.lookup_literal("alm").is_err(), true);
+    node.insert_literal("alm");
+    println!("{:?}", &node);
     assert_eq!(node.lookup_literal("alm").is_ok(), true);
+    assert_eq!(node.literal_children.len(), 1);
+    println!("{:?}", &node);
+    assert_eq!(node.lookup_literal("alma").is_ok(), true);
+    assert_eq!(node.lookup_literal("alm").ok().unwrap().unwrap().0.literal_children.len(), 2);
 }
