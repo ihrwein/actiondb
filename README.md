@@ -2,11 +2,10 @@
 
 ## Rust things
 
-### Turn on debug logs while running tests
-Set the `RUST_LOG` environment variable:
+### Run only one test without muting stdout
 
 ```
-RUST_LOG=debug cargo test
+cargo test -- --nocapture matcher::trie::node::node::given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up
 ```
 
 ### You need to move out a resource from &mut self
