@@ -14,6 +14,7 @@ pub enum NodeType<'a, 'b> {
     Literal(&'b str)
 }
 
+#[derive(Debug)]
 pub struct Node<'a> {
     literal_children: SortedVec<LiteralNode<'a>>,
     parser_children: Vec<ParserNode<'a>>

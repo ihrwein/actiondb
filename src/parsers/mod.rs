@@ -1,5 +1,6 @@
 mod set;
 
+use std::fmt::Debug;
 pub use self::set::SetParser;
 
 #[derive(PartialEq, Debug)]
@@ -8,6 +9,6 @@ pub enum ParseResult<'a> {
     NotParsed
 }
 
-pub trait Parser<'a> {
+pub trait Parser<'a>: Debug {
     fn parse(&self, value: &'a str) -> ParseResult<'a>;
 }

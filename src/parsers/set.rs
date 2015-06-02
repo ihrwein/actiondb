@@ -4,6 +4,7 @@ use std::iter::FromIterator;
 use parsers::{Parser,
             ParseResult};
 
+#[derive(Debug)]
 pub struct SetParser {
     character_set: BTreeSet<u8>,
     min_length: Option<usize>,

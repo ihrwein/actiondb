@@ -4,6 +4,7 @@ use utils::common_prefix::CommonPrefix;
 
 use matcher::trie::node::Node;
 
+#[derive(Debug)]
 pub struct LiteralNode <'a> {
     literal: String,
     node: Option<Box<Node<'a>>>,
