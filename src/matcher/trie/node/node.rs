@@ -151,10 +151,32 @@ fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
     assert_eq!(node.lookup_literal("alma").is_ok(), true);
     assert_eq!(node.lookup_literal("alm").is_err(), true);
     node.insert_literal("alm");
-    println!("{:?}", &node);
     assert_eq!(node.lookup_literal("alm").is_ok(), true);
     assert_eq!(node.literal_children.len(), 1);
-    println!("{:?}", &node);
+}
+
+#[test]
+fn test_given_empty_trie_when_literals_are_inserted_the_child_counts_are_right() {
+    let mut node = Node::new();
+
+    node.insert_literal("alma");
+    node.insert_literal("alm");
+    assert_eq!(node.literal_children.len(), 1);
     assert_eq!(node.lookup_literal("alma").is_ok(), true);
     assert_eq!(node.lookup_literal("alm").ok().unwrap().unwrap().0.literal_children.len(), 2);
+}
+
+#[test]
+fn test_given_empty_trie_when_literals_are_inserted_the_nodes_are_split_on_the_right_place() {
+    let mut node = Node::new();
+
+    node.insert_literal("alm");
+    node.insert_literal("alma");
+    node.insert_literal("almab");
+    node.insert_literal("almabb");
+    node.insert_literal("ai");
+    println!("{:?}", &node);
+    assert_eq!(node.literal_children.len(), 1);
+    assert_eq!(node.lookup_literal("alma").is_ok(), true);
+    assert_eq!(node.lookup_literal("al").ok().unwrap().unwrap().0.literal_children.len(), 2);
 }
