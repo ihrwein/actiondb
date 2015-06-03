@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 use std::cmp::Ordering;
+use std::cmp;
 use parsers::{Parser, SetParser};
 use utils::{SortedVec, CommonPrefix};
 use matcher::trie::node::LiteralNode;
@@ -48,7 +49,10 @@ impl <'a, 'b> Node<'a> {
                 if !self.literal_children.get(pos).unwrap().is_leaf() {
                     if let Some(node) = self.literal_children.get_mut(pos).unwrap().node_mut() {
                         println!("lookup_literal(): going deeper");
-                        node.lookup_literal(literal.ltrunc(elements_found))
+                        println!("lookup_literal(): elements_found = {}", elements_found);
+                        println!("lookup_literal(): literal len = {}", literal.len());
+                        let len_to_truncate = cmp::min(elements_found, literal.len());
+                        node.lookup_literal(literal.ltrunc(len_to_truncate))
                     } else {
                         unreachable!();
                     }
