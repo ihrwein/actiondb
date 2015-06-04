@@ -12,7 +12,7 @@ impl <T: Ord> SortedVec<T> {
 
     pub fn push(&mut self, value: T) {
         self.array.push(value);
-        self.insertion_sort();
+        self.array.sort();
     }
 
     pub fn find_pos(&self, value: &T) -> Option<usize> {
@@ -49,17 +49,6 @@ impl <T: Ord> SortedVec<T> {
 
     pub fn binary_search_by<F>(&self, f: F) -> Result<usize, usize> where F: FnMut(&T) -> Ordering {
         self.array.binary_search_by(f)
-    }
-
-    fn insertion_sort(&mut self) {
-        for i in 1..(self.array.len() - 1) {
-            let mut j = i;
-
-            while j > 0 && self.array.get(j - 1).unwrap() > self.array.get(j).unwrap() {
-                self.array.swap(j, j - 1);
-                j = j - 1;
-            }
-        }
     }
 
     fn binary_search<'a>(&self, needle: &T) -> Option<usize> {
@@ -161,5 +150,18 @@ mod test {
 
         assert_eq!(sv.binary_search_by(|x: &&str| {x.cmp(&"iota")}), Err(4));
         assert_eq!(sv.binary_search_by(|x: &&str| {x.cmp(&"beta")}), Ok(1));
+    }
+
+    use matcher::trie::node::LiteralNode;
+
+    #[test]
+    fn test_given_sorted_vector_of_literal_nodes_when_binary_search_by_are_used_the_right_node_is_found() {
+        let mut sv = SortedVec::new();
+
+        sv.push(LiteralNode::from_str("a"));
+        sv.push(LiteralNode::from_str(""));
+        let seek = "a";
+
+        assert_eq!(sv.binary_search_by(|probe| {probe.cmp_str(&seek)}), Ok(1));
     }
 }

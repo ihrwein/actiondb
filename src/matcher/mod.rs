@@ -1,1 +1,1 @@
-mod trie;
+pub mod trie;

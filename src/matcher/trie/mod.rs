@@ -1,2 +1,2 @@
-mod node;
+pub mod node;
 mod trie;
