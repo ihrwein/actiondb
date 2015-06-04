@@ -17,8 +17,7 @@ impl <'a> LiteralNode<'a> {
     }
 
     pub fn from_str(literal: &str) -> LiteralNode<'a> {
-        LiteralNode{ literal: literal.to_string(),
-                     node: None}
+        LiteralNode::new(literal.to_string())
     }
 
     pub fn literal(&self) -> &str {
