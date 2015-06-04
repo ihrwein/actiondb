@@ -106,7 +106,7 @@ impl <'a> Ord for LiteralNode<'a> {
 
 impl <'a> PartialOrd for LiteralNode<'a> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.compare_first_chars(other))
+        Some(self.cmp(other))
     }
 }
 
@@ -127,6 +127,7 @@ mod test {
         let alpha = LiteralNode::new("alpha".to_string());
         let beta = LiteralNode::new("beta".to_string());
         let aleph = LiteralNode::from_str("aleph");
+        let a = LiteralNode::from_str("a");
         let empty = LiteralNode::from_str("");
 
         assert_eq!(alpha.cmp(&beta), Ordering::Less);
@@ -134,5 +135,8 @@ mod test {
         assert_eq!(beta.cmp(&alpha), Ordering::Greater);
         assert_eq!(alpha.cmp(&empty), Ordering::Greater);
         assert_eq!(empty.cmp(&alpha), Ordering::Less);
+        assert_eq!(empty.cmp(&a), Ordering::Less);
+        assert_eq!(empty.cmp_str("a"), Ordering::Less);
+        assert_eq!(a.cmp(&empty), Ordering::Greater);
     }
 }
