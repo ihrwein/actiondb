@@ -1,5 +1,6 @@
 use std::collections::BTreeSet;
 use std::iter::FromIterator;
+use std::hash::{Hash, Hasher};
 
 use parsers::{Parser,
             ParseResult};
@@ -75,6 +76,15 @@ impl <'a> Parser<'a> for SetParser {
         } else {
             return ParseResult::NotParsed;
         }
+    }
+}
+
+impl Hash for SetParser {
+    fn hash<H>(&self, state: &mut H) where H: Hasher {
+        "parser:set".hash(state);
+        self.character_set.hash(state);
+        self.min_length.hash(state);
+        self.max_length.hash(state);
     }
 }
 
