@@ -36,9 +36,11 @@ impl <'a, 'b> Node<'a> {
             self.parser_children.is_empty()
     }
 
-    fn lookup_literal_recurse(&mut self, literal: &str) -> Result<Option<(&mut Node<'a>, usize)>, Option<(&mut Node<'a>, usize)>> {
-        println!("lookup_literal_recurse(): stepped in");
-        println!("lookup_literal_recurse(): #children = {}", self.literal_children.len());
+    // If a literal isn't found the last Node instance and the remaining length of the literal will be returned
+    // if the literal is in the trie, we return the last Node instance and the index of the LiteralNode which contains the literal
+    fn lookup_literal(&mut self, literal: &str) -> Result<Option<(&mut Node<'a>, usize)>, Option<(&mut Node<'a>, usize)>> {
+        println!("lookup_literal(): stepped in");
+        println!("lookup_literal(): #children = {}", self.literal_children.len());
         let cmp_str = |probe: &LiteralNode| {
             probe.cmp_str(literal)
         };
@@ -54,39 +56,35 @@ impl <'a, 'b> Node<'a> {
                     }
 
                     if literal.is_empty() && self.literal_children.get(pos).unwrap().has_value() {
-                        println!("lookup_literal_recurse(): we got it, it's empty");
+                        println!("lookup_literal(): we got it, it's empty");
                         return Ok(Some((self, pos)));
                     }
 
                     if let Some(node) = self.literal_children.get_mut(pos).unwrap().node_mut() {
-                        println!("lookup_literal()_recurse: literal len = {}", literal.len());
-                        println!("lookup_literal()_recurse: common_prefix_len = {}", common_prefix_len);
-                        println!("lookup_literal()_recurse: going deeper");
+                        println!("lookup_literal(): literal len = {}", literal.len());
+                        println!("lookup_literal(): common_prefix_len = {}", common_prefix_len);
+                        println!("lookup_literal(): going deeper");
                         node.lookup_literal(literal.ltrunc(common_prefix_len))
                     } else {
                         unreachable!();
                     }
                 } else {
-                    println!("lookup_literal_recurse(): we found a prefix, but it's a leaf");
+                    println!("lookup_literal(): we found a prefix, but it's a leaf");
                     if self.literal_children.get(pos).unwrap().literal() == literal  && self.literal_children.get(pos).unwrap().has_value(){
-                        println!("lookup_literal_recurse(): we got it");
+                        println!("lookup_literal(): we got it");
                         Ok(Some((self, pos)))
                     } else {
-                        println!("lookup_literal_recurse(): we didn't get it");
+                        println!("lookup_literal(): we didn't get it");
                         Err(Some((self, literal.len())))
                     }
                 }
             },
             Err(pos) => {
-                println!("lookup_literal_recurse(): there is no common prefix with this literal");
-                println!("lookup_literal_recurse(): {:?}", self);
+                println!("lookup_literal(): there is no common prefix with this literal");
+                println!("lookup_literal(): {:?}", self);
                 Err(Some((self, literal.len())))
             }
         }
-    }
-
-    pub fn lookup_literal(&mut self, literal: &str) -> Result<Option<(&mut Node<'a>, usize)>, Option<(&mut Node<'a>, usize)>> {
-        self.lookup_literal_recurse(literal)
     }
 
     pub fn insert(&mut self, pattern: CompiledPattern<'a, 'b>) -> Result<&'static str, &'static str>{
