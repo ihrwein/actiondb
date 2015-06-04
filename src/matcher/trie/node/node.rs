@@ -53,6 +53,11 @@ impl <'a, 'b> Node<'a> {
                         return Err(Some((self, literal.len())));
                     }
 
+                    if literal.is_empty() && self.literal_children.get(pos).unwrap().has_value() {
+                        println!("lookup_literal_recurse(): we got it, it's empty");
+                        return Ok(Some((self, pos)));
+                    }
+
                     if let Some(node) = self.literal_children.get_mut(pos).unwrap().node_mut() {
                         println!("lookup_literal()_recurse: literal len = {}", literal.len());
                         println!("lookup_literal()_recurse: common_prefix_len = {}", common_prefix_len);
@@ -63,7 +68,7 @@ impl <'a, 'b> Node<'a> {
                     }
                 } else {
                     println!("lookup_literal_recurse(): we found a prefix, but it's a leaf");
-                    if self.literal_children.get(pos).unwrap().literal() == literal {
+                    if self.literal_children.get(pos).unwrap().literal() == literal  && self.literal_children.get(pos).unwrap().has_value(){
                         println!("lookup_literal_recurse(): we got it");
                         Ok(Some((self, pos)))
                     } else {
@@ -81,17 +86,7 @@ impl <'a, 'b> Node<'a> {
     }
 
     pub fn lookup_literal(&mut self, literal: &str) -> Result<Option<(&mut Node<'a>, usize)>, Option<(&mut Node<'a>, usize)>> {
-        println!("lookup_literal(): looking up '{}'", literal);
-        if !self.is_leaf() && !literal.is_empty() {
-            println!("lookup_literal(): it's not a leaf nor is empty");
-            self.lookup_literal_recurse(literal)
-        } else if literal.is_empty() {
-            println!("lookup_literal(): we got it");
-            Ok(Some((self, 0)))
-        } else {
-            println!("lookup_literal(): we can't go deeper");
-            Err(Some((self, literal.len())))
-        }
+        self.lookup_literal_recurse(literal)
     }
 
     pub fn insert(&mut self, pattern: CompiledPattern<'a, 'b>) -> Result<&'static str, &'static str>{
@@ -132,7 +127,9 @@ impl <'a, 'b> Node<'a> {
             },
             Err(pos) => {
                 println!("insert_literal_tail(): creating new literal node from tail = {}", tail);
-                self.add_literal_node(LiteralNode::from_str(tail));
+                let mut new_node = LiteralNode::from_str(tail);
+                new_node.set_has_value(true);
+                self.add_literal_node(new_node);
             }
         };
 
@@ -194,4 +191,13 @@ fn test_given_empty_trie_when_literals_are_inserted_the_nodes_are_split_on_the_r
     assert_eq!(node.lookup_literal("alma").is_ok(), true);
     assert_eq!(node.lookup_literal("alm").ok().unwrap().unwrap().0.literal_children.len(), 2);
     assert_eq!(node.lookup_literal("ai").ok().unwrap().unwrap().0.literal_children.len(), 2);
+}
+
+#[test]
+fn test_given_trie_when_literals_are_looked_up_then_the_edges_in_the_trie_are_not_counted_as_literals() {
+    let mut node = Node::new();
+
+    node.insert_literal("alm");
+    node.insert_literal("ala");
+    assert_eq!(node.lookup_literal("al").is_err(), true);
 }

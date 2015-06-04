@@ -7,12 +7,14 @@ use matcher::trie::node::Node;
 #[derive(Debug)]
 pub struct LiteralNode <'a> {
     literal: String,
+    has_value: bool,
     node: Option<Box<Node<'a>>>,
 }
 
 impl <'a> LiteralNode<'a> {
     pub fn new(literal: String) -> LiteralNode<'a> {
         LiteralNode{ literal: literal,
+                     has_value: false,
                      node: None}
     }
 
@@ -22,6 +24,14 @@ impl <'a> LiteralNode<'a> {
 
     pub fn literal(&self) -> &str {
         &self.literal[..]
+    }
+
+    pub fn has_value(&self) -> bool {
+        self.has_value
+    }
+
+    pub fn set_has_value(&mut self, has_value: bool) {
+        self.has_value = has_value;
     }
 
     pub fn set_node(&mut self, node: Option<Box<Node<'a>>>) {
@@ -52,7 +62,9 @@ impl <'a> LiteralNode<'a> {
     pub fn split(self,
                  common_prefix_len: usize,
                  literal: &str) -> LiteralNode<'a> {
-        let LiteralNode{ literal: self_literal, node: self_node} = self;
+        let LiteralNode{ literal: self_literal,
+                         has_value: self_has_value,
+                         node: self_node} = self;
 
         let common_prefix = literal.rtrunc(literal.len() - common_prefix_len);
         println!("split(): common_prefix = {}", common_prefix);
@@ -65,9 +77,11 @@ impl <'a> LiteralNode<'a> {
 
         let mut new_node = Box::new(Node::new());
         let mut left_node = LiteralNode::from_str(left_branch);
+        left_node.set_has_value(true);
         let mut right_node = LiteralNode::from_str(right_branch);
 
         right_node.set_node(self_node);
+        right_node.set_has_value(self_has_value);
 
         new_node.add_literal_node(left_node);
         new_node.add_literal_node(right_node);
