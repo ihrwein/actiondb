@@ -12,4 +12,8 @@ impl <'a> ParserNode<'a> {
         ParserNode{ parser: parser,
                     node: None}
     }
+
+    pub fn parser(&self) -> &Box<Parser<'a>> {
+        &self.parser
+    }
 }

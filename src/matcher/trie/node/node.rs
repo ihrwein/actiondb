@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 use std::cmp::Ordering;
 use std::cmp;
+use utils;
 use parsers::{Parser, SetParser};
 use utils::{SortedVec, CommonPrefix};
 use matcher::trie::node::LiteralNode;
@@ -29,6 +30,18 @@ impl <'a, 'b> Node<'a> {
 
     pub fn add_literal_node(&mut self, lnode: LiteralNode<'a>) {
         self.literal_children.push(lnode);
+    }
+
+    pub fn add_parser_node(&mut self, pnode: ParserNode<'a>) {
+        let already_inserted = {
+            let find_func = |x: &ParserNode| {
+                utils::hash(x.parser()) == utils::hash(pnode.parser())
+            };
+
+            self.parser_children.iter().any(&find_func)
+        };
+
+        self.parser_children.push(pnode);
     }
 
     pub fn is_leaf(&self) -> bool {

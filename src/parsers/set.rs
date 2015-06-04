@@ -137,4 +137,12 @@ mod test {
         assert_eq!(p.parse("11230almafa"),
                    ParseResult::Parsed("11230"));
     }
+
+    use utils;
+
+    #[test]
+    fn test_given_set_parser_and_its_hash_can_be_calculated() {
+        let mut p = Box::new(SetParser::new("0123"));
+        let hash = utils::hash(&p);
+    }
 }
