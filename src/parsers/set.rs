@@ -1,8 +1,9 @@
 use std::collections::BTreeSet;
 use std::iter::FromIterator;
+use std::hash::{SipHasher, Hash, Hasher};
 
 use parsers::{Parser,
-            ParseResult};
+            ParseResult, ObjectSafeHash};
 
 #[derive(Debug)]
 pub struct SetParser {
@@ -78,6 +79,17 @@ impl <'a> Parser<'a> for SetParser {
     }
 }
 
+impl ObjectSafeHash for SetParser {
+    fn hash_os(&self) -> u64 {
+        let mut hasher = SipHasher::new();
+        "parser:set".hash(&mut hasher);
+        self.character_set.hash(&mut hasher);
+        self.min_length.hash(&mut hasher);
+        self.max_length.hash(&mut hasher);
+        hasher.finish()
+    }
+}
+
 #[cfg(test)]
 mod test {
     use parsers::{Parser, SetParser, ParseResult};
@@ -126,5 +138,14 @@ mod test {
         p.set_max_length(7);
         assert_eq!(p.parse("11230almafa"),
                    ParseResult::Parsed("11230"));
+    }
+
+    use parsers::ObjectSafeHash;
+
+    #[test]
+    fn test_given_set_parser_and_when_differently_parametrized_instances_are_hashed_then_the_hashes_are_different() {
+        let p1 = SetParser::new("0123");
+        let p2 = SetParser::new("01234");
+        assert_eq!(p1.hash_os() == p2.hash_os(), false);
     }
 }

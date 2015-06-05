@@ -9,6 +9,10 @@ pub enum ParseResult<'a> {
     NotParsed
 }
 
-pub trait Parser<'a>: Debug {
+pub trait ObjectSafeHash {
+    fn hash_os(&self) -> u64;
+}
+
+pub trait Parser<'a>: Debug + ObjectSafeHash {
     fn parse(&self, value: &'a str) -> ParseResult<'a>;
 }
