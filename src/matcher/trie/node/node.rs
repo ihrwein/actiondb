@@ -31,8 +31,24 @@ impl <'a, 'b> Node<'a> {
         self.literal_children.push(lnode);
     }
 
-    fn lookup_parser(&mut self, parser: &Parser<>) -> Option<usize> {
-        self.parser_children.iter().position(|ref x| x.parser().hash_os() == parser.hash_os())
+    pub fn insert_literal(&mut self, literal: &str) -> Result<Option<&mut Node<'a>>, &'static str> {
+        println!("inserting literal: '{}'", literal);
+
+        match self.lookup_literal(literal) {
+            Ok(option) => {
+                println!("insert_literal(): it was already inserted");
+                return Ok(Some(option.unwrap().0));
+            },
+            Err(Some(tuple)) => {
+                println!("INSERTING({}), remaining len: {}", literal, tuple.1);
+                let tail = literal.ltrunc(literal.len() - tuple.1);
+                tuple.0.insert_literal_tail(tail);
+            },
+            _ => {
+                unreachable!();
+            }
+        }
+        Err("asdas")
     }
 
     pub fn insert_parser(&mut self, parser: Box<Parser<'a>>) -> Option<&mut ParserNode<'a>> {
@@ -101,19 +117,8 @@ impl <'a, 'b> Node<'a> {
         }
     }
 
-    pub fn insert(&mut self, pattern: CompiledPattern<'a, 'b>) -> Result<&'static str, &'static str>{
-        for i in pattern.into_iter() {
-            match i {
-                NodeType::Literal(literal) => {
-                    if let Ok(node) = self.insert_literal(literal) {
-                    }
-                },
-                NodeType::Parser(parser) => {
-                    unimplemented!();
-                }
-            }
-        }
-        Err("err")
+    fn lookup_parser(&mut self, parser: &Parser<>) -> Option<usize> {
+        self.parser_children.iter().position(|ref x| x.parser().hash_os() == parser.hash_os())
     }
 
     fn insert_literal_tail(&mut self, tail: &str) {
@@ -145,26 +150,6 @@ impl <'a, 'b> Node<'a> {
             }
         };
 
-    }
-
-    fn insert_literal(&mut self, literal: &str) -> Result<Option<&mut Node<'a>>, &'static str> {
-        println!("inserting literal: '{}'", literal);
-
-        match self.lookup_literal(literal) {
-            Ok(option) => {
-                println!("insert_literal(): it was already inserted");
-                return Ok(Some(option.unwrap().0));
-            },
-            Err(Some(tuple)) => {
-                println!("INSERTING({}), remaining len: {}", literal, tuple.1);
-                let tail = literal.ltrunc(literal.len() - tuple.1);
-                tuple.0.insert_literal_tail(tail);
-            },
-            _ => {
-                unreachable!();
-            }
-        }
-        Err("asdas")
     }
 }
 
