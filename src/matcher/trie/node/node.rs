@@ -31,6 +31,20 @@ impl <'a, 'b> Node<'a> {
         self.literal_children.push(lnode);
     }
 
+    fn lookup_parser(&mut self, parser: &Parser<>) -> Option<usize> {
+        self.parser_children.iter().position(|ref x| x.parser().hash_os() == parser.hash_os())
+    }
+
+    pub fn insert_parser(&mut self, parser: Box<Parser<'a>>) -> Option<&mut ParserNode<'a>> {
+        if let Some(item) = self.lookup_parser(&*parser) {
+            self.parser_children.get_mut(item)
+        } else {
+            let pnode = ParserNode::new(parser);
+            self.parser_children.push(pnode);
+            self.parser_children.last_mut()
+        }
+    }
+
     pub fn is_leaf(&self) -> bool {
         self.literal_children.is_empty() &&
             self.parser_children.is_empty()
@@ -198,4 +212,24 @@ fn test_given_trie_when_literals_are_looked_up_then_the_edges_in_the_trie_are_no
     node.insert_literal("alm");
     node.insert_literal("ala");
     assert_eq!(node.lookup_literal("al").is_err(), true);
+}
+
+#[test]
+fn test_given_node_when_the_same_parsers_are_inserted_then_they_are_merged_into_one_parsernode() {
+    let mut node = Node::new();
+
+    node.insert_parser(Box::new(SetParser::new("ab")));
+    node.insert_parser(Box::new(SetParser::new("ab")));
+
+    assert_eq!(node.parser_children.len(), 1);
+}
+
+#[test]
+fn test_given_node_when_different_parsers_are_inserted_then_they_are_not_merged() {
+    let mut node = Node::new();
+
+    node.insert_parser(Box::new(SetParser::new("ab")));
+    node.insert_parser(Box::new(SetParser::new("a")));
+
+    assert_eq!(node.parser_children.len(), 2);
 }
