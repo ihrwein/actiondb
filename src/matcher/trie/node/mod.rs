@@ -15,6 +15,7 @@ pub use self::parser::ParserNode;
 #[cfg(test)]
 mod test {
     use matcher::trie::node::Node;
+    use matcher::trie::TrieOperations;
 
     #[test]
     fn test_given_node_when_literals_are_inserted_in_chains_then_they_can_be_looked_up() {

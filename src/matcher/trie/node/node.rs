@@ -6,6 +6,7 @@ use utils::{SortedVec, CommonPrefix};
 use matcher::trie::node::LiteralNode;
 use matcher::trie::node::ParserNode;
 use matcher::trie::node::literal;
+use matcher::trie::TrieOperations;
 
 pub type MatchResult<'a, 'b> = Option<BTreeMap<&'a str, &'b str>>;
 pub type CompiledPattern<'a, 'b> = Vec<NodeType<'a, 'b>>;
@@ -29,36 +30,6 @@ impl <'a, 'b> Node<'a> {
 
     pub fn add_literal_node(&mut self, lnode: LiteralNode<'a>) {
         self.literal_children.push(lnode);
-    }
-
-    pub fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode<'a > {
-        println!("inserting literal: '{}'", literal);
-
-        match self.lookup_literal(literal) {
-            Ok(option) => {
-                println!("insert_literal(): it was already inserted");
-                let (node, index) = option.unwrap();
-                node.literal_children.get_mut(index).unwrap()
-            },
-            Err(Some(tuple)) => {
-                println!("INSERTING({}), remaining len: {}", literal, tuple.1);
-                let tail = literal.ltrunc(literal.len() - tuple.1);
-                tuple.0.insert_literal_tail(tail)
-            },
-            _ => {
-                unreachable!();
-            }
-        }
-    }
-
-    pub fn insert_parser(&mut self, parser: Box<Parser<'a>>) -> Option<&mut ParserNode<'a>> {
-        if let Some(item) = self.lookup_parser(&*parser) {
-            self.parser_children.get_mut(item)
-        } else {
-            let pnode = ParserNode::new(parser);
-            self.parser_children.push(pnode);
-            self.parser_children.last_mut()
-        }
     }
 
     pub fn is_leaf(&self) -> bool {
@@ -157,6 +128,38 @@ impl <'a, 'b> Node<'a> {
                 self.add_literal_node(new_node);
                 self.literal_children.get_mut(pos).unwrap()
             }
+        }
+    }
+}
+
+impl <'a> TrieOperations<'a> for Node<'a> {
+    fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode<'a> {
+        println!("inserting literal: '{}'", literal);
+
+        match self.lookup_literal(literal) {
+            Ok(option) => {
+                println!("insert_literal(): it was already inserted");
+                let (node, index) = option.unwrap();
+                node.literal_children.get_mut(index).unwrap()
+            },
+            Err(Some(tuple)) => {
+                println!("INSERTING({}), remaining len: {}", literal, tuple.1);
+                let tail = literal.ltrunc(literal.len() - tuple.1);
+                tuple.0.insert_literal_tail(tail)
+            },
+            _ => {
+                unreachable!();
+            }
+        }
+    }
+
+    fn insert_parser(&mut self, parser: Box<Parser<'a>>) -> &mut ParserNode<'a> {
+        if let Some(item) = self.lookup_parser(&*parser) {
+            self.parser_children.get_mut(item).unwrap()
+        } else {
+            let pnode = ParserNode::new(parser);
+            self.parser_children.push(pnode);
+            self.parser_children.last_mut().unwrap()
         }
     }
 }

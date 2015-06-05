@@ -1,5 +1,6 @@
 use matcher::trie::node::{Node, NodeType, LiteralNode};
 use matcher::trie::node::CompiledPattern;
+use matcher::trie::TrieOperations;
 
 pub struct PatternTrie<'a> {
     root: Node<'a>,
