@@ -12,24 +12,18 @@ pub use self::node::Node;
 pub use self::literal::{LiteralNode};
 pub use self::parser::ParserNode;
 
-
 #[cfg(test)]
 mod test {
-    use matcher::trie::node::{CompiledPattern, NodeType, Node};
-    use parsers::{Parser, SetParser};
+    use matcher::trie::node::Node;
 
     #[test]
-    fn test_given_patterns_when_inserted_into_the_prefix_tree_then_the_proper_tree_is_built() {
-        /*let mut root = Node::new();
-        let mut cp1 = CompiledPattern::new();
-        cp1.push(NodeType::Literal("app"));
-        cp1.push(NodeType::Parser(Box::new(SetParser::new("01234"))));
-        cp1.push(NodeType::Literal("le"));
+    fn test_given_node_when_literals_are_inserted_in_chains_then_they_can_be_looked_up() {
+        let mut node = Node::new();
 
-        let mut cp2 = CompiledPattern::new();
-        cp2.push(NodeType::Literal("applause"));
-
-        root.insert(cp1);
-        root.insert(cp2);*/
+        let _ = node.insert_literal("appl").insert_literal("et").insert_literal("ree");
+        println!("{:?}", &node);
+        assert_eq!(node.lookup_literal("applet").is_ok(), true);
+        assert_eq!(node.lookup_literal("appletree").is_ok(), true);
+        assert_eq!(node.lookup_literal("appletre").is_ok(), false);
     }
 }

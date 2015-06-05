@@ -93,6 +93,14 @@ impl <'a> LiteralNode<'a> {
         self.node.is_none()
     }
 
+    pub fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode<'a> {
+        if self.is_leaf() {
+            self.node = Some(Box::new(Node::new()));
+        }
+
+        self.node.as_mut().unwrap().insert_literal(literal)
+    }
+
     fn compare_first_chars(&self, other : &LiteralNode) -> Ordering {
         self.cmp_str(other.literal())
     }
