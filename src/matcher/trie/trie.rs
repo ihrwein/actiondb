@@ -1,4 +1,4 @@
-use matcher::trie::node::{Node, NodeType, LiteralNode};
+use matcher::trie::node::{Node, NodeType};
 use matcher::trie::node::CompiledPattern;
 use matcher::trie::TrieOperations;
 
@@ -12,7 +12,7 @@ impl PatternTrie {
         PatternTrie{ root: Node::new() }
     }
 
-    pub fn insert(&mut self, mut pattern: CompiledPattern) -> &mut TrieOperations {
+    pub fn insert(&mut self, pattern: CompiledPattern) -> &mut TrieOperations {
         PatternTrie::insert_recurse(&mut self.root, pattern)
     }
 
@@ -39,9 +39,9 @@ impl PatternTrie {
 
 #[cfg(test)]
 mod test {
-    use matcher::trie::node::{CompiledPattern, NodeType, Node};
+    use matcher::trie::node::{CompiledPattern, NodeType};
     use matcher::trie::PatternTrie;
-    use parsers::{Parser, SetParser};
+    use parsers::{SetParser};
 
     #[test]
     fn test_given_patterns_when_inserted_into_the_prefix_tree_then_the_proper_tree_is_built() {

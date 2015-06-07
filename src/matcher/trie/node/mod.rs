@@ -2,9 +2,6 @@ mod literal;
 mod parser;
 mod node;
 
-use std::borrow::ToOwned;
-
-use parsers::{Parser, SetParser};
 pub use self::node::MatchResult;
 pub use self::node::CompiledPattern;
 pub use self::node::NodeType;

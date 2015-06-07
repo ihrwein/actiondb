@@ -1,11 +1,8 @@
 use std::collections::BTreeMap;
-use std::cmp::Ordering;
-use std::cmp;
 use parsers::{Parser, SetParser};
 use utils::{SortedVec, CommonPrefix};
 use matcher::trie::node::LiteralNode;
 use matcher::trie::node::ParserNode;
-use matcher::trie::node::literal;
 use matcher::trie::TrieOperations;
 
 pub type MatchResult<'a, 'b> = Option<BTreeMap<&'a str, &'b str>>;
@@ -86,7 +83,7 @@ impl Node {
                     }
                 }
             },
-            Err(pos) => {
+            Err(_) => {
                 println!("lookup_literal(): there is no common prefix with this literal");
                 println!("lookup_literal(): literal = {}", literal);
                 println!("lookup_literal(): {:?}", self);

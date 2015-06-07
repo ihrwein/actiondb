@@ -1,5 +1,4 @@
 use std::cmp::{Ord, Ordering};
-use std::borrow::Borrow;
 use utils::common_prefix::CommonPrefix;
 
 use matcher::trie::node::{Node, ParserNode};
