@@ -2,8 +2,7 @@ use std::collections::BTreeSet;
 use std::iter::FromIterator;
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser,
-            ParseResult, ObjectSafeHash};
+use parsers::{Parser, ObjectSafeHash};
 
 #[derive(Debug)]
 pub struct SetParser {
@@ -68,13 +67,13 @@ impl SetParser {
 }
 
 impl Parser for SetParser {
-    fn parse<'a>(&self, value: &'a str) -> ParseResult<'a> {
+    fn parse<'a>(&self, value: &'a str) -> Option<&'a str> {
         let match_len = self.calculate_match_length(value);
 
         if self.is_match_length_ok(match_len) {
-            return ParseResult::Parsed(&value[..match_len])
+            Some(&value[..match_len])
         } else {
-            return ParseResult::NotParsed;
+            None
         }
     }
 }
@@ -92,27 +91,27 @@ impl ObjectSafeHash for SetParser {
 
 #[cfg(test)]
 mod test {
-    use parsers::{Parser, SetParser, ParseResult};
+    use parsers::{Parser, SetParser};
 
     #[test]
     fn test_given_empty_string_when_parsed_it_wont_match() {
         let p = SetParser::new("");
         assert_eq!(p.parse("almafa"),
-                   ParseResult::NotParsed);
+                   None);
     }
 
     #[test]
     fn test_given_not_matching_string_when_parsed_it_wont_match() {
         let p = SetParser::new("123");
         assert_eq!(p.parse("almafa"),
-                   ParseResult::NotParsed);
+                   None);
     }
 
     #[test]
     fn test_given_matching_string_when_parsed_it_matches() {
         let p = SetParser::new("0123");
         assert_eq!(p.parse("11230almafa"),
-                   ParseResult::Parsed("11230"));
+                   Some("11230"));
     }
 
     #[test]
@@ -120,7 +119,7 @@ mod test {
         let mut p = SetParser::new("0123");
         p.set_min_length(7);
         assert_eq!(p.parse("11230almafa"),
-                   ParseResult::NotParsed);
+                   None);
     }
 
     #[test]
@@ -128,7 +127,7 @@ mod test {
         let mut p = SetParser::new("0123");
         p.set_max_length(3);
         assert_eq!(p.parse("11230almafa"),
-                   ParseResult::NotParsed);
+                   None);
     }
 
     #[test]
@@ -137,7 +136,7 @@ mod test {
         p.set_min_length(3);
         p.set_max_length(7);
         assert_eq!(p.parse("11230almafa"),
-                   ParseResult::Parsed("11230"));
+                   Some("11230"));
     }
 
     use parsers::ObjectSafeHash;
