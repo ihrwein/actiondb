@@ -9,26 +9,26 @@ use matcher::trie::node::literal;
 use matcher::trie::TrieOperations;
 
 pub type MatchResult<'a, 'b> = Option<BTreeMap<&'a str, &'b str>>;
-pub type CompiledPattern<'a, 'b> = Vec<NodeType<'a, 'b>>;
+pub type CompiledPattern<'a> = Vec<NodeType<'a>>;
 
-pub enum NodeType<'a, 'b> {
-    Parser(Box<Parser<'a>>),
-    Literal(&'b str)
+pub enum NodeType<'a> {
+    Parser(Box<Parser>),
+    Literal(&'a str)
 }
 
 #[derive(Debug)]
-pub struct Node<'a> {
-    literal_children: SortedVec<LiteralNode<'a>>,
-    parser_children: Vec<ParserNode<'a>>
+pub struct Node {
+    literal_children: SortedVec<LiteralNode>,
+    parser_children: Vec<ParserNode>
 }
 
-impl <'a, 'b> Node<'a> {
-    pub fn new() -> Node<'a> {
+impl Node {
+    pub fn new() -> Node {
         Node{ literal_children: SortedVec::new(),
               parser_children: Vec::new() }
     }
 
-    pub fn add_literal_node(&mut self, lnode: LiteralNode<'a>) {
+    pub fn add_literal_node(&mut self, lnode: LiteralNode) {
         self.literal_children.push(lnode);
     }
 
@@ -39,7 +39,7 @@ impl <'a, 'b> Node<'a> {
 
     // If a literal isn't found the last Node instance and the remaining length of the literal will be returned
     // if the literal is in the trie, we return the last Node instance and the index of the LiteralNode which contains the literal
-    pub fn lookup_literal(&mut self, literal: &str) -> Result<Option<(&mut Node<'a>, usize)>, Option<(&mut Node<'a>, usize)>> {
+    pub fn lookup_literal(&mut self, literal: &str) -> Result<Option<(&mut Node, usize)>, Option<(&mut Node, usize)>> {
         println!("lookup_literal(): stepped in");
         println!("lookup_literal(): #children = {}", self.literal_children.len());
         let cmp_str = |probe: &LiteralNode| {
@@ -99,7 +99,7 @@ impl <'a, 'b> Node<'a> {
         self.parser_children.iter().position(|ref x| x.parser().hash_os() == parser.hash_os())
     }
 
-    fn insert_literal_tail(&mut self, tail: &str) -> &mut LiteralNode<'a> {
+    fn insert_literal_tail(&mut self, tail: &str) -> &mut LiteralNode {
         println!("insert_literal_tail(): tail = {}", tail);
         println!("{:?}", self);
         let cmp_str = |probe: &LiteralNode| {
@@ -132,8 +132,8 @@ impl <'a, 'b> Node<'a> {
     }
 }
 
-impl <'a> TrieOperations<'a> for Node<'a> {
-    fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode<'a> {
+impl TrieOperations for Node {
+    fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         println!("inserting literal: '{}'", literal);
 
         match self.lookup_literal(literal) {
@@ -153,7 +153,7 @@ impl <'a> TrieOperations<'a> for Node<'a> {
         }
     }
 
-    fn insert_parser(&mut self, parser: Box<Parser<'a>>) -> &mut ParserNode<'a> {
+    fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode {
         if let Some(item) = self.lookup_parser(&*parser) {
             self.parser_children.get_mut(item).unwrap()
         } else {

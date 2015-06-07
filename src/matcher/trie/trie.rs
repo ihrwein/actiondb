@@ -3,20 +3,20 @@ use matcher::trie::node::CompiledPattern;
 use matcher::trie::TrieOperations;
 
 #[derive(Debug)]
-pub struct PatternTrie<'a> {
-    root: Node<'a>,
+pub struct PatternTrie {
+    root: Node,
 }
 
-impl <'a, 'b> PatternTrie<'a> {
-    pub fn new() -> PatternTrie<'a> {
+impl PatternTrie {
+    pub fn new() -> PatternTrie {
         PatternTrie{ root: Node::new() }
     }
 
-    pub fn insert(&'a mut self, mut pattern: CompiledPattern<'a, 'b>) -> & mut TrieOperations<'a> {
+    pub fn insert(&mut self, mut pattern: CompiledPattern) -> &mut TrieOperations {
         PatternTrie::insert_recurse(&mut self.root, pattern)
     }
 
-    fn insert_not_empty_pattern(node: &'a mut TrieOperations<'a>, mut pattern: CompiledPattern<'a, 'b>) -> &'a mut TrieOperations<'a> {
+    fn insert_not_empty_pattern<'a>(node: &'a mut TrieOperations, mut pattern: CompiledPattern) -> &'a mut TrieOperations {
         let item = pattern.remove(0);
         match item {
             NodeType::Literal(literal) => {
@@ -28,7 +28,7 @@ impl <'a, 'b> PatternTrie<'a> {
         }
     }
 
-    fn insert_recurse(node: &'a mut TrieOperations<'a>, pattern: CompiledPattern<'a, 'b>) -> &'a mut TrieOperations<'a> {
+    fn insert_recurse<'a>(node: &'a mut TrieOperations, pattern: CompiledPattern) -> &'a mut TrieOperations {
         if pattern.is_empty() {
             node
         } else {

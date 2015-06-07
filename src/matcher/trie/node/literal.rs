@@ -7,20 +7,20 @@ use matcher::trie::TrieOperations;
 use parsers::Parser;
 
 #[derive(Debug)]
-pub struct LiteralNode <'a> {
+pub struct LiteralNode {
     literal: String,
     has_value: bool,
-    node: Option<Box<Node<'a>>>,
+    node: Option<Box<Node>>,
 }
 
-impl <'a> LiteralNode<'a> {
-    pub fn new(literal: String) -> LiteralNode<'a> {
+impl LiteralNode {
+    pub fn new(literal: String) -> LiteralNode {
         LiteralNode{ literal: literal,
                      has_value: false,
                      node: None}
     }
 
-    pub fn from_str(literal: &str) -> LiteralNode<'a> {
+    pub fn from_str(literal: &str) -> LiteralNode {
         LiteralNode::new(literal.to_string())
     }
 
@@ -36,11 +36,11 @@ impl <'a> LiteralNode<'a> {
         self.has_value = has_value;
     }
 
-    pub fn set_node(&mut self, node: Option<Box<Node<'a>>>) {
+    pub fn set_node(&mut self, node: Option<Box<Node>>) {
         self.node = node;
     }
 
-    pub fn node_mut(&mut self) -> Option<&mut Node<'a>> {
+    pub fn node_mut(&mut self) -> Option<&mut Node> {
         match self.node {
             Some(ref mut boxed_node) => {
                 Some(boxed_node)
@@ -63,7 +63,7 @@ impl <'a> LiteralNode<'a> {
 
     pub fn split(self,
                  common_prefix_len: usize,
-                 literal: &str) -> LiteralNode<'a> {
+                 literal: &str) -> LiteralNode {
         let LiteralNode{ literal: self_literal,
                          has_value: self_has_value,
                          node: self_node} = self;
@@ -100,8 +100,8 @@ impl <'a> LiteralNode<'a> {
     }
 }
 
-impl <'a> TrieOperations<'a> for LiteralNode<'a> {
-    fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode<'a> {
+impl TrieOperations for LiteralNode {
+    fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         if self.is_leaf() {
             self.node = Some(Box::new(Node::new()));
         }
@@ -109,7 +109,7 @@ impl <'a> TrieOperations<'a> for LiteralNode<'a> {
         self.node.as_mut().unwrap().insert_literal(literal)
     }
 
-    fn insert_parser(&mut self, parser: Box<Parser<'a>>) -> &mut ParserNode<'a> {
+    fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode {
         if self.is_leaf() {
             self.node = Some(Box::new(Node::new()));
         }
@@ -119,9 +119,9 @@ impl <'a> TrieOperations<'a> for LiteralNode<'a> {
 }
 
 
-impl <'a> Eq for LiteralNode<'a> {}
+impl Eq for LiteralNode {}
 
-impl <'a> PartialEq for LiteralNode<'a> {
+impl PartialEq for LiteralNode {
     fn eq(&self, other: &Self) -> bool {
         self.compare_first_chars(other) == Ordering::Equal
     }
@@ -131,13 +131,13 @@ impl <'a> PartialEq for LiteralNode<'a> {
     }
 }
 
-impl <'a> Ord for LiteralNode<'a> {
+impl Ord for LiteralNode {
     fn cmp(&self, other: &Self) -> Ordering {
         self.compare_first_chars(other)
     }
 }
 
-impl <'a> PartialOrd for LiteralNode<'a> {
+impl PartialOrd for LiteralNode {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }

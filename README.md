@@ -21,3 +21,9 @@ You can extend a lifetime with the following syntax:
 ```rust
 struct LiteralLookupHit<'a, 'b: 'a, 'c>(&'a mut Node<'b>, &'c str);
 ```
+
+### Cannot borrow mutable X multiple times, but there is only one active borrow
+Check your lifetimes. If there is one on `self` it can cause problems. If a trait
+doesn't need a litetime just one of its methods, then place the lifetime on the method
+and not on the trait.
+

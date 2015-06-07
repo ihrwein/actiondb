@@ -13,6 +13,6 @@ pub trait ObjectSafeHash {
     fn hash_os(&self) -> u64;
 }
 
-pub trait Parser<'a>: Debug + ObjectSafeHash {
-    fn parse(&self, value: &'a str) -> ParseResult<'a>;
+pub trait Parser: Debug + ObjectSafeHash {
+    fn parse<'a>(&self, value: &'a str) -> ParseResult<'a>;
 }

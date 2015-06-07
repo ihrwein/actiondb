@@ -3,18 +3,18 @@ use matcher::trie::TrieOperations;
 use parsers::Parser;
 
 #[derive(Debug)]
-pub struct ParserNode<'a> {
-    parser: Box<Parser<'a>>,
-    node: Option<Box<Node<'a>>>,
+pub struct ParserNode {
+    parser: Box<Parser>,
+    node: Option<Box<Node>>,
 }
 
-impl <'a> ParserNode<'a> {
-    pub fn new(parser: Box<Parser<'a>>) -> ParserNode<'a> {
+impl ParserNode {
+    pub fn new(parser: Box<Parser>) -> ParserNode {
         ParserNode{ parser: parser,
                     node: None}
     }
 
-    pub fn parser(&self) -> &Parser<'a> {
+    pub fn parser(&self) -> &Parser {
         &*self.parser
     }
 
@@ -23,8 +23,8 @@ impl <'a> ParserNode<'a> {
     }
 }
 
-impl <'a> TrieOperations<'a> for ParserNode<'a> {
-    fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode<'a> {
+impl TrieOperations for ParserNode {
+    fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         if self.is_leaf() {
             self.node = Some(Box::new(Node::new()));
         }
@@ -32,7 +32,7 @@ impl <'a> TrieOperations<'a> for ParserNode<'a> {
         self.node.as_mut().unwrap().insert_literal(literal)
     }
 
-    fn insert_parser(&mut self, parser: Box<Parser<'a>>) -> &mut ParserNode<'a> {
+    fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode {
         if self.is_leaf() {
             self.node = Some(Box::new(Node::new()));
         }
