@@ -3,7 +3,7 @@ mod trie;
 
 use self::node::{LiteralNode, ParserNode};
 use parsers::Parser;
-pub use self::trie::PatternTrie;
+pub use self::trie::ParserTrie;
 
 pub trait TrieOperations {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode;
