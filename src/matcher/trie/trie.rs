@@ -48,7 +48,7 @@ mod test {
         let mut trie = ParserTrie::new();
         let mut cp1 = CompiledPattern::new();
         cp1.push(NodeType::Literal("app"));
-        cp1.push(NodeType::Parser(Box::new(SetParser::new("01234"))));
+        cp1.push(NodeType::Parser(Box::new(SetParser::new("test", "01234"))));
         cp1.push(NodeType::Literal("le"));
 
         trie.insert(cp1);

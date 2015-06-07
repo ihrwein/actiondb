@@ -211,8 +211,8 @@ fn test_given_trie_when_literals_are_looked_up_then_the_edges_in_the_trie_are_no
 fn test_given_node_when_the_same_parsers_are_inserted_then_they_are_merged_into_one_parsernode() {
     let mut node = Node::new();
 
-    let _ = node.insert_parser(Box::new(SetParser::new("ab")));
-    let _ = node.insert_parser(Box::new(SetParser::new("ab")));
+    let _ = node.insert_parser(Box::new(SetParser::new("test", "ab")));
+    let _ = node.insert_parser(Box::new(SetParser::new("test", "ab")));
 
     assert_eq!(node.parser_children.len(), 1);
 }
@@ -221,8 +221,8 @@ fn test_given_node_when_the_same_parsers_are_inserted_then_they_are_merged_into_
 fn test_given_node_when_different_parsers_are_inserted_then_they_are_not_merged() {
     let mut node = Node::new();
 
-    let _ = node.insert_parser(Box::new(SetParser::new("ab")));
-    let _ = node.insert_parser(Box::new(SetParser::new("a")));
+    let _ = node.insert_parser(Box::new(SetParser::new("test", "ab")));
+    let _ = node.insert_parser(Box::new(SetParser::new("test", "a")));
 
     assert_eq!(node.parser_children.len(), 2);
 }
