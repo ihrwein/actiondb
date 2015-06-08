@@ -75,6 +75,7 @@ impl Node {
     fn search<'a, 'b>(&'a self, literal: &'b str) -> LiteralLookupResult<'b> {
         println!("search(): stepped in");
         println!("search(): #children = {}", self.literal_children.len());
+        println!("search(): #pchildren = {}", self.parser_children.len());
         let cmp_str = |probe: &LiteralNode| {
             probe.cmp_str(literal)
         };
@@ -122,9 +123,45 @@ impl Node {
             Err(_) => {
                 println!("search(): there is no common prefix with this literal");
                 println!("search(): literal = {}", literal);
-                println!("search(): {:?}", self);
+                println!("search(): #children = {}", self.literal_children.len());
+                println!("search(): #pchildren = {}", self.parser_children.len());
                 return LiteralLookupResult::NotFound;
             }
+        }
+    }
+
+    pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<Vec<(&'a str, &'b str)>> {
+        println!("parse(): text = {}", text);
+        match self.lookup_literal(text) {
+            Ok((node, pos)) => {
+                Some(vec!())
+            },
+            Err((node, remaining_len)) => {
+                let text = text.ltrunc(text.len() - remaining_len);
+                println!("parse(): text = {}", text);
+                println!("parse(): #parser_children = {}", node.parser_children.len());
+                node.parse_with_parsers(text)
+            }
+        }
+    }
+
+    fn parse_with_parsers<'a, 'b>(&'a self, text: &'b str) -> Option<Vec<(&'a str, &'b str)>> {
+        for i in self.parser_children.iter() {
+            println!("parse(): testing parser");
+
+            if let Some(vec) = i.parse(text) {
+                return Some(vec);
+            }
+        }
+        None
+    }
+
+    pub fn parse_then_push_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: (&'a str, &'b str)) -> Option<Vec<(&'a str, &'b str)>> {
+        if let Some(mut vec) = self.parse(text) {
+            vec.push(kvpair);
+            Some(vec)
+        } else {
+            None
         }
     }
 
@@ -134,7 +171,6 @@ impl Node {
 
     fn insert_literal_tail(&mut self, tail: &str) -> &mut LiteralNode {
         println!("insert_literal_tail(): tail = {}", tail);
-        println!("{:?}", self);
         let cmp_str = |probe: &LiteralNode| {
             probe.cmp_str(tail)
         };
@@ -148,7 +184,6 @@ impl Node {
                     println!("insert_literal_tail(): tail = {}", tail);
                     let new_node = hit.split(common_prefix_len, tail);
                     self.add_literal_node(new_node);
-                    println!("splitted");
                     self.literal_children.get_mut(pos).unwrap()
                 } else {
                     unreachable!()
@@ -257,4 +292,30 @@ fn test_given_node_when_different_parsers_are_inserted_then_they_are_not_merged(
     let _ = node.insert_parser(Box::new(SetParser::new("test", "a")));
 
     assert_eq!(node.parser_children.len(), 2);
+}
+
+use matcher::trie::ParserTrie;
+
+#[test]
+fn test_given_parser_trie_when_some_patterns_are_inserted_then_texts_can_be_parsed() {
+    let mut root = ParserTrie::new();
+    let mut cp1 = CompiledPattern::new();
+    let mut cp2 = CompiledPattern::new();
+    cp1.push(NodeType::Literal("app"));
+    cp1.push(NodeType::Parser(Box::new(SetParser::new("test", "01234"))));
+    cp1.push(NodeType::Literal("le"));
+    cp2.push(NodeType::Literal("appletree"));
+
+    root.insert(cp1);
+    root.insert(cp2);
+
+    println!("root: {:?}", &root);
+    {
+        let parsed_kwpairs = root.parse("bamboo");
+        assert_eq!(parsed_kwpairs, None);
+    }
+    {
+        let parsed_kwpairs = root.parse("app42le");
+        assert_eq!(parsed_kwpairs.is_some(), true);
+    }
 }

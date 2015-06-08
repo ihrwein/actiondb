@@ -1,6 +1,7 @@
 use matcher::trie::node::{Node, LiteralNode};
 use matcher::trie::TrieOperations;
 use parsers::Parser;
+use utils::CommonPrefix;
 
 #[derive(Debug)]
 pub struct ParserNode {
@@ -20,6 +21,40 @@ impl ParserNode {
 
     pub fn is_leaf(&self) -> bool {
         self.node.is_none()
+    }
+
+    pub fn node(&self) -> Option<&Node> {
+        match self.node {
+            Some(ref boxed_node) => {
+                Some(boxed_node)
+            },
+            None => None
+        }
+    }
+
+    pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<Vec<(&'a str, &'b str)>> {
+        if let Some(parsed_kwpair) = self.parser.parse(text) {
+            println!("parse(): parsed_kwpair = {:?}", &parsed_kwpair);
+            let text = text.ltrunc(parsed_kwpair.1.len());
+
+            return match self.node() {
+                Some(node) => {
+                    node.parse_then_push_kvpair(text, parsed_kwpair)
+                },
+                None => {
+                    self.push_last_kvpair(text, parsed_kwpair)
+                }
+            }
+        }
+        None
+    }
+
+    fn push_last_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: (&'a str, &'b str)) -> Option<Vec<(&'a str, &'b str)>> {
+        if text.is_empty() {
+            Some(vec!(kvpair))
+        } else {
+            None
+        }
     }
 }
 
