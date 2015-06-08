@@ -92,6 +92,31 @@ impl Node {
         }
     }
 
+    pub fn parse<'a, 'b>(&'a mut self, text: &'b str) -> Option<Vec<(&'a str, &'b str)>> {
+        match self.lookup_literal(text) {
+            Ok(Some((node, len))) | Err(Some((node, len))) => {
+                if len == 0 {
+                    return Some(vec!());
+                } else {
+                    for i in node.parser_children.iter() {
+                        let parsed_kwpair = i.parser().parse(text);
+
+                        if parsed_kwpair.is_some() {
+                            let vec = node.parse(text);
+                        }
+
+                    }
+                }
+            },
+            _ => unreachable!()
+        }
+        None
+    }
+
+    fn parse_with_parsers<'a, 'b>(&'a mut self, text: &'b str) -> Option<(&'a str, &'b str)> {
+        None
+    }
+
     fn lookup_parser(&mut self, parser: &Parser<>) -> Option<usize> {
         self.parser_children.iter().position(|ref x| x.parser().hash_os() == parser.hash_os())
     }
@@ -225,4 +250,28 @@ fn test_given_node_when_different_parsers_are_inserted_then_they_are_not_merged(
     let _ = node.insert_parser(Box::new(SetParser::new("test", "a")));
 
     assert_eq!(node.parser_children.len(), 2);
+}
+
+
+#[test]
+fn test_given_parser_trie_when_some_patterns_are_inserted_then_texts_can_be_parsed() {
+    let mut root = Node::new();
+    let mut cp1 = CompiledPattern::new();
+    let mut cp2 = CompiledPattern::new();
+    cp1.push(NodeType::Literal("app"));
+    cp1.push(NodeType::Parser(Box::new(SetParser::new("test", "01234"))));
+    cp1.push(NodeType::Literal("le"));
+    cp2.push(NodeType::Literal("appletree"));
+
+    root.insert(cp1);
+    root.insert(cp2);
+
+    {
+        let parsed_kwpairs = root.parse("bamboo");
+        assert_eq!(parsed_kwpairs, None);
+    }
+    {
+        let parsed_kwpairs = root.parse("app42le");
+        assert_eq!(parsed_kwpairs.is_some(), true);
+    }
 }

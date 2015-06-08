@@ -1,5 +1,5 @@
 use matcher::trie::node::{Node, NodeType};
-use matcher::trie::node::{CompiledPattern, MatchResult};
+use matcher::trie::node::{CompiledPattern};
 use matcher::trie::TrieOperations;
 use std::collections::BTreeMap;
 
@@ -15,28 +15,6 @@ impl ParserTrie {
 
     pub fn insert(&mut self, pattern: CompiledPattern) -> &mut TrieOperations {
         ParserTrie::insert_recurse(&mut self.root, pattern)
-    }
-
-    pub fn parse<'a, 'b>(&'a mut self, text: &'b str) -> MatchResult<'a, 'b> {
-        if ParserTrie::parse_recurse(&mut self.root, text, &mut kwpairs) {
-            Some(kwpairs)
-        }
-        else {
-            None
-        }
-    }
-
-    pub fn parse_recurse<'a, 'b>(node: &'a mut Node, text: &'b str, kwpairs) -> Option<Vec<(&'a str, &'b str)>> {
-        match node.lookup_literal(text) {
-            Ok(Some((node, len))) |
-                Err(Some((node, len))) => {
-                if len == 0 {
-
-                }
-            },
-            _ => {}
-        }
-        false
     }
 
     fn insert_not_empty_pattern<'a>(node: &'a mut TrieOperations, mut pattern: CompiledPattern) -> &'a mut TrieOperations {
