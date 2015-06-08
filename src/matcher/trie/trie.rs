@@ -18,7 +18,6 @@ impl ParserTrie {
     }
 
     pub fn parse<'a, 'b>(&'a mut self, text: &'b str) -> MatchResult<'a, 'b> {
-        let mut kwpairs = BTreeMap::new();
         if ParserTrie::parse_recurse(&mut self.root, text, &mut kwpairs) {
             Some(kwpairs)
         }
@@ -27,10 +26,14 @@ impl ParserTrie {
         }
     }
 
-    pub fn parse_recurse<'a, 'b>(node: &'a mut Node, text: &'b str, kwpairs: &mut BTreeMap<&'a str, &'b str>) -> bool {
+    pub fn parse_recurse<'a, 'b>(node: &'a mut Node, text: &'b str, kwpairs) -> Option<Vec<(&'a str, &'b str)>> {
         match node.lookup_literal(text) {
             Ok(Some((node, len))) |
-            Err(Some((node, len))) => {},
+                Err(Some((node, len))) => {
+                if len == 0 {
+
+                }
+            },
             _ => {}
         }
         false
