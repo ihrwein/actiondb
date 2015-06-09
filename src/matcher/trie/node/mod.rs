@@ -20,8 +20,8 @@ mod test {
 
         let _ = node.insert_literal("appl").insert_literal("et").insert_literal("ree");
         println!("{:?}", &node);
-        assert_eq!(node.lookup_literal("applet").is_ok(), true);
-        assert_eq!(node.lookup_literal("appletree").is_ok(), true);
-        assert_eq!(node.lookup_literal("appletre").is_ok(), false);
+        assert_eq!(node.lookup_literal_mut("applet").is_ok(), true);
+        assert_eq!(node.lookup_literal_mut("appletree").is_ok(), true);
+        assert_eq!(node.lookup_literal_mut("appletre").is_ok(), false);
     }
 }

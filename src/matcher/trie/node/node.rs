@@ -36,9 +36,9 @@ impl Node {
 
     // If a literal isn't found the last Node instance and the remaining length of the literal will be returned
     // if the literal is in the trie, we return the last Node instance and the index of the LiteralNode which contains the literal
-    pub fn lookup_literal(&mut self, literal: &str) -> Result<Option<(&mut Node, usize)>, Option<(&mut Node, usize)>> {
-        println!("lookup_literal(): stepped in");
-        println!("lookup_literal(): #children = {}", self.literal_children.len());
+    pub fn lookup_literal_mut(&mut self, literal: &str) -> Result<Option<(&mut Node, usize)>, Option<(&mut Node, usize)>> {
+        println!("lookup_literal_mut(): stepped in");
+        println!("lookup_literal_mut(): #children = {}", self.literal_children.len());
         let cmp_str = |probe: &LiteralNode| {
             probe.cmp_str(literal)
         };
@@ -54,39 +54,39 @@ impl Node {
                     }
 
                     if literal.is_empty() && self.literal_children.get(pos).unwrap().has_value() {
-                        println!("lookup_literal(): we got it, it's empty");
+                        println!("lookup_literal_mut(): we got it, it's empty");
                         return Ok(Some((self, pos)));
                     }
 
                     if common_prefix_len == literal.len() &&
                         self.literal_children.get(pos).unwrap().has_value() {
-                        println!("lookup_literal(): we got it, it ends here");
+                        println!("lookup_literal_mut(): we got it, it ends here");
                         return Ok(Some((self, pos)));
                     }
 
                     if let Some(node) = self.literal_children.get_mut(pos).unwrap().node_mut() {
-                        println!("lookup_literal(): literal len = {}", literal.len());
-                        println!("lookup_literal(): common_prefix_len = {}", common_prefix_len);
-                        println!("lookup_literal(): going deeper");
-                        node.lookup_literal(literal.ltrunc(common_prefix_len))
+                        println!("lookup_literal_mut(): literal len = {}", literal.len());
+                        println!("lookup_literal_mut(): common_prefix_len = {}", common_prefix_len);
+                        println!("lookup_literal_mut(): going deeper");
+                        node.lookup_literal_mut(literal.ltrunc(common_prefix_len))
                     } else {
                         unreachable!();
                     }
                 } else {
-                    println!("lookup_literal(): we found a prefix, but it's a leaf");
+                    println!("lookup_literal_mut(): we found a prefix, but it's a leaf");
                     if self.literal_children.get(pos).unwrap().literal() == literal  && self.literal_children.get(pos).unwrap().has_value(){
-                        println!("lookup_literal(): we got it");
+                        println!("lookup_literal_mut(): we got it");
                         Ok(Some((self, pos)))
                     } else {
-                        println!("lookup_literal(): we didn't get it");
+                        println!("lookup_literal_mut(): we didn't get it");
                         Err(Some((self, literal.len())))
                     }
                 }
             },
             Err(_) => {
-                println!("lookup_literal(): there is no common prefix with this literal");
-                println!("lookup_literal(): literal = {}", literal);
-                println!("lookup_literal(): {:?}", self);
+                println!("lookup_literal_mut(): there is no common prefix with this literal");
+                println!("lookup_literal_mut(): literal = {}", literal);
+                println!("lookup_literal_mut(): {:?}", self);
                 Err(Some((self, literal.len())))
             }
         }
@@ -133,7 +133,7 @@ impl TrieOperations for Node {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         println!("inserting literal: '{}'", literal);
 
-        match self.lookup_literal(literal) {
+        match self.lookup_literal_mut(literal) {
             Ok(option) => {
                 println!("insert_literal(): it was already inserted");
                 let (node, index) = option.unwrap();
@@ -166,10 +166,10 @@ fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
     let mut node = Node::new();
 
     let _ = node.insert_literal("alma");
-    assert_eq!(node.lookup_literal("alma").is_ok(), true);
-    assert_eq!(node.lookup_literal("alm").is_err(), true);
+    assert_eq!(node.lookup_literal_mut("alma").is_ok(), true);
+    assert_eq!(node.lookup_literal_mut("alm").is_err(), true);
     let _ = node.insert_literal("alm");
-    assert_eq!(node.lookup_literal("alm").is_ok(), true);
+    assert_eq!(node.lookup_literal_mut("alm").is_ok(), true);
     assert_eq!(node.literal_children.len(), 1);
 }
 
@@ -180,8 +180,8 @@ fn test_given_empty_trie_when_literals_are_inserted_the_child_counts_are_right()
     let _ = node.insert_literal("alma");
     let _ = node.insert_literal("alm");
     assert_eq!(node.literal_children.len(), 1);
-    assert_eq!(node.lookup_literal("alma").is_ok(), true);
-    assert_eq!(node.lookup_literal("alm").ok().unwrap().unwrap().0.literal_children.len(), 2);
+    assert_eq!(node.lookup_literal_mut("alma").is_ok(), true);
+    assert_eq!(node.lookup_literal_mut("alm").ok().unwrap().unwrap().0.literal_children.len(), 2);
 }
 
 #[test]
@@ -193,9 +193,9 @@ fn test_given_empty_trie_when_literals_are_inserted_the_nodes_are_split_on_the_r
     let _ = node.insert_literal("alma");
     let _ = node.insert_literal("ai");
     assert_eq!(node.literal_children.len(), 1);
-    assert_eq!(node.lookup_literal("alma").is_ok(), true);
-    assert_eq!(node.lookup_literal("alm").ok().unwrap().unwrap().0.literal_children.len(), 2);
-    assert_eq!(node.lookup_literal("ai").ok().unwrap().unwrap().0.literal_children.len(), 2);
+    assert_eq!(node.lookup_literal_mut("alma").is_ok(), true);
+    assert_eq!(node.lookup_literal_mut("alm").ok().unwrap().unwrap().0.literal_children.len(), 2);
+    assert_eq!(node.lookup_literal_mut("ai").ok().unwrap().unwrap().0.literal_children.len(), 2);
 }
 
 #[test]
@@ -204,7 +204,7 @@ fn test_given_trie_when_literals_are_looked_up_then_the_edges_in_the_trie_are_no
 
     let _ = node.insert_literal("alm");
     let _ = node.insert_literal("ala");
-    assert_eq!(node.lookup_literal("al").is_err(), true);
+    assert_eq!(node.lookup_literal_mut("al").is_err(), true);
 }
 
 #[test]
