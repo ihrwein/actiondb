@@ -19,6 +19,12 @@ pub struct Node {
     parser_children: Vec<ParserNode>
 }
 
+enum LiteralLookupResult<'a> {
+    Found(usize),
+    NotFound,
+    GoDown(usize, &'a str)
+}
+
 impl Node {
     pub fn new() -> Node {
         Node{ literal_children: SortedVec::new(),
@@ -34,11 +40,26 @@ impl Node {
             self.parser_children.is_empty()
     }
 
+
     // If a literal isn't found the last Node instance and the remaining length of the literal will be returned
     // if the literal is in the trie, we return the last Node instance and the index of the LiteralNode which contains the literal
     pub fn lookup_literal_mut(&mut self, literal: &str) -> Result<(&mut Node, usize), (&mut Node, usize)> {
-        println!("lookup_literal_mut(): stepped in");
-        println!("lookup_literal_mut(): #children = {}", self.literal_children.len());
+        match self.search(literal) {
+            LiteralLookupResult::Found(pos) => {
+                Ok((self, pos))
+            },
+            LiteralLookupResult::NotFound => {
+                Err((self, literal.len()))
+            },
+            LiteralLookupResult::GoDown(pos, truncated_literal) => {
+                self.literal_children.get_mut(pos).unwrap().node_mut().unwrap().lookup_literal_mut(truncated_literal)
+            },
+        }
+    }
+
+    fn search<'a, 'b>(&'a self, literal: &'b str) -> LiteralLookupResult<'b> {
+        println!("search(): stepped in");
+        println!("search(): #children = {}", self.literal_children.len());
         let cmp_str = |probe: &LiteralNode| {
             probe.cmp_str(literal)
         };
@@ -50,44 +71,44 @@ impl Node {
                     let common_prefix_len = self.literal_children.get(pos).unwrap().literal().common_prefix_len(literal);
 
                     if common_prefix_len < node_literal_len {
-                        return Err((self, literal.len()));
+                        return LiteralLookupResult::NotFound;
                     }
 
                     if literal.is_empty() && self.literal_children.get(pos).unwrap().has_value() {
-                        println!("lookup_literal_mut(): we got it, it's empty");
-                        return Ok((self, pos));
+                        println!("search(): we got it, it's empty");
+                        return LiteralLookupResult::Found(pos);
                     }
 
                     if common_prefix_len == literal.len() &&
                         self.literal_children.get(pos).unwrap().has_value() {
-                        println!("lookup_literal_mut(): we got it, it ends here");
-                        return Ok((self, pos));
+                        println!("search(): we got it, it ends here");
+                        return LiteralLookupResult::Found(pos);
                     }
 
-                    if let Some(node) = self.literal_children.get_mut(pos).unwrap().node_mut() {
-                        println!("lookup_literal_mut(): literal len = {}", literal.len());
-                        println!("lookup_literal_mut(): common_prefix_len = {}", common_prefix_len);
-                        println!("lookup_literal_mut(): going deeper");
-                        node.lookup_literal_mut(literal.ltrunc(common_prefix_len))
+                    if let Some(node) = self.literal_children.get(pos).unwrap().node() {
+                        println!("search(): literal len = {}", literal.len());
+                        println!("search(): common_prefix_len = {}", common_prefix_len);
+                        println!("search(): going deeper");
+                        return LiteralLookupResult::GoDown(pos, literal.ltrunc(common_prefix_len));
                     } else {
                         unreachable!();
                     }
                 } else {
-                    println!("lookup_literal_mut(): we found a prefix, but it's a leaf");
+                    println!("search(): we found a prefix, but it's a leaf");
                     if self.literal_children.get(pos).unwrap().literal() == literal  && self.literal_children.get(pos).unwrap().has_value(){
-                        println!("lookup_literal_mut(): we got it");
-                        Ok((self, pos))
+                        println!("search(): we got it");
+                        return LiteralLookupResult::Found(pos);
                     } else {
-                        println!("lookup_literal_mut(): we didn't get it");
-                        Err((self, literal.len()))
+                        println!("search(): we didn't get it");
+                        return LiteralLookupResult::NotFound;
                     }
                 }
             },
             Err(_) => {
-                println!("lookup_literal_mut(): there is no common prefix with this literal");
-                println!("lookup_literal_mut(): literal = {}", literal);
-                println!("lookup_literal_mut(): {:?}", self);
-                Err((self, literal.len()))
+                println!("search(): there is no common prefix with this literal");
+                println!("search(): literal = {}", literal);
+                println!("search(): {:?}", self);
+                return LiteralLookupResult::NotFound;
             }
         }
     }

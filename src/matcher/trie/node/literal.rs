@@ -48,6 +48,15 @@ impl LiteralNode {
         }
     }
 
+    pub fn node(&self) -> Option<&Node> {
+        match self.node {
+            Some(ref boxed_node) => {
+                Some(boxed_node)
+            },
+            None => None
+        }
+    }
+
     pub fn cmp_str(&self, other: &str) -> Ordering {
         if self.literal.is_empty() && other.is_empty() {
             Ordering::Equal
