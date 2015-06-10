@@ -57,6 +57,21 @@ impl Node {
         }
     }
 
+    // It's the same as lookup_literal_mut() without the muts
+    pub fn lookup_literal(&self, literal: &str) -> Result<(&Node, usize), (&Node, usize)> {
+        match self.search(literal) {
+            LiteralLookupResult::Found(pos) => {
+                Ok((self, pos))
+            },
+            LiteralLookupResult::NotFound => {
+                Err((self, literal.len()))
+            },
+            LiteralLookupResult::GoDown(pos, truncated_literal) => {
+                self.literal_children.get(pos).unwrap().node().unwrap().lookup_literal(truncated_literal)
+            },
+        }
+    }
+
     fn search<'a, 'b>(&'a self, literal: &'b str) -> LiteralLookupResult<'b> {
         println!("search(): stepped in");
         println!("search(): #children = {}", self.literal_children.len());
@@ -183,10 +198,10 @@ fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
     let mut node = Node::new();
 
     let _ = node.insert_literal("alma");
-    assert_eq!(node.lookup_literal_mut("alma").is_ok(), true);
-    assert_eq!(node.lookup_literal_mut("alm").is_err(), true);
+    assert_eq!(node.lookup_literal("alma").is_ok(), true);
+    assert_eq!(node.lookup_literal("alm").is_err(), true);
     let _ = node.insert_literal("alm");
-    assert_eq!(node.lookup_literal_mut("alm").is_ok(), true);
+    assert_eq!(node.lookup_literal("alm").is_ok(), true);
     assert_eq!(node.literal_children.len(), 1);
 }
 
@@ -197,8 +212,8 @@ fn test_given_empty_trie_when_literals_are_inserted_the_child_counts_are_right()
     let _ = node.insert_literal("alma");
     let _ = node.insert_literal("alm");
     assert_eq!(node.literal_children.len(), 1);
-    assert_eq!(node.lookup_literal_mut("alma").is_ok(), true);
-    assert_eq!(node.lookup_literal_mut("alm").ok().unwrap().0.literal_children.len(), 2);
+    assert_eq!(node.lookup_literal("alma").is_ok(), true);
+    assert_eq!(node.lookup_literal("alm").ok().unwrap().0.literal_children.len(), 2);
 }
 
 #[test]
@@ -210,9 +225,9 @@ fn test_given_empty_trie_when_literals_are_inserted_the_nodes_are_split_on_the_r
     let _ = node.insert_literal("alma");
     let _ = node.insert_literal("ai");
     assert_eq!(node.literal_children.len(), 1);
-    assert_eq!(node.lookup_literal_mut("alma").is_ok(), true);
-    assert_eq!(node.lookup_literal_mut("alm").ok().unwrap().0.literal_children.len(), 2);
-    assert_eq!(node.lookup_literal_mut("ai").ok().unwrap().0.literal_children.len(), 2);
+    assert_eq!(node.lookup_literal("alma").is_ok(), true);
+    assert_eq!(node.lookup_literal("alm").ok().unwrap().0.literal_children.len(), 2);
+    assert_eq!(node.lookup_literal("ai").ok().unwrap().0.literal_children.len(), 2);
 }
 
 #[test]
@@ -221,7 +236,7 @@ fn test_given_trie_when_literals_are_looked_up_then_the_edges_in_the_trie_are_no
 
     let _ = node.insert_literal("alm");
     let _ = node.insert_literal("ala");
-    assert_eq!(node.lookup_literal_mut("al").is_err(), true);
+    assert_eq!(node.lookup_literal("al").is_err(), true);
 }
 
 #[test]
