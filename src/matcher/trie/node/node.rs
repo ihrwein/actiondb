@@ -96,40 +96,43 @@ impl Node {
 
     fn search_if_ok<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
         if !self.literal_children.get(pos).unwrap().is_leaf() {
-            let node_literal_len = self.literal_children.get(pos).unwrap().literal().len();
-            let common_prefix_len = self.literal_children.get(pos).unwrap().literal().common_prefix_len(literal);
-
-            if common_prefix_len < node_literal_len {
-                return LiteralLookupResult::NotFound;
-            }
-
-            if literal.is_empty() && self.literal_children.get(pos).unwrap().has_value() {
-                println!("search(): we got it, it's empty");
-                return LiteralLookupResult::Found(pos);
-            }
-
-            if common_prefix_len == literal.len() && self.literal_children.get(pos).unwrap().has_value() {
-                println!("search(): we got it, it ends here");
-                return LiteralLookupResult::Found(pos);
-            }
-
-            if let Some(node) = self.literal_children.get(pos).unwrap().node() {
-                println!("search(): literal len = {}", literal.len());
-                println!("search(): common_prefix_len = {}", common_prefix_len);
-                println!("search(): going deeper");
-                return LiteralLookupResult::GoDown(pos, literal.ltrunc(common_prefix_len));
-            } else {
-                unreachable!();
-            }
+            self.search_is_ok_and_is_leaf(literal, pos)
         } else {
-            println!("search(): we found a prefix, but it's a leaf");
-            if self.literal_children.get(pos).unwrap().literal() == literal {
-                println!("search(): we got it");
-                return LiteralLookupResult::Found(pos);
-            } else {
-                println!("search(): we didn't get it");
-                return LiteralLookupResult::NotFound;
-            }
+            self.search_is_ok_and_is_not_leaf(literal, pos)
+        }
+    }
+
+    fn search_is_ok_and_is_not_leaf<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
+        println!("search(): we found a prefix, but it's a leaf");
+        if self.literal_children.get(pos).unwrap().literal() == literal {
+            println!("search(): we got it");
+            LiteralLookupResult::Found(pos)
+        } else {
+            println!("search(): we didn't get it");
+            LiteralLookupResult::NotFound
+        }
+    }
+
+    fn search_is_ok_and_is_leaf<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
+        let literal_node = self.literal_children.get(pos).unwrap();
+        let common_prefix_len = literal_node.literal().common_prefix_len(literal);
+
+        if common_prefix_len < literal_node.literal().len() {
+            return LiteralLookupResult::NotFound;
+        }
+
+        if literal_node.has_value() && (literal.is_empty() || common_prefix_len == literal.len()) {
+            println!("search(): we got it");
+            return LiteralLookupResult::Found(pos);
+        }
+
+        if let Some(node) = literal_node.node() {
+            println!("search(): literal len = {}", literal.len());
+            println!("search(): common_prefix_len = {}", common_prefix_len);
+            println!("search(): going deeper");
+            return LiteralLookupResult::GoDown(pos, literal.ltrunc(common_prefix_len));
+        } else {
+            unreachable!();
         }
     }
 
