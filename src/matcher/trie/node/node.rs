@@ -300,8 +300,7 @@ mod test {
         assert_eq!(node.parser_children.len(), 2);
     }
 
-    #[test]
-    fn test_given_parser_trie_when_some_patterns_are_inserted_then_texts_can_be_parsed() {
+    fn create_parser_trie() -> ParserTrie {
         let mut root = ParserTrie::new();
         let mut cp1 = CompiledPattern::new();
         let mut cp2 = CompiledPattern::new();
@@ -313,6 +312,13 @@ mod test {
         root.insert(cp1);
         root.insert(cp2);
 
+        root
+    }
+
+    #[test]
+    fn test_given_parser_trie_when_some_patterns_are_inserted_then_texts_can_be_parsed() {
+        let root = create_parser_trie();
+
         println!("root: {:?}", &root);
         {
             let parsed_kwpairs = root.parse("bamboo");
@@ -321,6 +327,16 @@ mod test {
         {
             let parsed_kwpairs = root.parse("app42le");
             assert_eq!(parsed_kwpairs.is_some(), true);
+        }
+    }
+
+    #[test]
+    fn test_given_parser_trie_when_some_patterns_are_inserted_then_fully_matching_literals_are_returned_as_empty_vectors() {
+        let root = create_parser_trie();
+        println!("root: {:?}", &root);
+        {
+            let parsed_kwpairs = root.parse("appletree");
+            assert_eq!(parsed_kwpairs.unwrap().is_empty(), true);
         }
     }
 }
