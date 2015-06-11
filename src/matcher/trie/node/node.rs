@@ -304,13 +304,16 @@ mod test {
         let mut root = ParserTrie::new();
         let mut cp1 = CompiledPattern::new();
         let mut cp2 = CompiledPattern::new();
+        let mut cp3 = CompiledPattern::new();
         cp1.push(NodeType::Literal("app"));
         cp1.push(NodeType::Parser(Box::new(SetParser::new("test", "01234"))));
         cp1.push(NodeType::Literal("le"));
         cp2.push(NodeType::Literal("appletree"));
+        cp3.push(NodeType::Literal("apple"));
 
         root.insert(cp1);
         root.insert(cp2);
+        root.insert(cp3);
 
         root
     }
@@ -337,6 +340,54 @@ mod test {
         {
             let parsed_kwpairs = root.parse("appletree");
             assert_eq!(parsed_kwpairs.unwrap().is_empty(), true);
+        }
+    }
+
+    #[test]
+    fn test_given_parser_trie_when_some_patterns_are_inserted_then_literal_matches_have_precedence_over_parser_matches() {
+        let root = create_parser_trie();
+        println!("root: {:?}", &root);
+        {
+            let parsed_kwpairs = root.parse("apple");
+            assert_eq!(parsed_kwpairs.unwrap().is_empty(), true);
+        }
+    }
+
+    fn create_complex_parser_trie() -> ParserTrie {
+        let mut root = ParserTrie::new();
+        let mut cp1 = CompiledPattern::new();
+        let mut cp2 = CompiledPattern::new();
+        let mut cp3 = CompiledPattern::new();
+        let mut cp4 = CompiledPattern::new();
+        cp1.push(NodeType::Literal("app"));
+        cp1.push(NodeType::Parser(Box::new(SetParser::new("middle", "01234"))));
+        cp1.push(NodeType::Literal("letree"));
+        cp1.push(NodeType::Parser(Box::new(SetParser::new("end", "012"))));
+
+        cp2.push(NodeType::Literal("app"));
+        cp2.push(NodeType::Parser(Box::new(SetParser::new("middle", "01234"))));
+        cp2.push(NodeType::Literal("letree"));
+        cp2.push(NodeType::Parser(Box::new(SetParser::new("end", "0123"))));
+
+        cp3.push(NodeType::Literal("bamboo"));
+
+        cp4.push(NodeType::Literal("bamba"));
+
+        root.insert(cp1);
+        root.insert(cp2);
+        root.insert(cp3);
+        root.insert(cp4);
+
+        root
+    }
+
+    #[test]
+    fn test_given_parser_trie_when_a_parser_is_not_matched_then_the_parser_stack_is_unwind_so_an_untried_parser_is_tried() {
+        let root = create_complex_parser_trie();
+        println!("root: {:?}", &root);
+        {
+            let parsed_kwpairs = root.parse("app42letree123");
+            assert_eq!(parsed_kwpairs.unwrap(), vec!(("end", "123"), ("middle", "42")));
         }
     }
 }
