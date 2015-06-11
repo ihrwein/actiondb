@@ -386,8 +386,42 @@ mod test {
         let root = create_complex_parser_trie();
         println!("root: {:?}", &root);
         {
-            let parsed_kwpairs = root.parse("app42letree123");
-            assert_eq!(parsed_kwpairs.unwrap(), vec!(("end", "123"), ("middle", "42")));
+            let kvpairs = root.parse("app42letree123");
+            assert_eq!(kvpairs.unwrap(), vec!(("end", "123"), ("middle", "42")));
+        }
+    }
+
+    #[test]
+    fn test_given_parser_trie_when_the_to_be_parsed_literal_is_not_matched_then_the_parse_result_is_none() {
+        let root = create_complex_parser_trie();
+        println!("root: {:?}", &root);
+        {
+            let kvpairs = root.parse("lorem ipsum");
+            assert_eq!(kvpairs, None);
+        }
+    }
+
+    #[test]
+    fn test_given_parser_trie_when_the_to_be_parsed_literal_is_a_prefix_in_the_tree_then_the_parse_result_is_none() {
+        let root = create_complex_parser_trie();
+        println!("root: {:?}", &root);
+        {
+            let kvpairs = root.parse("bamb");
+            assert_eq!(kvpairs, None);
+        }
+    }
+
+    #[test]
+    fn test_given_empty_parser_node_when_it_is_used_for_parsing_then_it_returns_none() {
+        let root = Node::new();
+        println!("root: {:?}", &root);
+        {
+            let kvpairs = root.parse("bamb");
+            assert_eq!(kvpairs, None);
+        }
+        {
+            let kvpairs = root.parse("");
+            assert_eq!(kvpairs, None);
         }
     }
 }
