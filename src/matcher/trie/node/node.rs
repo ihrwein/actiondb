@@ -228,94 +228,99 @@ impl TrieOperations for Node {
     }
 }
 
-#[test]
-fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
-    let mut node = Node::new();
+#[cfg(test)]
+mod test {
+    use matcher::trie::{ParserTrie, TrieOperations};
+    use parsers::{Parser, SetParser};
+    use matcher::trie::node::{CompiledPattern, Node, NodeType};
 
-    let _ = node.insert_literal("alma");
-    assert_eq!(node.lookup_literal("alma").is_ok(), true);
-    assert_eq!(node.lookup_literal("alm").is_err(), true);
-    let _ = node.insert_literal("alm");
-    assert_eq!(node.lookup_literal("alm").is_ok(), true);
-    assert_eq!(node.literal_children.len(), 1);
-}
+    #[test]
+    fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
+        let mut node = Node::new();
 
-#[test]
-fn test_given_empty_trie_when_literals_are_inserted_the_child_counts_are_right() {
-    let mut node = Node::new();
-
-    let _ = node.insert_literal("alma");
-    let _ = node.insert_literal("alm");
-    assert_eq!(node.literal_children.len(), 1);
-    assert_eq!(node.lookup_literal("alma").is_ok(), true);
-    assert_eq!(node.lookup_literal("alm").ok().unwrap().0.literal_children.len(), 2);
-}
-
-#[test]
-#[no_mangle]
-fn test_given_empty_trie_when_literals_are_inserted_the_nodes_are_split_on_the_right_place() {
-    let mut node = Node::new();
-
-    let _ = node.insert_literal("alm");
-    let _ = node.insert_literal("alma");
-    let _ = node.insert_literal("ai");
-    assert_eq!(node.literal_children.len(), 1);
-    assert_eq!(node.lookup_literal("alma").is_ok(), true);
-    assert_eq!(node.lookup_literal("alm").ok().unwrap().0.literal_children.len(), 2);
-    assert_eq!(node.lookup_literal("ai").ok().unwrap().0.literal_children.len(), 2);
-}
-
-#[test]
-fn test_given_trie_when_literals_are_looked_up_then_the_edges_in_the_trie_are_not_counted_as_literals() {
-    let mut node = Node::new();
-
-    let _ = node.insert_literal("alm");
-    let _ = node.insert_literal("ala");
-    assert_eq!(node.lookup_literal("al").is_err(), true);
-}
-
-#[test]
-fn test_given_node_when_the_same_parsers_are_inserted_then_they_are_merged_into_one_parsernode() {
-    let mut node = Node::new();
-
-    let _ = node.insert_parser(Box::new(SetParser::new("test", "ab")));
-    let _ = node.insert_parser(Box::new(SetParser::new("test", "ab")));
-
-    assert_eq!(node.parser_children.len(), 1);
-}
-
-#[test]
-fn test_given_node_when_different_parsers_are_inserted_then_they_are_not_merged() {
-    let mut node = Node::new();
-
-    let _ = node.insert_parser(Box::new(SetParser::new("test", "ab")));
-    let _ = node.insert_parser(Box::new(SetParser::new("test", "a")));
-
-    assert_eq!(node.parser_children.len(), 2);
-}
-
-use matcher::trie::ParserTrie;
-
-#[test]
-fn test_given_parser_trie_when_some_patterns_are_inserted_then_texts_can_be_parsed() {
-    let mut root = ParserTrie::new();
-    let mut cp1 = CompiledPattern::new();
-    let mut cp2 = CompiledPattern::new();
-    cp1.push(NodeType::Literal("app"));
-    cp1.push(NodeType::Parser(Box::new(SetParser::new("test", "01234"))));
-    cp1.push(NodeType::Literal("le"));
-    cp2.push(NodeType::Literal("appletree"));
-
-    root.insert(cp1);
-    root.insert(cp2);
-
-    println!("root: {:?}", &root);
-    {
-        let parsed_kwpairs = root.parse("bamboo");
-        assert_eq!(parsed_kwpairs, None);
+        let _ = node.insert_literal("alma");
+        assert_eq!(node.lookup_literal("alma").is_ok(), true);
+        assert_eq!(node.lookup_literal("alm").is_err(), true);
+        let _ = node.insert_literal("alm");
+        assert_eq!(node.lookup_literal("alm").is_ok(), true);
+        assert_eq!(node.literal_children.len(), 1);
     }
-    {
-        let parsed_kwpairs = root.parse("app42le");
-        assert_eq!(parsed_kwpairs.is_some(), true);
+
+    #[test]
+    fn test_given_empty_trie_when_literals_are_inserted_the_child_counts_are_right() {
+        let mut node = Node::new();
+
+        let _ = node.insert_literal("alma");
+        let _ = node.insert_literal("alm");
+        assert_eq!(node.literal_children.len(), 1);
+        assert_eq!(node.lookup_literal("alma").is_ok(), true);
+        assert_eq!(node.lookup_literal("alm").ok().unwrap().0.literal_children.len(), 2);
+    }
+
+    #[test]
+    #[no_mangle]
+    fn test_given_empty_trie_when_literals_are_inserted_the_nodes_are_split_on_the_right_place() {
+        let mut node = Node::new();
+
+        let _ = node.insert_literal("alm");
+        let _ = node.insert_literal("alma");
+        let _ = node.insert_literal("ai");
+        assert_eq!(node.literal_children.len(), 1);
+        assert_eq!(node.lookup_literal("alma").is_ok(), true);
+        assert_eq!(node.lookup_literal("alm").ok().unwrap().0.literal_children.len(), 2);
+        assert_eq!(node.lookup_literal("ai").ok().unwrap().0.literal_children.len(), 2);
+    }
+
+    #[test]
+    fn test_given_trie_when_literals_are_looked_up_then_the_edges_in_the_trie_are_not_counted_as_literals() {
+        let mut node = Node::new();
+
+        let _ = node.insert_literal("alm");
+        let _ = node.insert_literal("ala");
+        assert_eq!(node.lookup_literal("al").is_err(), true);
+    }
+
+    #[test]
+    fn test_given_node_when_the_same_parsers_are_inserted_then_they_are_merged_into_one_parsernode() {
+        let mut node = Node::new();
+
+        let _ = node.insert_parser(Box::new(SetParser::new("test", "ab")));
+        let _ = node.insert_parser(Box::new(SetParser::new("test", "ab")));
+
+        assert_eq!(node.parser_children.len(), 1);
+    }
+
+    #[test]
+    fn test_given_node_when_different_parsers_are_inserted_then_they_are_not_merged() {
+        let mut node = Node::new();
+
+        let _ = node.insert_parser(Box::new(SetParser::new("test", "ab")));
+        let _ = node.insert_parser(Box::new(SetParser::new("test", "a")));
+
+        assert_eq!(node.parser_children.len(), 2);
+    }
+
+    #[test]
+    fn test_given_parser_trie_when_some_patterns_are_inserted_then_texts_can_be_parsed() {
+        let mut root = ParserTrie::new();
+        let mut cp1 = CompiledPattern::new();
+        let mut cp2 = CompiledPattern::new();
+        cp1.push(NodeType::Literal("app"));
+        cp1.push(NodeType::Parser(Box::new(SetParser::new("test", "01234"))));
+        cp1.push(NodeType::Literal("le"));
+        cp2.push(NodeType::Literal("appletree"));
+
+        root.insert(cp1);
+        root.insert(cp2);
+
+        println!("root: {:?}", &root);
+        {
+            let parsed_kwpairs = root.parse("bamboo");
+            assert_eq!(parsed_kwpairs, None);
+        }
+        {
+            let parsed_kwpairs = root.parse("app42le");
+            assert_eq!(parsed_kwpairs.is_some(), true);
+        }
     }
 }
