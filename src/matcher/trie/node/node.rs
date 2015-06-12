@@ -82,7 +82,7 @@ impl Node {
 
         match self.literal_children.binary_search_by(&cmp_str) {
             Ok(pos) => {
-                self.search_if_ok(literal, pos)
+                self.search_prefix_is_found(literal, pos)
             },
             Err(_) => {
                 println!("search(): there is no common prefix with this literal");
@@ -94,15 +94,15 @@ impl Node {
         }
     }
 
-    fn search_if_ok<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
+    fn search_prefix_is_found<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
         if !self.literal_children.get(pos).unwrap().is_leaf() {
-            self.search_is_ok_and_is_leaf(literal, pos)
+            self.search_prefix_is_found_and_node_is_leaf(literal, pos)
         } else {
-            self.search_is_ok_and_is_not_leaf(literal, pos)
+            self.search_prefix_is_found_and_node_is_not_leaf(literal, pos)
         }
     }
 
-    fn search_is_ok_and_is_not_leaf<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
+    fn search_prefix_is_found_and_node_is_not_leaf<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
         println!("search(): we found a prefix, but it's a leaf");
         if self.literal_children.get(pos).unwrap().literal() == literal {
             println!("search(): we got it");
@@ -113,7 +113,7 @@ impl Node {
         }
     }
 
-    fn search_is_ok_and_is_leaf<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
+    fn search_prefix_is_found_and_node_is_leaf<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
         let literal_node = self.literal_children.get(pos).unwrap();
         let common_prefix_len = literal_node.literal().common_prefix_len(literal);
 
