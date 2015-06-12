@@ -3,7 +3,7 @@ use matcher::trie::node::{Node, NodeType};
 use parsers::SetParser;
 
 identifier -> &'input str
-  = [a-z-A-Z_]+ { match_str }
+  = ([a-z-A-Z_]![-])+ { match_str }
 
 parser_type -> &'input str
   = identifier
@@ -14,6 +14,7 @@ parser_name -> &'input str
 literal -> &'input str
   = identifier
 
+#[pub]
 part_parser -> NodeType<'input>
   = "%{" pt:parser_type ":" pin:parser_name "}" {?
   if pt == "SET" {
@@ -27,6 +28,7 @@ part_parser -> NodeType<'input>
 part_literal -> NodeType<'input>
   = lit:literal { NodeType::Literal(lit) }
 
+#[pub]
 pattern -> CompiledPattern<'input>
   = pattern_parts*
 
