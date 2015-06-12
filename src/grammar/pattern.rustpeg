@@ -2,20 +2,20 @@ use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
 use parsers::SetParser;
 
-ID -> &'input str
+identifier -> &'input str
   = [a-z-A-Z_]+ { match_str }
 
-PARSER_TYPE -> &'input str
-  = ID
+parser_type -> &'input str
+  = identifier
 
-PARSER_INSTANCE_NAME -> &'input str
-  = ID
+parser_name -> &'input str
+  = identifier
 
-LITERAL -> &'input str
-  = ID
+literal -> &'input str
+  = identifier
 
-PART_PARSER -> NodeType<'input>
-  = "%{" pt:PARSER_TYPE ":" pin:PARSER_INSTANCE_NAME "}" {?
+part_parser -> NodeType<'input>
+  = "%{" pt:parser_type ":" pin:parser_name "}" {?
   if pt == "SET" {
     let parser = Box::new(SetParser::new(pin, "0123456789"));
     Ok(NodeType::Parser(parser))
@@ -24,11 +24,11 @@ PART_PARSER -> NodeType<'input>
   }
 }
 
-PART_LITERAL -> NodeType<'input>
-  = lit:LITERAL { NodeType::Literal(lit) }
+part_literal -> NodeType<'input>
+  = lit:literal { NodeType::Literal(lit) }
 
-PATTERN -> CompiledPattern<'input>
-  = PATTERN_PARTS*
+pattern -> CompiledPattern<'input>
+  = pattern_parts*
 
-PATTERN_PARTS -> NodeType<'input>
-  = PART_PARSER / PART_LITERAL
+pattern_parts -> NodeType<'input>
+  = part_parser / part_literal
