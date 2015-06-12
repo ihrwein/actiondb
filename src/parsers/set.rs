@@ -82,6 +82,10 @@ impl Parser for SetParser {
             None
         }
     }
+
+    fn name(&self) -> &str {
+        &self.name
+    }
 }
 
 impl ObjectSafeHash for SetParser {

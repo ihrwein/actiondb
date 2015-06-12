@@ -9,4 +9,5 @@ pub trait ObjectSafeHash {
 
 pub trait Parser: Debug + ObjectSafeHash {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)>;
+    fn name(&self) -> &str;
 }
