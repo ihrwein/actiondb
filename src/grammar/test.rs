@@ -6,7 +6,7 @@ fn test_given_parser_as_a_string_when_it_is_parsed_then_we_get_the_instantiated_
     let string_parser = "%{SET:test_name}";
     match pattern_parser::part_parser(string_parser).ok().unwrap() {
         NodeType::Parser(parser) => {
-            assert_eq!(parser.name(), "test_name");
+            assert_eq!(parser.base().name(), "test_name");
         },
         _ => unreachable!()
     }
