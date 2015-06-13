@@ -1,6 +1,6 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
-use parsers::SetParser;
+use parsers::{SetParser, IntParser};
 
 identifier -> &'input str
   = ([a-z-A-Z_]![-])+ { match_str }
@@ -17,8 +17,8 @@ literal -> &'input str
 #[pub]
 part_parser -> NodeType<'input>
   = "%{" pt:parser_type ":" pin:parser_name "}" {?
-  if pt == "SET" {
-    let parser = Box::new(SetParser::new(pin, "0123456789"));
+  if pt == "INT" {
+    let parser = Box::new(IntParser::from_str(pin));
     Ok(NodeType::Parser(parser))
   } else {
     Err("No parser found with this type")

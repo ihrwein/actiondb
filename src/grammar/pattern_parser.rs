@@ -2,7 +2,7 @@
 #![allow(non_snake_case, unused)]
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
-use parsers::SetParser;
+use parsers::{SetParser, IntParser};
 use self::RuleResult::{Matched, Failed};
 fn escape_default(s: &str) -> String {
     s.chars().flat_map(|c| c.escape_default()).collect()
@@ -243,11 +243,10 @@ fn parse_part_parser<'input>(input: &'input str, state: &mut ParseState,
                                                                         match {
                                                                                   if pt
                                                                                          ==
-                                                                                         "SET"
+                                                                                         "INT"
                                                                                      {
                                                                                       let parser =
-                                                                                          Box::new(SetParser::new(pin,
-                                                                                                                  "0123456789"));
+                                                                                          Box::new(IntParser::from_str(pin));
                                                                                       Ok(NodeType::Parser(parser))
                                                                                   } else {
                                                                                       Err("No parser found with this type")
