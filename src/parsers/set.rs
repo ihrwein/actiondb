@@ -11,9 +11,20 @@ pub struct SetParser {
 }
 
 impl SetParser {
-    pub fn new(name: &str, set: &str) -> SetParser {
-        SetParser{ character_set: SetParser::create_set_from_str(set),
-                   base: ParserBase::from_str(name)}
+    pub fn new() -> SetParser {
+        SetParser{ character_set: SetParser::create_set_from_str(""),
+                   base: ParserBase::new()}
+    }
+
+    pub fn from_str(name: &str, set: &str) -> SetParser {
+        let mut parser = SetParser::new();
+        parser.base_mut().set_name(name.to_string());
+        parser.set_character_set(set);
+        parser
+    }
+
+    pub fn set_character_set(&mut self, set: &str) {
+        self.character_set = SetParser::create_set_from_str(set);
     }
 
     fn create_set_from_str(set: &str) -> BTreeSet<u8> {
@@ -72,28 +83,28 @@ mod test {
 
     #[test]
     fn test_given_empty_string_when_parsed_it_wont_match() {
-        let p = SetParser::new("test", "");
+        let p = SetParser::from_str("test", "");
         assert_eq!(p.parse("almafa"),
                    None);
     }
 
     #[test]
     fn test_given_not_matching_string_when_parsed_it_wont_match() {
-        let p = SetParser::new("test", "123");
+        let p = SetParser::from_str("test", "123");
         assert_eq!(p.parse("almafa"),
                    None);
     }
 
     #[test]
     fn test_given_matching_string_when_parsed_it_matches() {
-        let mut p = SetParser::new("name", "0123");
+        let mut p = SetParser::from_str("name", "0123");
         assert_eq!(p.parse("11230almafa"),
                    Some(("name", "11230")));
     }
 
     #[test]
     fn test_given_minimum_match_length_when_a_match_is_shorter_it_doesnt_count_as_a_match() {
-        let mut p = SetParser::new("test", "0123");
+        let mut p = SetParser::from_str("test", "0123");
         p.base_mut().set_min_length(7);
         assert_eq!(p.parse("11230almafa"),
                    None);
@@ -101,7 +112,7 @@ mod test {
 
     #[test]
     fn test_given_maximum_match_length_when_a_match_is_longer_it_doesnt_count_as_a_match() {
-        let mut p = SetParser::new("name", "0123");
+        let mut p = SetParser::from_str("name", "0123");
         p.base_mut().set_max_length(3);
         assert_eq!(p.parse("11230almafa"),
                    None);
@@ -109,7 +120,7 @@ mod test {
 
     #[test]
     fn test_given_minimum_and_maximum_match_length_when_a_proper_length_match_occures_it_counts_as_a_match() {
-        let mut p = SetParser::new("testname", "0123");
+        let mut p = SetParser::from_str("testname", "0123");
         p.base_mut().set_min_length(3);
         p.base_mut().set_max_length(7);
         assert_eq!(p.parse("11230almafa"),
@@ -120,8 +131,8 @@ mod test {
 
     #[test]
     fn test_given_set_parser_and_when_differently_parametrized_instances_are_hashed_then_the_hashes_are_different() {
-        let p1 = SetParser::new("test", "0123");
-        let p2 = SetParser::new("test", "01234");
+        let p1 = SetParser::from_str("test", "0123");
+        let p2 = SetParser::from_str("test", "01234");
         assert_eq!(p1.hash_os() == p2.hash_os(), false);
     }
 }

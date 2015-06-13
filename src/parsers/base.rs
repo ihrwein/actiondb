@@ -6,12 +6,18 @@ pub struct ParserBase {
 }
 
 impl ParserBase {
-    pub fn from_str(name: &str) -> ParserBase {
-        ParserBase::new(name.to_string())
+    pub fn with_name_str(name: &str) -> ParserBase {
+        ParserBase::with_name(name.to_string())
     }
 
-    pub fn new(name: String) -> ParserBase {
-        ParserBase { name: name,
+    pub fn with_name(name: String) -> ParserBase {
+        let mut base = ParserBase::new();
+        base.set_name(name);
+        base
+    }
+
+    pub fn new() -> ParserBase {
+        ParserBase { name: "".to_string(),
                      min_length: None,
                      max_length: None }
     }
