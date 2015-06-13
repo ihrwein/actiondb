@@ -2,59 +2,23 @@ use std::collections::BTreeSet;
 use std::iter::FromIterator;
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash};
+use parsers::{Parser, ObjectSafeHash, ParserBase};
 
 #[derive(Debug)]
 pub struct SetParser {
     character_set: BTreeSet<u8>,
-    name: String,
-    min_length: Option<usize>,
-    max_length: Option<usize>
+    base: ParserBase
 }
 
 impl SetParser {
     pub fn new(name: &str, set: &str) -> SetParser {
         SetParser{ character_set: SetParser::create_set_from_str(set),
-                        name: name.to_string(),
-                        min_length: None,
-                        max_length: None}
-    }
-
-    pub fn set_min_length(&mut self, length: usize) {
-        self.min_length = Some(length);
-    }
-
-    pub fn set_max_length(&mut self, length: usize) {
-        self.max_length = Some(length);
-    }
-
-    pub fn set_name(&mut self, name: String) {
-        self.name = name;
+                   base: ParserBase::from_str(name)}
     }
 
     fn create_set_from_str(set: &str) -> BTreeSet<u8> {
         let vset: Vec<u8> = set.bytes().collect();
         BTreeSet::from_iter(vset)
-    }
-
-    fn is_match_length_ok(&self, match_length: usize) -> bool {
-        match_length > 0 &&
-            self.is_min_length_ok(match_length) &&
-            self.is_max_length_ok(match_length)
-    }
-
-    fn is_min_length_ok(&self, match_length: usize) -> bool {
-        match self.min_length {
-            Some(x) => match_length >= x,
-            None => true
-        }
-    }
-
-    fn is_max_length_ok(&self, match_length: usize) -> bool {
-        match self.max_length {
-            Some(x) => match_length <= x,
-            None => true
-        }
     }
 
     fn calculate_match_length(&self, value: &str) -> usize {
@@ -76,15 +40,19 @@ impl Parser for SetParser {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)> {
         let match_len = self.calculate_match_length(value);
 
-        if self.is_match_length_ok(match_len) {
-            Some((&self.name, &value[..match_len]))
+        if self.base().is_match_length_ok(match_len) {
+            Some((&self.base.name(), &value[..match_len]))
         } else {
             None
         }
     }
 
-    fn name(&self) -> &str {
-        &self.name
+    fn base(&self) -> &ParserBase {
+        &self.base
+    }
+
+    fn base_mut(&mut self) -> &mut ParserBase {
+        &mut self.base
     }
 }
 
@@ -93,8 +61,7 @@ impl ObjectSafeHash for SetParser {
         let mut hasher = SipHasher::new();
         "parser:set".hash(&mut hasher);
         self.character_set.hash(&mut hasher);
-        self.min_length.hash(&mut hasher);
-        self.max_length.hash(&mut hasher);
+        self.base.hash(&mut hasher);
         hasher.finish()
     }
 }
@@ -127,7 +94,7 @@ mod test {
     #[test]
     fn test_given_minimum_match_length_when_a_match_is_shorter_it_doesnt_count_as_a_match() {
         let mut p = SetParser::new("test", "0123");
-        p.set_min_length(7);
+        p.base_mut().set_min_length(7);
         assert_eq!(p.parse("11230almafa"),
                    None);
     }
@@ -135,7 +102,7 @@ mod test {
     #[test]
     fn test_given_maximum_match_length_when_a_match_is_longer_it_doesnt_count_as_a_match() {
         let mut p = SetParser::new("name", "0123");
-        p.set_max_length(3);
+        p.base_mut().set_max_length(3);
         assert_eq!(p.parse("11230almafa"),
                    None);
     }
@@ -143,8 +110,8 @@ mod test {
     #[test]
     fn test_given_minimum_and_maximum_match_length_when_a_proper_length_match_occures_it_counts_as_a_match() {
         let mut p = SetParser::new("testname", "0123");
-        p.set_min_length(3);
-        p.set_max_length(7);
+        p.base_mut().set_min_length(3);
+        p.base_mut().set_max_length(7);
         assert_eq!(p.parse("11230almafa"),
                    Some(("testname", "11230")));
     }
