@@ -289,8 +289,8 @@ mod test {
     fn test_given_node_when_the_same_parsers_are_inserted_then_they_are_merged_into_one_parsernode() {
         let mut node = Node::new();
 
-        let _ = node.insert_parser(Box::new(SetParser::new("test", "ab")));
-        let _ = node.insert_parser(Box::new(SetParser::new("test", "ab")));
+        let _ = node.insert_parser(Box::new(SetParser::from_str("test", "ab")));
+        let _ = node.insert_parser(Box::new(SetParser::from_str("test", "ab")));
 
         assert_eq!(node.parser_children.len(), 1);
     }
@@ -299,8 +299,8 @@ mod test {
     fn test_given_node_when_different_parsers_are_inserted_then_they_are_not_merged() {
         let mut node = Node::new();
 
-        let _ = node.insert_parser(Box::new(SetParser::new("test", "ab")));
-        let _ = node.insert_parser(Box::new(SetParser::new("test", "a")));
+        let _ = node.insert_parser(Box::new(SetParser::from_str("test", "ab")));
+        let _ = node.insert_parser(Box::new(SetParser::from_str("test", "a")));
 
         assert_eq!(node.parser_children.len(), 2);
     }
@@ -311,7 +311,7 @@ mod test {
         let mut cp2 = CompiledPattern::new();
         let mut cp3 = CompiledPattern::new();
         cp1.push(NodeType::Literal("app"));
-        cp1.push(NodeType::Parser(Box::new(SetParser::new("test", "01234"))));
+        cp1.push(NodeType::Parser(Box::new(SetParser::from_str("test", "01234"))));
         cp1.push(NodeType::Literal("le"));
         cp2.push(NodeType::Literal("appletree"));
         cp3.push(NodeType::Literal("apple"));
@@ -365,14 +365,14 @@ mod test {
         let mut cp3 = CompiledPattern::new();
         let mut cp4 = CompiledPattern::new();
         cp1.push(NodeType::Literal("app"));
-        cp1.push(NodeType::Parser(Box::new(SetParser::new("middle", "01234"))));
+        cp1.push(NodeType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
         cp1.push(NodeType::Literal("letree"));
-        cp1.push(NodeType::Parser(Box::new(SetParser::new("end", "012"))));
+        cp1.push(NodeType::Parser(Box::new(SetParser::from_str("end", "012"))));
 
         cp2.push(NodeType::Literal("app"));
-        cp2.push(NodeType::Parser(Box::new(SetParser::new("middle", "01234"))));
+        cp2.push(NodeType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
         cp2.push(NodeType::Literal("letree"));
-        cp2.push(NodeType::Parser(Box::new(SetParser::new("end", "0123"))));
+        cp2.push(NodeType::Parser(Box::new(SetParser::from_str("end", "0123"))));
 
         cp3.push(NodeType::Literal("bamboo"));
 
