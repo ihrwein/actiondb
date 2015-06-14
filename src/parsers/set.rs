@@ -11,9 +11,20 @@ pub struct SetParser {
 }
 
 impl SetParser {
+    pub fn new() -> SetParser {
+        SetParser{ character_set: SetParser::create_set_from_str(""),
+                   base: ParserBase::new()}
+    }
+
     pub fn from_str(name: &str, set: &str) -> SetParser {
-        SetParser{ character_set: SetParser::create_set_from_str(set),
-                   base: ParserBase::from_str(name)}
+        let mut parser = SetParser::new();
+        parser.base_mut().set_name(name.to_string());
+        parser.set_character_set(set);
+        parser
+    }
+
+    pub fn set_character_set(&mut self, set: &str) {
+        self.character_set = SetParser::create_set_from_str(set);
     }
 
     fn create_set_from_str(set: &str) -> BTreeSet<u8> {
