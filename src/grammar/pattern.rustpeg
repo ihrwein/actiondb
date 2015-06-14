@@ -12,7 +12,7 @@ parser_name -> &'input str
   = identifier
 
 literal -> &'input str
-  = identifier
+  = (. !"%{")* { match_str }
 
 #[pub]
 part_parser -> NodeType<'input>
@@ -25,12 +25,14 @@ part_parser -> NodeType<'input>
   }
 }
 
+#[pub]
 part_literal -> NodeType<'input>
   = lit:literal { NodeType::Literal(lit) }
 
 #[pub]
 pattern -> CompiledPattern<'input>
-  = pattern_parts*
+  = ps: pattern_parts* { ps }
 
 pattern_parts -> NodeType<'input>
-  = part_parser / part_literal
+  = p:part_parser { p }
+  / l:part_literal { l }

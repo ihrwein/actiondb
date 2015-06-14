@@ -8,6 +8,7 @@ use matcher::trie::TrieOperations;
 pub type MatchResult<'a, 'b> = Option<BTreeMap<&'a str, &'b str>>;
 pub type CompiledPattern<'a> = Vec<NodeType<'a>>;
 
+#[derive(Debug)]
 pub enum NodeType<'a> {
     Parser(Box<Parser>),
     Literal(&'a str)

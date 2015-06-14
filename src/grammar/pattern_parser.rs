@@ -201,7 +201,50 @@ fn parse_parser_name<'input>(input: &'input str, state: &mut ParseState,
 }
 fn parse_literal<'input>(input: &'input str, state: &mut ParseState,
                          pos: usize) -> RuleResult<&'input str> {
-    parse_identifier(input, state, pos)
+    {
+        let start_pos = pos;
+        {
+            let seq_res =
+                {
+                    let mut repeat_pos = pos;
+                    loop  {
+                        let pos = repeat_pos;
+                        let step_res =
+                            {
+                                let seq_res = any_char(input, state, pos);
+                                match seq_res {
+                                    Matched(pos, _) => {
+                                        {
+                                            let assert_res =
+                                                slice_eq(input, state, pos,
+                                                         "%{");
+                                            match assert_res {
+                                                Failed => Matched(pos, ()),
+                                                Matched(..) => Failed,
+                                            }
+                                        }
+                                    }
+                                    Failed => Failed,
+                                }
+                            };
+                        match step_res {
+                            Matched(newpos, value) => { repeat_pos = newpos; }
+                            Failed => { break ; }
+                        }
+                    }
+                    Matched(repeat_pos, ())
+                };
+            match seq_res {
+                Matched(pos, _) => {
+                    {
+                        let match_str = &input[start_pos..pos];
+                        Matched(pos, { match_str })
+                    }
+                }
+                Failed => Failed,
+            }
+        }
+    }
 }
 fn parse_part_parser<'input>(input: &'input str, state: &mut ParseState,
                              pos: usize) -> RuleResult<NodeType<'input>> {
@@ -310,29 +353,73 @@ fn parse_part_literal<'input>(input: &'input str, state: &mut ParseState,
 fn parse_pattern<'input>(input: &'input str, state: &mut ParseState,
                          pos: usize) -> RuleResult<CompiledPattern<'input>> {
     {
-        let mut repeat_pos = pos;
-        let mut repeat_value = vec!();
-        loop  {
-            let pos = repeat_pos;
-            let step_res = parse_pattern_parts(input, state, pos);
-            match step_res {
-                Matched(newpos, value) => {
-                    repeat_pos = newpos;
-                    repeat_value.push(value);
+        let start_pos = pos;
+        {
+            let seq_res =
+                {
+                    let mut repeat_pos = pos;
+                    let mut repeat_value = vec!();
+                    loop  {
+                        let pos = repeat_pos;
+                        let step_res = parse_pattern_parts(input, state, pos);
+                        match step_res {
+                            Matched(newpos, value) => {
+                                repeat_pos = newpos;
+                                repeat_value.push(value);
+                            }
+                            Failed => { break ; }
+                        }
+                    }
+                    Matched(repeat_pos, repeat_value)
+                };
+            match seq_res {
+                Matched(pos, ps) => {
+                    {
+                        let match_str = &input[start_pos..pos];
+                        Matched(pos, { ps })
+                    }
                 }
-                Failed => { break ; }
+                Failed => Failed,
             }
         }
-        Matched(repeat_pos, repeat_value)
     }
 }
 fn parse_pattern_parts<'input>(input: &'input str, state: &mut ParseState,
                                pos: usize) -> RuleResult<NodeType<'input>> {
     {
-        let choice_res = parse_part_parser(input, state, pos);
+        let choice_res =
+            {
+                let start_pos = pos;
+                {
+                    let seq_res = parse_part_parser(input, state, pos);
+                    match seq_res {
+                        Matched(pos, p) => {
+                            {
+                                let match_str = &input[start_pos..pos];
+                                Matched(pos, { p })
+                            }
+                        }
+                        Failed => Failed,
+                    }
+                }
+            };
         match choice_res {
             Matched(pos, value) => Matched(pos, value),
-            Failed => parse_part_literal(input, state, pos),
+            Failed => {
+                let start_pos = pos;
+                {
+                    let seq_res = parse_part_literal(input, state, pos);
+                    match seq_res {
+                        Matched(pos, l) => {
+                            {
+                                let match_str = &input[start_pos..pos];
+                                Matched(pos, { l })
+                            }
+                        }
+                        Failed => Failed,
+                    }
+                }
+            }
         }
     }
 }
@@ -340,6 +427,19 @@ pub fn part_parser<'input>(input: &'input str)
  -> ParseResult<NodeType<'input>> {
     let mut state = ParseState::new();
     match parse_part_parser(input, &mut state, 0) {
+        Matched(pos, value) => { if pos == input.len() { return Ok(value) } }
+        _ => { }
+    }
+    let (line, col) = pos_to_line(input, state.max_err_pos);
+    Err(ParseError{line: line,
+                   column: col,
+                   offset: state.max_err_pos,
+                   expected: state.expected,})
+}
+pub fn part_literal<'input>(input: &'input str)
+ -> ParseResult<NodeType<'input>> {
+    let mut state = ParseState::new();
+    match parse_part_literal(input, &mut state, 0) {
         Matched(pos, value) => { if pos == input.len() { return Ok(value) } }
         _ => { }
     }
