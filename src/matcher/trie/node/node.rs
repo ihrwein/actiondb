@@ -6,12 +6,12 @@ use matcher::trie::node::ParserNode;
 use matcher::trie::TrieOperations;
 
 pub type MatchResult<'a, 'b> = Option<BTreeMap<&'a str, &'b str>>;
-pub type CompiledPattern<'a> = Vec<NodeType<'a>>;
+pub type CompiledPattern = Vec<NodeType>;
 
 #[derive(Debug)]
-pub enum NodeType<'a> {
+pub enum NodeType {
     Parser(Box<Parser>),
-    Literal(&'a str)
+    Literal(String)
 }
 
 #[derive(Debug)]
@@ -311,11 +311,11 @@ mod test {
         let mut cp1 = CompiledPattern::new();
         let mut cp2 = CompiledPattern::new();
         let mut cp3 = CompiledPattern::new();
-        cp1.push(NodeType::Literal("app"));
+        cp1.push(NodeType::Literal("app".to_string()));
         cp1.push(NodeType::Parser(Box::new(SetParser::from_str("test", "01234"))));
-        cp1.push(NodeType::Literal("le"));
-        cp2.push(NodeType::Literal("appletree"));
-        cp3.push(NodeType::Literal("apple"));
+        cp1.push(NodeType::Literal("le".to_string()));
+        cp2.push(NodeType::Literal("appletree".to_string()));
+        cp3.push(NodeType::Literal("apple".to_string()));
 
         root.insert(cp1);
         root.insert(cp2);
@@ -365,19 +365,19 @@ mod test {
         let mut cp2 = CompiledPattern::new();
         let mut cp3 = CompiledPattern::new();
         let mut cp4 = CompiledPattern::new();
-        cp1.push(NodeType::Literal("app"));
+        cp1.push(NodeType::Literal("app".to_string()));
         cp1.push(NodeType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
-        cp1.push(NodeType::Literal("letree"));
+        cp1.push(NodeType::Literal("letree".to_string()));
         cp1.push(NodeType::Parser(Box::new(SetParser::from_str("end", "012"))));
 
-        cp2.push(NodeType::Literal("app"));
+        cp2.push(NodeType::Literal("app".to_string()));
         cp2.push(NodeType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
-        cp2.push(NodeType::Literal("letree"));
+        cp2.push(NodeType::Literal("letree".to_string()));
         cp2.push(NodeType::Parser(Box::new(SetParser::from_str("end", "0123"))));
 
-        cp3.push(NodeType::Literal("bamboo"));
+        cp3.push(NodeType::Literal("bamboo".to_string()));
 
-        cp4.push(NodeType::Literal("bamba"));
+        cp4.push(NodeType::Literal("bamba".to_string()));
 
         root.insert(cp1);
         root.insert(cp2);

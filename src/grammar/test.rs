@@ -1,7 +1,7 @@
 use super::pattern_parser;
 use matcher::trie::node::{CompiledPattern, NodeType};
 
-fn assert_parser_name_equals<'a>(item: Option<&NodeType<'a>>, expected_name: &str) {
+fn assert_parser_name_equals(item: Option<&NodeType>, expected_name: &str) {
     if let Some(&NodeType::Parser(ref parser)) = item {
         assert_eq!(parser.base().name(), expected_name);
     } else {
@@ -9,8 +9,8 @@ fn assert_parser_name_equals<'a>(item: Option<&NodeType<'a>>, expected_name: &st
     }
 }
 
-fn assert_literal_equals<'a>(item: Option<&NodeType<'a>>, expected: &str) {
-    if let Some(&NodeType::Literal(literal)) = item {
+fn assert_literal_equals(item: Option<&NodeType>, expected: &str) {
+    if let Some(&NodeType::Literal(ref literal)) = item {
         assert_eq!(literal, expected);
     } else {
         unreachable!();
@@ -79,5 +79,13 @@ fn test_given_pattern_as_a_string_when_it_is_parsed_with_the_grammar_we_got_the_
 fn test_given_invalid_string_when_we_parse_it_then_the_parser_returns_with_error() {
     let pattern_as_string = "foo %{INT:int_0 baz";
     let _ = pattern_parser::pattern(pattern_as_string).ok().unwrap();
+}
 
+#[test]
+fn test_given_string_which_contains_escaped_chars_when_we_parse_it_then_we_get_the_right_string() {
+    let vec = pattern_parser::pattern(r#"foo \%\{ %{INT:test_name} baz"#).ok().unwrap();
+    assert_eq!(vec.len(), 3);
+    assert_literal_equals(vec.get(0), "foo %{ ");
+    assert_parser_name_equals(vec.get(1), "test_name");
+    assert_literal_equals(vec.get(2), " baz");
 }
