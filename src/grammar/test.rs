@@ -1,9 +1,9 @@
 use super::pattern_parser;
 use matcher::trie::node::{CompiledPattern, NodeType};
 
-fn assert_parser_equals<'a>(item: Option<&NodeType<'a>>) {
+fn assert_parser_name_equals<'a>(item: Option<&NodeType<'a>>, expected_name: &str) {
     if let Some(&NodeType::Parser(ref parser)) = item {
-        assert_eq!(parser.base().name(), "test_name");
+        assert_eq!(parser.base().name(), expected_name);
     } else {
         unreachable!();
     }
@@ -24,7 +24,7 @@ fn test_given_parser_as_a_string_when_it_is_parsed_then_we_get_the_instantiated_
 
     assert_eq!(vec.len(), 1);
     println!("{:?}", &vec);
-    assert_parser_equals(vec.get(0));
+    assert_parser_name_equals(vec.get(0), "test_name");
 }
 
 #[test]
@@ -67,4 +67,17 @@ fn test_given_pattern_as_a_string_when_it_is_parsed_with_the_grammar_we_got_the_
 
     assert_eq!(vec.len(), 6);
     assert_literal_equals(vec.get(0), "foo ");
+    assert_parser_name_equals(vec.get(1), "int_0");
+    assert_literal_equals(vec.get(2), " bar ");
+    assert_parser_name_equals(vec.get(3), "int_1");
+    assert_parser_name_equals(vec.get(4), "int_2");
+    assert_literal_equals(vec.get(5), " baz");
+}
+
+#[test]
+#[should_panic]
+fn test_given_invalid_string_when_we_parse_it_then_the_parser_returns_with_error() {
+    let pattern_as_string = "foo %{INT:int_0 baz";
+    let _ = pattern_parser::pattern(pattern_as_string).ok().unwrap();
+
 }
