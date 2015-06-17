@@ -322,13 +322,15 @@ fn parse_identifier<'input>(input: &'input str, state: &mut ParseState,
                                             char_range_at(input, pos);
                                         match ch {
                                             'a' ...'z' | '-' | 'A' ...'Z' |
-                                            '_' => Matched(next, ()),
+                                            '0' ...'9' | '_' =>
+                                            Matched(next, ()),
                                             _ =>
                                             state.mark_failure(pos,
-                                                               "[a-z-A-Z_]"),
+                                                               "[a-z-A-Z0-9_]"),
                                         }
                                     } else {
-                                        state.mark_failure(pos, "[a-z-A-Z_]")
+                                        state.mark_failure(pos,
+                                                           "[a-z-A-Z0-9_]")
                                     };
                                 match seq_res {
                                     Matched(pos, _) => {

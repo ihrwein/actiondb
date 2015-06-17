@@ -22,4 +22,4 @@ parser_body -> NodeType<'input>
   }
 
 identifier -> &'input str
-  = ([a-z-A-Z_]![-])+ { match_str }
+  = ([a-z-A-Z0-9_]![-])+ { match_str }
