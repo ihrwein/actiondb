@@ -1,6 +1,7 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
 use parsers::{SetParser, IntParser};
+use grammar;
 
 #[pub]
 pattern -> CompiledPattern<'input>
@@ -8,7 +9,10 @@ pattern -> CompiledPattern<'input>
   / "" { Vec::new() }
 
 pattern_parts -> NodeType<'input>
-  = (!"%{" .)+ { NodeType::Literal(match_str) }
+  = (!"%{" .)+ {
+      let unescaped_literal = grammar::unescape_literal(match_str);
+      NodeType::Literal(unescaped_literal)
+    }
   / "%{" pb:parser_body "}" { pb }
 
 parser_body -> NodeType<'input>

@@ -44,7 +44,7 @@ cargo build
 
 This will build the crate and produce a `peg` binary under
 `/source/target/debug`. This `peg` binary reads a grammar definition from a
-file and prints to the stdout the generated Rust code. 
+file and prints to the stdout the generated Rust code.
 
 3. Start a docker container which has access to `actiondb`'s source code and to the `peg` binary:
 

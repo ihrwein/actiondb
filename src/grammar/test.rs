@@ -79,5 +79,13 @@ fn test_given_pattern_as_a_string_when_it_is_parsed_with_the_grammar_we_got_the_
 fn test_given_invalid_string_when_we_parse_it_then_the_parser_returns_with_error() {
     let pattern_as_string = "foo %{INT:int_0 baz";
     let _ = pattern_parser::pattern(pattern_as_string).ok().unwrap();
+}
 
+#[test]
+fn test_given_string_which_contains_escaped_chars_when_we_parse_it_then_we_get_the_right_string() {
+    let vec = pattern_parser::pattern(r#"foo \%\{ %{INT:test_name} baz"#).ok().unwrap();
+    assert_eq!(vec.len(), 3);
+    assert_literal_equals(vec.get(0), "foo %{ ");
+    assert_parser_name_equals(vec.get(1), "test_name");
+    assert_literal_equals(vec.get(2), " baz");
 }

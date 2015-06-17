@@ -3,6 +3,7 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
 use parsers::{SetParser, IntParser};
+use grammar;
 use self::RuleResult::{Matched, Failed};
 fn escape_default(s: &str) -> String {
     s.chars().flat_map(|c| c.escape_default()).collect()
@@ -203,7 +204,12 @@ fn parse_pattern_parts<'input>(input: &'input str, state: &mut ParseState,
                         Matched(pos, _) => {
                             {
                                 let match_str = &input[start_pos..pos];
-                                Matched(pos, { NodeType::Literal(match_str) })
+                                Matched(pos,
+                                        {
+                                            let unescaped_literal =
+                                                &grammar::unescape_literal(match_str);
+                                            NodeType::Literal(unescaped_literal)
+                                        })
                             }
                         }
                         Failed => Failed,
