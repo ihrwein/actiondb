@@ -1,20 +1,30 @@
 use super::pattern_parser;
 use matcher::trie::node::{CompiledPattern, NodeType};
 
-#[test]
-fn test_given_parser_as_a_string_when_it_is_parsed_then_we_get_the_instantiated_parser() {
-    let string_parser = "%{INT:test_name}";
-
-    let mut vec = pattern_parser::pattern(string_parser).ok().unwrap();
-
-    assert_eq!(vec.len(), 1);
-    println!("{:?}", &vec);
-
-    if let Some(NodeType::Parser(parser)) = vec.pop() {
+fn assert_parser_equals<'a>(item: Option<&NodeType<'a>>) {
+    if let Some(&NodeType::Parser(ref parser)) = item {
         assert_eq!(parser.base().name(), "test_name");
     } else {
         unreachable!();
     }
+}
+
+fn assert_literal_equals<'a>(item: Option<&NodeType<'a>>, expected: &str) {
+    if let Some(&NodeType::Literal(literal)) = item {
+        assert_eq!(literal, expected);
+    } else {
+        unreachable!();
+    }
+}
+
+#[test]
+fn test_given_parser_as_a_string_when_it_is_parsed_then_we_get_the_instantiated_parser() {
+    let string_parser = "%{INT:test_name}";
+    let mut vec = pattern_parser::pattern(string_parser).ok().unwrap();
+
+    assert_eq!(vec.len(), 1);
+    println!("{:?}", &vec);
+    assert_parser_equals(vec.get(0));
 }
 
 #[test]
@@ -47,17 +57,14 @@ fn test_given_literal_as_a_string_when_it_is_parsed_then_we_stop_at_the_parsers_
 
     assert_eq!(vec.len(), 1);
 
-    if let Some(NodeType::Literal(literal)) = vec.pop() {
-        assert_eq!(literal, expected);
-    } else {
-        unreachable!();
-    }
+    assert_literal_equals(vec.get(0), expected);
 }
-/*#[test]
+
+#[test]
 fn test_given_pattern_as_a_string_when_it_is_parsed_with_the_grammar_we_got_the_right_compiled_pattern() {
-    //let pattern_as_string = "foo %{INT:int_0} bar %{INT:int_1} %{INT:int_2} baz";
-    let pattern_as_string = "foo ";
-    let res = pattern_parser::pattern(pattern_as_string);
-    //println!("{:?}", &res);
-    res.ok().unwrap();
-}*/
+    let pattern_as_string = "foo %{INT:int_0} bar %{INT:int_1}%{INT:int_2} baz";
+    let mut vec: Vec<NodeType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
+
+    assert_eq!(vec.len(), 6);
+    assert_literal_equals(vec.get(0), "foo ");
+}
