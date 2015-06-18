@@ -1,3 +1,5 @@
+use parsers::{HasOptionalParameter, OptionalParameter};
+
 #[derive(Hash, Debug)]
 pub struct ParserBase {
     name: String,
@@ -56,5 +58,23 @@ impl ParserBase {
             Some(x) => match_length <= x,
             None => true
         }
+    }
+}
+
+impl HasOptionalParameter for ParserBase {
+    fn set_optional_params(&mut self, params: &Vec<OptionalParameter>) -> bool {
+        for i in params {
+            match i {
+                OptionalParameter::Int(key, value) => {
+                    match key {
+                        "min_len" => self.set_min_length(value),
+                        "max_len" => self.set_max_length(value)
+                    }
+                }
+                _ => return false
+            }
+        }
+
+        true
     }
 }

@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 use std::iter::FromIterator;
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, ParserBase};
+use parsers::{Parser, ObjectSafeHash, ParserBase, OptionalParameter, HasOptionalParameter};
 
 #[derive(Debug)]
 pub struct SetParser {
