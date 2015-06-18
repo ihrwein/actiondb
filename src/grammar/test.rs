@@ -1,5 +1,6 @@
 use super::pattern_parser;
 use matcher::trie::node::{CompiledPattern, NodeType};
+use parsers::{SetParser, Parser, ObjectSafeHash};
 
 fn assert_parser_name_equals(item: Option<&NodeType>, expected_name: &str) {
     if let Some(&NodeType::Parser(ref parser)) = item {
@@ -88,4 +89,17 @@ fn test_given_string_which_contains_escaped_chars_when_we_parse_it_then_we_get_t
     assert_literal_equals(vec.get(0), "foo %{ ");
     assert_parser_name_equals(vec.get(1), "test_name");
     assert_literal_equals(vec.get(2), " baz");
+}
+
+#[test]
+fn test_given_set_parser_with_character_set_parameter_when_we_parse_it_then_we_get_the_right_parser() {
+    let mut expected_parser = SetParser::new();
+    expected_parser.set_character_set("0123456789");
+    expected_parser.base_mut().set_name("test_set".to_string());
+
+    let vec = pattern_parser::pattern(r#"%{SET("0123456789"):test_set}"#).ok().unwrap();
+    assert_eq!(vec.len(), 1);
+    if let Some(&NodeType::Parser(ref parser)) = vec.get(0) {
+        assert_eq!(parser.hash_os(), expected_parser.hash_os());
+    }
 }
