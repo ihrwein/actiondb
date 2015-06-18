@@ -1,6 +1,6 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
-use parsers::{SetParser, IntParser};
+use parsers::{SetParser, IntParser, Parser};
 use grammar;
 
 #[pub]
@@ -9,21 +9,58 @@ pattern -> CompiledPattern
   / "" { Vec::new() }
 
 pattern_parts -> NodeType
-  = (!"%{" .)+ {
+  = all_chars_until_parser_start {
       let unescaped_literal = grammar::unescape_literal(match_str);
       NodeType::Literal(unescaped_literal)
     }
   / "%{" pb:parser_body "}" { pb }
 
 parser_body -> NodeType
-  = parser_type:identifier ":" parser_name:identifier {?
+  = pt:parser_type_with_params ":" parser_name:identifier {
+    let mut parser = pt;
+    parser.base_mut().set_name(parser_name.to_string());
+    NodeType::Parser(parser)
+  }
+  / pt:parser_type_without_params ":" parser_name:identifier {
+    let mut parser = pt;
+    parser.base_mut().set_name(parser_name.to_string());
+    NodeType::Parser(parser)
+  }
+
+parser_type_without_params -> Box<Parser>
+  = parser_type:identifier {?
     if parser_type == "INT" {
-      let parser = Box::new(IntParser::from_str(parser_name));
-      Ok(NodeType::Parser(parser))
+      let parser = Box::new(IntParser::new());
+      Ok(parser)
     } else {
       Err("No parser found with this type")
     }
   }
 
+parser_type_with_params -> Box<Parser>
+  = parser_SET_with_params
+  / parser_INT_with_params
+
+parser_SET_with_params -> Box<Parser>
+  = "SET" "(" s:string ")" {
+    let mut parser = Box::new(SetParser::new());
+    parser.set_character_set(s);
+    parser
+  }
+
+parser_INT_with_params -> Box<Parser>
+  = "INT" "(" ")" {
+    Box::new(IntParser::new())
+  }
+
 identifier -> &'input str
   = ([a-z-A-Z0-9_]![-])+ { match_str }
+
+all_chars_until_parser_start -> &'input str
+  = (!"%{" .)+ { match_str }
+
+string -> &'input str
+  = '"' s:all_chars_until_quotation_mark '"' { s }
+
+all_chars_until_quotation_mark -> &'input str
+  = (!'"' .)+ { match_str }
