@@ -2,8 +2,9 @@
 #![allow(non_snake_case, unused)]
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
-use parsers::{SetParser, IntParser, Parser};
+use parsers::{SetParser, IntParser, Parser, OptionalParameter};
 use grammar;
+use std::str::FromStr;
 use self::RuleResult::{Matched, Failed};
 fn escape_default(s: &str) -> String {
     s.chars().flat_map(|c| c.escape_default()).collect()
@@ -377,20 +378,46 @@ fn parse_parser_SET_with_params<'input>(input: &'input str,
                                         Matched(pos, s) => {
                                             {
                                                 let seq_res =
-                                                    slice_eq(input, state,
-                                                             pos, ")");
-                                                match seq_res {
-                                                    Matched(pos, _) => {
+                                                    match parse_parser_SET_optional_params(input,
+                                                                                           state,
+                                                                                           pos)
                                                         {
-                                                            let match_str =
-                                                                &input[start_pos..pos];
-                                                            Matched(pos,
+                                                        Matched(newpos, value)
+                                                        => {
+                                                            Matched(newpos,
+                                                                    Some(value))
+                                                        }
+                                                        Failed => {
+                                                            Matched(pos, None)
+                                                        }
+                                                    };
+                                                match seq_res {
+                                                    Matched(pos, po) => {
+                                                        {
+                                                            let seq_res =
+                                                                slice_eq(input,
+                                                                         state,
+                                                                         pos,
+                                                                         ")");
+                                                            match seq_res {
+                                                                Matched(pos,
+                                                                        _) =>
+                                                                {
                                                                     {
-                                                                        let mut parser =
-                                                                            Box::new(SetParser::new());
-                                                                        parser.set_character_set(s);
-                                                                        parser
-                                                                    })
+                                                                        let match_str =
+                                                                            &input[start_pos..pos];
+                                                                        Matched(pos,
+                                                                                {
+                                                                                    let mut parser =
+                                                                                        Box::new(SetParser::new());
+                                                                                    parser.set_character_set(s);
+                                                                                    parser
+                                                                                })
+                                                                    }
+                                                                }
+                                                                Failed =>
+                                                                Failed,
+                                                            }
                                                         }
                                                     }
                                                     Failed => Failed,
@@ -406,6 +433,152 @@ fn parse_parser_SET_with_params<'input>(input: &'input str,
                     }
                 }
                 Failed => Failed,
+            }
+        }
+    }
+}
+fn parse_parser_SET_optional_params<'input>(input: &'input str,
+                                            state: &mut ParseState,
+                                            pos: usize)
+ -> RuleResult<Vec<OptionalParameter<'input>>> {
+    {
+        let start_pos = pos;
+        {
+            let seq_res = slice_eq(input, state, pos, ", ");
+            match seq_res {
+                Matched(pos, _) => {
+                    {
+                        let seq_res =
+                            {
+                                let mut repeat_pos = pos;
+                                let mut repeat_value = vec!();
+                                loop  {
+                                    let pos = repeat_pos;
+                                    let pos =
+                                        if repeat_value.len() > 0 {
+                                            let sep_res =
+                                                slice_eq(input, state, pos,
+                                                         ",");
+                                            match sep_res {
+                                                Matched(newpos, _) => {
+                                                    newpos
+                                                }
+                                                Failed => break ,
+                                            }
+                                        } else { pos };
+                                    let step_res =
+                                        parse_parser_BASE_optional_param(input,
+                                                                         state,
+                                                                         pos);
+                                    match step_res {
+                                        Matched(newpos, value) => {
+                                            repeat_pos = newpos;
+                                            repeat_value.push(value);
+                                        }
+                                        Failed => { break ; }
+                                    }
+                                }
+                                Matched(repeat_pos, repeat_value)
+                            };
+                        match seq_res {
+                            Matched(pos, params) => {
+                                {
+                                    let match_str = &input[start_pos..pos];
+                                    Matched(pos, { params })
+                                }
+                            }
+                            Failed => Failed,
+                        }
+                    }
+                }
+                Failed => Failed,
+            }
+        }
+    }
+}
+fn parse_parser_BASE_optional_param<'input>(input: &'input str,
+                                            state: &mut ParseState,
+                                            pos: usize)
+ -> RuleResult<OptionalParameter<'input>> {
+    {
+        let choice_res =
+            {
+                let start_pos = pos;
+                {
+                    let seq_res = parse_param_min_len(input, state, pos);
+                    match seq_res {
+                        Matched(pos, key) => {
+                            {
+                                let seq_res =
+                                    slice_eq(input, state, pos, "=");
+                                match seq_res {
+                                    Matched(pos, _) => {
+                                        {
+                                            let seq_res =
+                                                parse_int(input, state, pos);
+                                            match seq_res {
+                                                Matched(pos, value) => {
+                                                    {
+                                                        let match_str =
+                                                            &input[start_pos..pos];
+                                                        Matched(pos,
+                                                                {
+                                                                    OptionalParameter::Int(key,
+                                                                                           value)
+                                                                })
+                                                    }
+                                                }
+                                                Failed => Failed,
+                                            }
+                                        }
+                                    }
+                                    Failed => Failed,
+                                }
+                            }
+                        }
+                        Failed => Failed,
+                    }
+                }
+            };
+        match choice_res {
+            Matched(pos, value) => Matched(pos, value),
+            Failed => {
+                let start_pos = pos;
+                {
+                    let seq_res = parse_param_max_len(input, state, pos);
+                    match seq_res {
+                        Matched(pos, key) => {
+                            {
+                                let seq_res =
+                                    slice_eq(input, state, pos, "=");
+                                match seq_res {
+                                    Matched(pos, _) => {
+                                        {
+                                            let seq_res =
+                                                parse_int(input, state, pos);
+                                            match seq_res {
+                                                Matched(pos, value) => {
+                                                    {
+                                                        let match_str =
+                                                            &input[start_pos..pos];
+                                                        Matched(pos,
+                                                                {
+                                                                    OptionalParameter::Int(key,
+                                                                                           value)
+                                                                })
+                                                    }
+                                                }
+                                                Failed => Failed,
+                                            }
+                                        }
+                                    }
+                                    Failed => Failed,
+                                }
+                            }
+                        }
+                        Failed => Failed,
+                    }
+                }
             }
         }
     }
@@ -443,6 +616,42 @@ fn parse_parser_INT_with_params<'input>(input: &'input str,
                             }
                             Failed => Failed,
                         }
+                    }
+                }
+                Failed => Failed,
+            }
+        }
+    }
+}
+fn parse_param_min_len<'input>(input: &'input str, state: &mut ParseState,
+                               pos: usize) -> RuleResult<&'input str> {
+    {
+        let start_pos = pos;
+        {
+            let seq_res = slice_eq(input, state, pos, "min_len");
+            match seq_res {
+                Matched(pos, _) => {
+                    {
+                        let match_str = &input[start_pos..pos];
+                        Matched(pos, { match_str })
+                    }
+                }
+                Failed => Failed,
+            }
+        }
+    }
+}
+fn parse_param_max_len<'input>(input: &'input str, state: &mut ParseState,
+                               pos: usize) -> RuleResult<&'input str> {
+    {
+        let start_pos = pos;
+        {
+            let seq_res = slice_eq(input, state, pos, "max_len");
+            match seq_res {
+                Matched(pos, _) => {
+                    {
+                        let match_str = &input[start_pos..pos];
+                        Matched(pos, { match_str })
                     }
                 }
                 Failed => Failed,
@@ -672,6 +881,50 @@ fn parse_all_chars_until_quotation_mark<'input>(input: &'input str,
                     {
                         let match_str = &input[start_pos..pos];
                         Matched(pos, { match_str })
+                    }
+                }
+                Failed => Failed,
+            }
+        }
+    }
+}
+fn parse_int<'input>(input: &'input str, state: &mut ParseState, pos: usize)
+ -> RuleResult<u64> {
+    {
+        let start_pos = pos;
+        {
+            let seq_res =
+                {
+                    let mut repeat_pos = pos;
+                    let mut repeat_value = vec!();
+                    loop  {
+                        let pos = repeat_pos;
+                        let step_res =
+                            if input.len() > pos {
+                                let (ch, next) = char_range_at(input, pos);
+                                match ch {
+                                    '0' ...'9' => Matched(next, ()),
+                                    _ => state.mark_failure(pos, "[0-9]"),
+                                }
+                            } else { state.mark_failure(pos, "[0-9]") };
+                        match step_res {
+                            Matched(newpos, value) => {
+                                repeat_pos = newpos;
+                                repeat_value.push(value);
+                            }
+                            Failed => { break ; }
+                        }
+                    }
+                    if repeat_value.len() >= 1usize {
+                        Matched(repeat_pos, ())
+                    } else { Failed }
+                };
+            match seq_res {
+                Matched(pos, _) => {
+                    {
+                        let match_str = &input[start_pos..pos];
+                        Matched(pos,
+                                { u64::from_str(match_str).ok().unwrap() })
                     }
                 }
                 Failed => Failed,

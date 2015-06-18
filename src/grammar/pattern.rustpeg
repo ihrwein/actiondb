@@ -1,7 +1,9 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
-use parsers::{SetParser, IntParser, Parser};
+use parsers::{SetParser, IntParser, Parser, OptionalParameter};
 use grammar;
+
+use std::str::FromStr;
 
 #[pub]
 pattern -> CompiledPattern
@@ -42,16 +44,34 @@ parser_type_with_params -> Box<Parser>
   / parser_INT_with_params
 
 parser_SET_with_params -> Box<Parser>
-  = "SET" "(" s:string ")" {
+  = "SET" "(" s:string po:parser_SET_optional_params? ")" {
     let mut parser = Box::new(SetParser::new());
     parser.set_character_set(s);
+
+    if po.is_some() {
+      parser.set_optional_params(po.unwrap());
+    }
+
     parser
   }
+
+parser_SET_optional_params -> Vec<OptionalParameter<'input>>
+  = ", " params:parser_BASE_optional_param ** "," { params }
+
+parser_BASE_optional_param -> OptionalParameter<'input>
+  = key:param_min_len "=" value:int { OptionalParameter::Int(key, value) }
+  / key:param_max_len "=" value:int { OptionalParameter::Int(key, value) }
 
 parser_INT_with_params -> Box<Parser>
   = "INT" "(" ")" {
     Box::new(IntParser::new())
   }
+
+param_min_len -> &'input str
+  = "min_len" { match_str }
+
+param_max_len -> &'input str
+  = "max_len" { match_str }
 
 identifier -> &'input str
   = ([a-z-A-Z0-9_]![-])+ { match_str }
@@ -64,3 +84,6 @@ string -> &'input str
 
 all_chars_until_quotation_mark -> &'input str
   = (!'"' .)+ { match_str }
+
+int -> u64
+  = [0-9]+ { u64::from_str(match_str).ok().unwrap() }
