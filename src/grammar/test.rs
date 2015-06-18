@@ -1,7 +1,7 @@
 use super::pattern_parser;
 use matcher::trie::node::{CompiledPattern, NodeType};
 
-fn assert_parser_name_equals<'a>(item: Option<&NodeType<'a>>, expected_name: &str) {
+fn assert_parser_name_equals(item: Option<&NodeType>, expected_name: &str) {
     if let Some(&NodeType::Parser(ref parser)) = item {
         assert_eq!(parser.base().name(), expected_name);
     } else {
@@ -9,8 +9,8 @@ fn assert_parser_name_equals<'a>(item: Option<&NodeType<'a>>, expected_name: &st
     }
 }
 
-fn assert_literal_equals<'a>(item: Option<&NodeType<'a>>, expected: &str) {
-    if let Some(&NodeType::Literal(literal)) = item {
+fn assert_literal_equals(item: Option<&NodeType>, expected: &str) {
+    if let Some(&NodeType::Literal(ref literal)) = item {
         assert_eq!(literal, expected);
     } else {
         unreachable!();

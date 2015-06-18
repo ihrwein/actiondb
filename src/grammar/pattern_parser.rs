@@ -114,7 +114,7 @@ impl ParseState {
     }
 }
 fn parse_pattern<'input>(input: &'input str, state: &mut ParseState,
-                         pos: usize) -> RuleResult<CompiledPattern<'input>> {
+                         pos: usize) -> RuleResult<CompiledPattern> {
     {
         let choice_res =
             {
@@ -156,7 +156,7 @@ fn parse_pattern<'input>(input: &'input str, state: &mut ParseState,
     }
 }
 fn parse_pattern_parts<'input>(input: &'input str, state: &mut ParseState,
-                               pos: usize) -> RuleResult<NodeType<'input>> {
+                               pos: usize) -> RuleResult<NodeType> {
     {
         let choice_res =
             {
@@ -207,7 +207,7 @@ fn parse_pattern_parts<'input>(input: &'input str, state: &mut ParseState,
                                 Matched(pos,
                                         {
                                             let unescaped_literal =
-                                                &grammar::unescape_literal(match_str);
+                                                grammar::unescape_literal(match_str);
                                             NodeType::Literal(unescaped_literal)
                                         })
                             }
@@ -257,7 +257,7 @@ fn parse_pattern_parts<'input>(input: &'input str, state: &mut ParseState,
     }
 }
 fn parse_parser_body<'input>(input: &'input str, state: &mut ParseState,
-                             pos: usize) -> RuleResult<NodeType<'input>> {
+                             pos: usize) -> RuleResult<NodeType> {
     {
         let start_pos = pos;
         {
@@ -390,8 +390,7 @@ fn parse_identifier<'input>(input: &'input str, state: &mut ParseState,
         }
     }
 }
-pub fn pattern<'input>(input: &'input str)
- -> ParseResult<CompiledPattern<'input>> {
+pub fn pattern<'input>(input: &'input str) -> ParseResult<CompiledPattern> {
     let mut state = ParseState::new();
     match parse_pattern(input, &mut state, 0) {
         Matched(pos, value) => { if pos == input.len() { return Ok(value) } }
