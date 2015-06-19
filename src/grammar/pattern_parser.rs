@@ -2,7 +2,8 @@
 #![allow(non_snake_case, unused)]
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
-use parsers::{SetParser, IntParser, Parser, OptionalParameter};
+use parsers::{SetParser, IntParser, Parser, OptionalParameter,
+              HasOptionalParameter};
 use grammar;
 use std::str::FromStr;
 use self::RuleResult::{Matched, Failed};
@@ -409,9 +410,19 @@ fn parse_parser_SET_with_params<'input>(input: &'input str,
                                                                         Matched(pos,
                                                                                 {
                                                                                     let mut parser =
-                                                                                        Box::new(SetParser::new());
+                                                                                        SetParser::new();
                                                                                     parser.set_character_set(s);
-                                                                                    parser
+                                                                                    if let Some(optional_params)
+                                                                                           =
+                                                                                           po
+                                                                                           {
+                                                                                        let mut parser =
+                                                                                            &mut parser
+                                                                                                as
+                                                                                                &mut Parser;
+                                                                                        parser.set_optional_params(&optional_params);
+                                                                                    }
+                                                                                    Box::new(parser)
                                                                                 })
                                                                     }
                                                                 }
@@ -889,7 +900,7 @@ fn parse_all_chars_until_quotation_mark<'input>(input: &'input str,
     }
 }
 fn parse_int<'input>(input: &'input str, state: &mut ParseState, pos: usize)
- -> RuleResult<u64> {
+ -> RuleResult<usize> {
     {
         let start_pos = pos;
         {
@@ -924,7 +935,7 @@ fn parse_int<'input>(input: &'input str, state: &mut ParseState, pos: usize)
                     {
                         let match_str = &input[start_pos..pos];
                         Matched(pos,
-                                { u64::from_str(match_str).ok().unwrap() })
+                                { usize::from_str(match_str).ok().unwrap() })
                     }
                 }
                 Failed => Failed,
