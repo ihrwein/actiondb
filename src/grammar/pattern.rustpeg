@@ -1,6 +1,6 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
-use parsers::{SetParser, IntParser, Parser, OptionalParameter};
+use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter};
 use grammar;
 
 use std::str::FromStr;
@@ -45,14 +45,14 @@ parser_type_with_params -> Box<Parser>
 
 parser_SET_with_params -> Box<Parser>
   = "SET" "(" s:string po:parser_SET_optional_params? ")" {
-    let mut parser = Box::new(SetParser::new());
+    let mut parser = SetParser::new();
     parser.set_character_set(s);
 
-    if po.is_some() {
-      parser.set_optional_params(po.unwrap());
+    if let Some(optional_params) = po {
+      parser.set_optional_params(&optional_params);
     }
 
-    parser
+    Box::new(parser)
   }
 
 parser_SET_optional_params -> Vec<OptionalParameter<'input>>

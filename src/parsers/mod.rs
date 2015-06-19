@@ -17,14 +17,14 @@ pub trait Parser: Debug + ObjectSafeHash {
     fn base_mut(&mut self) -> &mut ParserBase;
 }
 
-impl HasOptionalParameter for Parser {
-    fn set_optional_params(&mut self, params: &Vec<OptionalParameter>) -> bool {
-        self.base_mut().set_optinal_params(params)
+impl<T> HasOptionalParameter for T where T:Parser {
+    fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool {
+        self.base_mut().set_optional_params(params)
     }
 }
 
 pub trait HasOptionalParameter {
-    fn set_optional_params(&mut self, params: &Vec<OptionalParameter>) -> bool;
+    fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool;
 }
 
 pub enum OptionalParameter<'a> {
