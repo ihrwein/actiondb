@@ -29,7 +29,7 @@ parser_body -> NodeType
     NodeType::Parser(parser)
   }
 
-parser_type_without_params -> Box<Parser>
+parser_type_without_params -> grammar::BoxedParser<'input>
   = parser_type:identifier {?
     if parser_type == "INT" {
       let parser = Box::new(IntParser::new());
@@ -39,11 +39,11 @@ parser_type_without_params -> Box<Parser>
     }
   }
 
-parser_type_with_params -> Box<Parser>
+parser_type_with_params -> grammar::BoxedParser<'input>
   = parser_SET_with_params
   / parser_INT_with_params
 
-parser_SET_with_params -> Box<Parser>
+parser_SET_with_params -> grammar::BoxedParser<'input>
   = "SET" "(" s:string po:parser_SET_optional_params? ")" {
     let mut parser = SetParser::new();
     parser.set_character_set(s);

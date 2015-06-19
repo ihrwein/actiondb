@@ -318,7 +318,7 @@ fn parse_parser_body<'input>(input: &'input str, state: &mut ParseState,
 fn parse_parser_type_without_params<'input>(input: &'input str,
                                             state: &mut ParseState,
                                             pos: usize)
- -> RuleResult<Box<Parser>> {
+ -> RuleResult<grammar::BoxedParser<'input>> {
     {
         let start_pos = pos;
         {
@@ -350,7 +350,7 @@ fn parse_parser_type_without_params<'input>(input: &'input str,
 }
 fn parse_parser_type_with_params<'input>(input: &'input str,
                                          state: &mut ParseState, pos: usize)
- -> RuleResult<Box<Parser>> {
+ -> RuleResult<grammar::BoxedParser<'input>> {
     {
         let choice_res = parse_parser_SET_with_params(input, state, pos);
         match choice_res {
@@ -361,7 +361,7 @@ fn parse_parser_type_with_params<'input>(input: &'input str,
 }
 fn parse_parser_SET_with_params<'input>(input: &'input str,
                                         state: &mut ParseState, pos: usize)
- -> RuleResult<Box<Parser>> {
+ -> RuleResult<grammar::BoxedParser<'input>> {
     {
         let start_pos = pos;
         {
