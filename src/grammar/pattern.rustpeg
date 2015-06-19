@@ -85,5 +85,5 @@ string -> &'input str
 all_chars_until_quotation_mark -> &'input str
   = (!'"' .)+ { match_str }
 
-int -> u64
-  = [0-9]+ { u64::from_str(match_str).ok().unwrap() }
+int -> usize
+  = [0-9]+ { usize::from_str(match_str).ok().unwrap() }
