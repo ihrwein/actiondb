@@ -62,13 +62,14 @@ impl ParserBase {
 }
 
 impl HasOptionalParameter for ParserBase {
-    fn set_optional_params(&mut self, params: &Vec<OptionalParameter>) -> bool {
+    fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool {
         for i in params {
             match i {
-                OptionalParameter::Int(key, value) => {
+                &OptionalParameter::Int(key, value) => {
                     match key {
                         "min_len" => self.set_min_length(value),
-                        "max_len" => self.set_max_length(value)
+                        "max_len" => self.set_max_length(value),
+                        _ => return false
                     }
                 }
                 _ => return false
