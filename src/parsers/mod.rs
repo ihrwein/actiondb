@@ -27,7 +27,8 @@ pub trait HasOptionalParameter {
     fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool;
 }
 
+#[derive(Debug)]
 pub enum OptionalParameter<'a> {
-    Int(&'a str, u64),
+    Int(&'a str, usize),
     Str(&'a str, &'a str)
 }
