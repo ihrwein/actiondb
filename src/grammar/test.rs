@@ -1,6 +1,6 @@
 use super::pattern_parser;
 use matcher::trie::node::{CompiledPattern, NodeType};
-use parsers::{SetParser, Parser, ObjectSafeHash};
+use parsers::{SetParser, Parser, ObjectSafeHash, IntParser};
 
 fn assert_parser_name_equals(item: Option<&NodeType>, expected_name: &str) {
     if let Some(&NodeType::Parser(ref parser)) = item {
@@ -119,6 +119,18 @@ fn test_given_set_parser_with_optional_parameters_when_we_parse_it_then_we_get_t
     expected_parser.base_mut().set_max_length(5);
 
     let vec = pattern_parser::pattern(r#"%{SET("0123456789",min_len=2, max_len=5):test_set}"#).ok().unwrap();
+    assert_eq!(vec.len(), 1);
+    assert_parser_equals(vec.get(0), &expected_parser);
+}
+
+#[test]
+fn test_given_int_parser_with_optional_parameters_when_we_parse_it_then_we_get_the_right_parser() {
+    let mut expected_parser = IntParser::new();
+    expected_parser.base_mut().set_name("test_int".to_string());
+    expected_parser.base_mut().set_min_length(2);
+    expected_parser.base_mut().set_max_length(5);
+
+    let vec = pattern_parser::pattern(r#"%{INT(min_len=2,max_len=5):test_int}"#).ok().unwrap();
     assert_eq!(vec.len(), 1);
     assert_parser_equals(vec.get(0), &expected_parser);
 }

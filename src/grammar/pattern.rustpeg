@@ -63,9 +63,18 @@ parser_BASE_optional_param -> OptionalParameter<'input>
   / key:param_max_len "=" value:int { OptionalParameter::Int(key, value) }
 
 parser_INT_with_params -> Box<Parser>
-  = "INT" "(" ")" {
-    Box::new(IntParser::new())
+  = "INT" "(" po:parser_INT_optional_params? ")" {
+    let mut parser = IntParser::new();
+
+    if let Some(optional_params) = po {
+      parser.set_optional_params(&optional_params);
+    }
+
+    Box::new(parser)
   }
+
+parser_INT_optional_params -> Vec<OptionalParameter<'input>>
+  = params:parser_BASE_optional_param ** comma { params }
 
 param_min_len -> &'input str
   = "min_len" { match_str }
