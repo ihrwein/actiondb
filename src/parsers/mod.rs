@@ -1,11 +1,13 @@
 mod set;
 mod base;
 mod int;
+mod factory;
 
 use std::fmt::Debug;
 pub use self::set::SetParser;
 pub use self::base::ParserBase;
 pub use self::int::IntParser;
+pub use self::factory::ParserFactory;
 
 pub trait ObjectSafeHash {
     fn hash_os(&self) -> u64;
