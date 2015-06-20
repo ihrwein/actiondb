@@ -10,6 +10,14 @@ fn assert_parser_name_equals(item: Option<&NodeType>, expected_name: &str) {
     }
 }
 
+fn assert_parser_equals(got: Option<&NodeType>, expected: &Parser) {
+    if let Some(&NodeType::Parser(ref parser)) = got {
+        assert_eq!(parser.hash_os(), expected.hash_os());
+    } else {
+        unreachable!();
+    }
+}
+
 fn assert_literal_equals(item: Option<&NodeType>, expected: &str) {
     if let Some(&NodeType::Literal(ref literal)) = item {
         assert_eq!(literal, expected);
@@ -99,9 +107,7 @@ fn test_given_set_parser_with_character_set_parameter_when_we_parse_it_then_we_g
 
     let vec = pattern_parser::pattern(r#"%{SET("0123456789"):test_set}"#).ok().unwrap();
     assert_eq!(vec.len(), 1);
-    if let Some(&NodeType::Parser(ref parser)) = vec.get(0) {
-        assert_eq!(parser.hash_os(), expected_parser.hash_os());
-    }
+    assert_parser_equals(vec.get(0), &expected_parser);
 }
 
 #[test]
@@ -114,7 +120,5 @@ fn test_given_set_parser_with_optional_parameters_when_we_parse_it_then_we_get_t
 
     let vec = pattern_parser::pattern(r#"%{SET("0123456789",min_len=2, max_len=5):test_set}"#).ok().unwrap();
     assert_eq!(vec.len(), 1);
-    if let Some(&NodeType::Parser(ref parser)) = vec.get(0) {
-        assert_eq!(parser.hash_os(), expected_parser.hash_os());
-    }
+    assert_parser_equals(vec.get(0), &expected_parser);
 }
