@@ -451,7 +451,7 @@ fn parse_parser_SET_optional_params<'input>(input: &'input str,
     {
         let start_pos = pos;
         {
-            let seq_res = slice_eq(input, state, pos, ", ");
+            let seq_res = parse_comma(input, state, pos);
             match seq_res {
                 Matched(pos, _) => {
                     {
@@ -464,8 +464,8 @@ fn parse_parser_SET_optional_params<'input>(input: &'input str,
                                     let pos =
                                         if repeat_value.len() > 0 {
                                             let sep_res =
-                                                slice_eq(input, state, pos,
-                                                         ",");
+                                                parse_comma(input, state,
+                                                            pos);
                                             match sep_res {
                                                 Matched(newpos, _) => {
                                                     newpos
@@ -892,6 +892,29 @@ fn parse_all_chars_until_quotation_mark<'input>(input: &'input str,
                 }
                 Failed => Failed,
             }
+        }
+    }
+}
+fn parse_comma<'input>(input: &'input str, state: &mut ParseState, pos: usize)
+ -> RuleResult<()> {
+    {
+        let seq_res = slice_eq(input, state, pos, ",");
+        match seq_res {
+            Matched(pos, _) => {
+                {
+                    let mut repeat_pos = pos;
+                    loop  {
+                        let pos = repeat_pos;
+                        let step_res = slice_eq(input, state, pos, " ");
+                        match step_res {
+                            Matched(newpos, value) => { repeat_pos = newpos; }
+                            Failed => { break ; }
+                        }
+                    }
+                    Matched(repeat_pos, ())
+                }
+            }
+            Failed => Failed,
         }
     }
 }

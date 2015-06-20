@@ -103,3 +103,18 @@ fn test_given_set_parser_with_character_set_parameter_when_we_parse_it_then_we_g
         assert_eq!(parser.hash_os(), expected_parser.hash_os());
     }
 }
+
+#[test]
+fn test_given_set_parser_with_optional_parameters_when_we_parse_it_then_we_get_the_right_parser() {
+    let mut expected_parser = SetParser::new();
+    expected_parser.set_character_set("0123456789");
+    expected_parser.base_mut().set_name("test_set".to_string());
+    expected_parser.base_mut().set_min_length(2);
+    expected_parser.base_mut().set_max_length(5);
+
+    let vec = pattern_parser::pattern(r#"%{SET("0123456789",min_len=2, max_len=5):test_set}"#).ok().unwrap();
+    assert_eq!(vec.len(), 1);
+    if let Some(&NodeType::Parser(ref parser)) = vec.get(0) {
+        assert_eq!(parser.hash_os(), expected_parser.hash_os());
+    }
+}

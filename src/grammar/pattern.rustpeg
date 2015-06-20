@@ -56,7 +56,7 @@ parser_SET_with_params -> Box<Parser>
   }
 
 parser_SET_optional_params -> Vec<OptionalParameter<'input>>
-  = ", " params:parser_BASE_optional_param ** "," { params }
+  = comma params:parser_BASE_optional_param ** comma { params }
 
 parser_BASE_optional_param -> OptionalParameter<'input>
   = key:param_min_len "=" value:int { OptionalParameter::Int(key, value) }
@@ -84,6 +84,8 @@ string -> &'input str
 
 all_chars_until_quotation_mark -> &'input str
   = (!'"' .)+ { match_str }
+
+comma = "," " "*
 
 int -> usize
   = [0-9]+ { usize::from_str(match_str).ok().unwrap() }
