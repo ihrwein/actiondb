@@ -240,44 +240,16 @@ fn parse_parser<'input>(input: &'input str, state: &mut ParseState,
                             Matched(pos, parser) => {
                                 {
                                     let seq_res =
-                                        slice_eq(input, state, pos, ":");
+                                        parse_PARSER_END(input, state, pos);
                                     match seq_res {
                                         Matched(pos, _) => {
                                             {
-                                                let seq_res =
-                                                    parse_identifier(input,
-                                                                     state,
-                                                                     pos);
-                                                match seq_res {
-                                                    Matched(pos, name) => {
+                                                let match_str =
+                                                    &input[start_pos..pos];
+                                                Matched(pos,
                                                         {
-                                                            let seq_res =
-                                                                parse_PARSER_END(input,
-                                                                                 state,
-                                                                                 pos);
-                                                            match seq_res {
-                                                                Matched(pos,
-                                                                        _) =>
-                                                                {
-                                                                    {
-                                                                        let match_str =
-                                                                            &input[start_pos..pos];
-                                                                        Matched(pos,
-                                                                                {
-                                                                                    let mut parser =
-                                                                                        parser;
-                                                                                    parser.base_mut().set_name(name.to_string());
-                                                                                    NodeType::Parser(parser)
-                                                                                })
-                                                                    }
-                                                                }
-                                                                Failed =>
-                                                                Failed,
-                                                            }
-                                                        }
-                                                    }
-                                                    Failed => Failed,
-                                                }
+                                                            NodeType::Parser(parser)
+                                                        })
                                             }
                                         }
                                         Failed => Failed,
@@ -296,78 +268,15 @@ fn parse_parser<'input>(input: &'input str, state: &mut ParseState,
 fn parse_parser_type<'input>(input: &'input str, state: &mut ParseState,
                              pos: usize) -> RuleResult<Box<Parser>> {
     {
-        let choice_res = parse_parser_type_with_params(input, state, pos);
+        let choice_res = parse_parser_SET(input, state, pos);
         match choice_res {
             Matched(pos, value) => Matched(pos, value),
-            Failed => parse_parser_type_without_params(input, state, pos),
+            Failed => parse_parser_INT(input, state, pos),
         }
     }
 }
-fn parse_parser_type_without_params<'input>(input: &'input str,
-                                            state: &mut ParseState,
-                                            pos: usize)
- -> RuleResult<Box<Parser>> {
-    {
-        let start_pos = pos;
-        {
-            let seq_res =
-                parse_possible_parser_type_without_params(input, state, pos);
-            match seq_res {
-                Matched(pos, parser_type) => {
-                    {
-                        let match_str = &input[start_pos..pos];
-                        match {
-                                  let parser =
-                                      ParserFactory::from_type(parser_type);
-                                  parser.ok_or("Could not find a parser with this type")
-                              } {
-                            Ok(res) => Matched(pos, res),
-                            Err(expected) => {
-                                state.mark_failure(pos, expected);
-                                Failed
-                            }
-                        }
-                    }
-                }
-                Failed => Failed,
-            }
-        }
-    }
-}
-fn parse_possible_parser_type_without_params<'input>(input: &'input str,
-                                                     state: &mut ParseState,
-                                                     pos: usize)
- -> RuleResult<&'input str> {
-    {
-        let start_pos = pos;
-        {
-            let seq_res = parse_INT(input, state, pos);
-            match seq_res {
-                Matched(pos, _) => {
-                    {
-                        let match_str = &input[start_pos..pos];
-                        Matched(pos, { match_str })
-                    }
-                }
-                Failed => Failed,
-            }
-        }
-    }
-}
-fn parse_parser_type_with_params<'input>(input: &'input str,
-                                         state: &mut ParseState, pos: usize)
- -> RuleResult<Box<Parser>> {
-    {
-        let choice_res = parse_parser_SET_with_params(input, state, pos);
-        match choice_res {
-            Matched(pos, value) => Matched(pos, value),
-            Failed => parse_parser_INT_with_params(input, state, pos),
-        }
-    }
-}
-fn parse_parser_SET_with_params<'input>(input: &'input str,
-                                        state: &mut ParseState, pos: usize)
- -> RuleResult<Box<Parser>> {
+fn parse_parser_SET<'input>(input: &'input str, state: &mut ParseState,
+                            pos: usize) -> RuleResult<Box<Parser>> {
     {
         let start_pos = pos;
         {
@@ -411,17 +320,53 @@ fn parse_parser_SET_with_params<'input>(input: &'input str,
                                                                         _) =>
                                                                 {
                                                                     {
-                                                                        let match_str =
-                                                                            &input[start_pos..pos];
-                                                                        Matched(pos,
+                                                                        let seq_res =
+                                                                            slice_eq(input,
+                                                                                     state,
+                                                                                     pos,
+                                                                                     ":");
+                                                                        match seq_res
+                                                                            {
+                                                                            Matched(pos,
+                                                                                    _)
+                                                                            =>
+                                                                            {
                                                                                 {
-                                                                                    let mut parser =
-                                                                                        SetParser::new();
-                                                                                    parser.set_character_set(s);
-                                                                                    grammar::set_optional_params(&mut parser,
-                                                                                                                 po.as_ref());
-                                                                                    Box::new(parser)
-                                                                                })
+                                                                                    let seq_res =
+                                                                                        parse_identifier(input,
+                                                                                                         state,
+                                                                                                         pos);
+                                                                                    match seq_res
+                                                                                        {
+                                                                                        Matched(pos,
+                                                                                                name)
+                                                                                        =>
+                                                                                        {
+                                                                                            {
+                                                                                                let match_str =
+                                                                                                    &input[start_pos..pos];
+                                                                                                Matched(pos,
+                                                                                                        {
+                                                                                                            let mut parser =
+                                                                                                                SetParser::new();
+                                                                                                            parser.set_character_set(s);
+                                                                                                            parser.base_mut().set_name(name.to_string());
+                                                                                                            grammar::set_optional_params(&mut parser,
+                                                                                                                                         po.as_ref());
+                                                                                                            Box::new(parser)
+                                                                                                        })
+                                                                                            }
+                                                                                        }
+                                                                                        Failed
+                                                                                        =>
+                                                                                        Failed,
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                            Failed
+                                                                            =>
+                                                                            Failed,
+                                                                        }
                                                                     }
                                                                 }
                                                                 Failed =>
@@ -494,6 +439,139 @@ fn parse_parser_SET_optional_params<'input>(input: &'input str,
                                 {
                                     let match_str = &input[start_pos..pos];
                                     Matched(pos, { params })
+                                }
+                            }
+                            Failed => Failed,
+                        }
+                    }
+                }
+                Failed => Failed,
+            }
+        }
+    }
+}
+fn parse_parser_INT<'input>(input: &'input str, state: &mut ParseState,
+                            pos: usize) -> RuleResult<Box<Parser>> {
+    {
+        let start_pos = pos;
+        {
+            let seq_res = parse_INT(input, state, pos);
+            match seq_res {
+                Matched(pos, _) => {
+                    {
+                        let seq_res =
+                            match parse_parser_INT_optional_params(input,
+                                                                   state, pos)
+                                {
+                                Matched(newpos, value) => {
+                                    Matched(newpos, Some(value))
+                                }
+                                Failed => { Matched(pos, None) }
+                            };
+                        match seq_res {
+                            Matched(pos, po) => {
+                                {
+                                    let seq_res =
+                                        slice_eq(input, state, pos, ":");
+                                    match seq_res {
+                                        Matched(pos, _) => {
+                                            {
+                                                let seq_res =
+                                                    parse_identifier(input,
+                                                                     state,
+                                                                     pos);
+                                                match seq_res {
+                                                    Matched(pos, name) => {
+                                                        {
+                                                            let match_str =
+                                                                &input[start_pos..pos];
+                                                            Matched(pos,
+                                                                    {
+                                                                        let mut parser =
+                                                                            IntParser::new();
+                                                                        parser.base_mut().set_name(name.to_string());
+                                                                        grammar::set_optional_params(&mut parser,
+                                                                                                     po.as_ref());
+                                                                        Box::new(parser)
+                                                                    })
+                                                        }
+                                                    }
+                                                    Failed => Failed,
+                                                }
+                                            }
+                                        }
+                                        Failed => Failed,
+                                    }
+                                }
+                            }
+                            Failed => Failed,
+                        }
+                    }
+                }
+                Failed => Failed,
+            }
+        }
+    }
+}
+fn parse_parser_INT_optional_params<'input>(input: &'input str,
+                                            state: &mut ParseState,
+                                            pos: usize)
+ -> RuleResult<Vec<OptionalParameter<'input>>> {
+    {
+        let start_pos = pos;
+        {
+            let seq_res = parse_PARSER_PARAMS_BEGIN(input, state, pos);
+            match seq_res {
+                Matched(pos, _) => {
+                    {
+                        let seq_res =
+                            {
+                                let mut repeat_pos = pos;
+                                let mut repeat_value = vec!();
+                                loop  {
+                                    let pos = repeat_pos;
+                                    let pos =
+                                        if repeat_value.len() > 0 {
+                                            let sep_res =
+                                                parse_comma(input, state,
+                                                            pos);
+                                            match sep_res {
+                                                Matched(newpos, _) => {
+                                                    newpos
+                                                }
+                                                Failed => break ,
+                                            }
+                                        } else { pos };
+                                    let step_res =
+                                        parse_parser_BASE_optional_param(input,
+                                                                         state,
+                                                                         pos);
+                                    match step_res {
+                                        Matched(newpos, value) => {
+                                            repeat_pos = newpos;
+                                            repeat_value.push(value);
+                                        }
+                                        Failed => { break ; }
+                                    }
+                                }
+                                Matched(repeat_pos, repeat_value)
+                            };
+                        match seq_res {
+                            Matched(pos, params) => {
+                                {
+                                    let seq_res =
+                                        parse_PARSER_PARAMS_END(input, state,
+                                                                pos);
+                                    match seq_res {
+                                        Matched(pos, _) => {
+                                            {
+                                                let match_str =
+                                                    &input[start_pos..pos];
+                                                Matched(pos, { params })
+                                            }
+                                        }
+                                        Failed => Failed,
+                                    }
                                 }
                             }
                             Failed => Failed,
@@ -588,116 +666,6 @@ fn parse_parser_BASE_optional_param<'input>(input: &'input str,
                         Failed => Failed,
                     }
                 }
-            }
-        }
-    }
-}
-fn parse_parser_INT_with_params<'input>(input: &'input str,
-                                        state: &mut ParseState, pos: usize)
- -> RuleResult<Box<Parser>> {
-    {
-        let start_pos = pos;
-        {
-            let seq_res = parse_INT(input, state, pos);
-            match seq_res {
-                Matched(pos, _) => {
-                    {
-                        let seq_res =
-                            parse_PARSER_PARAMS_BEGIN(input, state, pos);
-                        match seq_res {
-                            Matched(pos, _) => {
-                                {
-                                    let seq_res =
-                                        match parse_parser_INT_optional_params(input,
-                                                                               state,
-                                                                               pos)
-                                            {
-                                            Matched(newpos, value) => {
-                                                Matched(newpos, Some(value))
-                                            }
-                                            Failed => { Matched(pos, None) }
-                                        };
-                                    match seq_res {
-                                        Matched(pos, po) => {
-                                            {
-                                                let seq_res =
-                                                    parse_PARSER_PARAMS_END(input,
-                                                                            state,
-                                                                            pos);
-                                                match seq_res {
-                                                    Matched(pos, _) => {
-                                                        {
-                                                            let match_str =
-                                                                &input[start_pos..pos];
-                                                            Matched(pos,
-                                                                    {
-                                                                        let mut parser =
-                                                                            IntParser::new();
-                                                                        grammar::set_optional_params(&mut parser,
-                                                                                                     po.as_ref());
-                                                                        Box::new(parser)
-                                                                    })
-                                                        }
-                                                    }
-                                                    Failed => Failed,
-                                                }
-                                            }
-                                        }
-                                        Failed => Failed,
-                                    }
-                                }
-                            }
-                            Failed => Failed,
-                        }
-                    }
-                }
-                Failed => Failed,
-            }
-        }
-    }
-}
-fn parse_parser_INT_optional_params<'input>(input: &'input str,
-                                            state: &mut ParseState,
-                                            pos: usize)
- -> RuleResult<Vec<OptionalParameter<'input>>> {
-    {
-        let start_pos = pos;
-        {
-            let seq_res =
-                {
-                    let mut repeat_pos = pos;
-                    let mut repeat_value = vec!();
-                    loop  {
-                        let pos = repeat_pos;
-                        let pos =
-                            if repeat_value.len() > 0 {
-                                let sep_res = parse_comma(input, state, pos);
-                                match sep_res {
-                                    Matched(newpos, _) => { newpos }
-                                    Failed => break ,
-                                }
-                            } else { pos };
-                        let step_res =
-                            parse_parser_BASE_optional_param(input, state,
-                                                             pos);
-                        match step_res {
-                            Matched(newpos, value) => {
-                                repeat_pos = newpos;
-                                repeat_value.push(value);
-                            }
-                            Failed => { break ; }
-                        }
-                    }
-                    Matched(repeat_pos, repeat_value)
-                };
-            match seq_res {
-                Matched(pos, params) => {
-                    {
-                        let match_str = &input[start_pos..pos];
-                        Matched(pos, { params })
-                    }
-                }
-                Failed => Failed,
             }
         }
     }
