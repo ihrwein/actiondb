@@ -1,6 +1,6 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
-use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter, ParserFactory};
+use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter};
 use grammar;
 
 use std::str::FromStr;
@@ -21,33 +21,17 @@ literal -> NodeType
     }
 
 parser -> NodeType
-  = PARSER_BEGIN parser:parser_type ":" name:identifier PARSER_END {
-    let mut parser = parser;
-    parser.base_mut().set_name(name.to_string());
+  = PARSER_BEGIN parser:parser_type PARSER_END {
     NodeType::Parser(parser)
   }
 
 parser_type -> Box<Parser>
-  = parser_type_with_params
-  / parser_type_without_params
+  = parser_SET
+  / parser_INT
 
-parser_type_without_params -> Box<Parser>
-  = parser_type:possible_parser_type_without_params {?
-    let parser = ParserFactory::from_type(parser_type);
-    parser.ok_or("Could not find a parser with this type")
-  }
-
-possible_parser_type_without_params -> &'input str
-  = INT { match_str }
-
-parser_type_with_params -> Box<Parser>
-  = parser_SET_with_params
-  / parser_INT_with_params
-
-parser_SET_with_params -> Box<Parser>
-  = SET PARSER_PARAMS_BEGIN s:string po:parser_SET_optional_params? PARSER_PARAMS_END {
-    let mut parser = SetParser::new();
-    parser.set_character_set(s);
+parser_SET -> Box<Parser>
+  = SET PARSER_PARAMS_BEGIN set:string po:parser_SET_optional_params? PARSER_PARAMS_END name:parser_name {
+    let mut parser = SetParser::from_str(name, set);
     grammar::set_optional_params(&mut parser, po.as_ref());
     Box::new(parser)
   }
@@ -55,19 +39,19 @@ parser_SET_with_params -> Box<Parser>
 parser_SET_optional_params -> Vec<OptionalParameter<'input>>
   = comma params:parser_BASE_optional_param ** comma { params }
 
-parser_BASE_optional_param -> OptionalParameter<'input>
-  = name:MIN_LEN "=" value:int { OptionalParameter::Int(name, value) }
-  / name:MAX_LEN "=" value:int { OptionalParameter::Int(name, value) }
-
-parser_INT_with_params -> Box<Parser>
-  = INT PARSER_PARAMS_BEGIN po:parser_INT_optional_params? PARSER_PARAMS_END {
-    let mut parser = IntParser::new();
+parser_INT -> Box<Parser>
+  = INT po:parser_INT_optional_params? name:parser_name {
+    let mut parser = IntParser::from_str(name);
     grammar::set_optional_params(&mut parser, po.as_ref());
     Box::new(parser)
   }
 
 parser_INT_optional_params -> Vec<OptionalParameter<'input>>
-  = params:parser_BASE_optional_param ** comma { params }
+  = PARSER_PARAMS_BEGIN params:parser_BASE_optional_param ** comma PARSER_PARAMS_END { params }
+
+parser_BASE_optional_param -> OptionalParameter<'input>
+  = name:MIN_LEN "=" value:int { OptionalParameter::Int(name, value) }
+  / name:MAX_LEN "=" value:int { OptionalParameter::Int(name, value) }
 
 MIN_LEN -> &'input str
   = "min_len" { match_str }
@@ -85,6 +69,8 @@ PARSER_BEGIN = "%{"
 PARSER_END = "}"
 PARSER_PARAMS_BEGIN = "("
 PARSER_PARAMS_END = ")"
+parser_name -> &'input str
+  = ":" name:identifier { name }
 
 identifier -> &'input str
   = [a-zA-Z_]([a-z-A-Z0-9_]![-])* { match_str }

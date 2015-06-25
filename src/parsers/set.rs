@@ -11,16 +11,13 @@ pub struct SetParser {
 }
 
 impl SetParser {
-    pub fn new() -> SetParser {
-        SetParser{ character_set: SetParser::create_set_from_str(""),
-                   base: ParserBase::new()}
+    pub fn new(name: String, set: &str) -> SetParser {
+        SetParser{ character_set: SetParser::create_set_from_str(set),
+                   base: ParserBase::new(name)}
     }
 
     pub fn from_str(name: &str, set: &str) -> SetParser {
-        let mut parser = SetParser::new();
-        parser.base_mut().set_name(name.to_string());
-        parser.set_character_set(set);
-        parser
+        SetParser::new(name.to_string(), set)
     }
 
     pub fn set_character_set(&mut self, set: &str) {
