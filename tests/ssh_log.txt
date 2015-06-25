@@ -1,0 +1,3 @@
+Jun 25 14:09:41 lobotomy sshd[26657]: Received disconnect from 10.30.0.35: 11: disconnected by user
+Jun 25 14:09:41 lobotomy sshd[26478]: pam_unix(sshd:session): session closed for user zts
+Jun 25 14:09:58 lobotomy sshd[26665]: Accepted publickey for zts from 10.30.0.35 port 40685 ssh2
