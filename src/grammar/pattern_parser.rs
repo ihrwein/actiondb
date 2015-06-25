@@ -3,7 +3,7 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
 use parsers::{SetParser, IntParser, Parser, OptionalParameter,
-              HasOptionalParameter, ParserFactory};
+              HasOptionalParameter};
 use grammar;
 use std::str::FromStr;
 use self::RuleResult::{Matched, Failed};

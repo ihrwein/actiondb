@@ -1,6 +1,6 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, NodeType};
-use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter, ParserFactory};
+use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter};
 use grammar;
 
 use std::str::FromStr;
