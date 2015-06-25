@@ -1,4 +1,4 @@
-use matcher::trie::node::{Node, NodeType};
+use matcher::trie::node::{Node, TokenType};
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::TrieOperations;
 
@@ -23,10 +23,10 @@ impl ParserTrie {
     fn insert_not_empty_pattern<'a>(node: &'a mut TrieOperations, mut pattern: CompiledPattern) -> &'a mut TrieOperations {
         let item = pattern.remove(0);
         match item {
-            NodeType::Literal(literal) => {
+            TokenType::Literal(literal) => {
                 ParserTrie::insert_recurse(node.insert_literal(&literal), pattern)
             },
-            NodeType::Parser(parser) => {
+            TokenType::Parser(parser) => {
                 ParserTrie::insert_recurse(node.insert_parser(parser), pattern)
             }
         }
@@ -43,7 +43,7 @@ impl ParserTrie {
 
 #[cfg(test)]
 mod test {
-    use matcher::trie::node::{CompiledPattern, NodeType};
+    use matcher::trie::node::{CompiledPattern, TokenType};
     use matcher::trie::ParserTrie;
     use parsers::{SetParser};
 
@@ -51,15 +51,15 @@ mod test {
     fn test_given_patterns_when_inserted_into_the_prefix_tree_then_the_proper_tree_is_built() {
         let mut trie = ParserTrie::new();
         let mut cp1 = CompiledPattern::new();
-        cp1.push(NodeType::Literal("app".to_string()));
-        cp1.push(NodeType::Parser(Box::new(SetParser::from_str("test", "01234"))));
-        cp1.push(NodeType::Literal("le".to_string()));
+        cp1.push(TokenType::Literal("app".to_string()));
+        cp1.push(TokenType::Parser(Box::new(SetParser::from_str("test", "01234"))));
+        cp1.push(TokenType::Literal("le".to_string()));
 
         trie.insert(cp1);
         println!("{:?}", &trie);
 
         let mut cp2 = CompiledPattern::new();
-        cp2.push(NodeType::Literal("appletree".to_string()));
+        cp2.push(TokenType::Literal("appletree".to_string()));
         trie.insert(cp2);
         println!("{:?}", &trie);
     }

@@ -4,10 +4,10 @@ use matcher::trie::node::LiteralNode;
 use matcher::trie::node::ParserNode;
 use matcher::trie::TrieOperations;
 
-pub type CompiledPattern = Vec<NodeType>;
+pub type CompiledPattern = Vec<TokenType>;
 
 #[derive(Debug)]
-pub enum NodeType {
+pub enum TokenType {
     Parser(Box<Parser>),
     Literal(String)
 }
@@ -95,13 +95,13 @@ impl Node {
 
     fn search_prefix_is_found<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
         if !self.literal_children.get(pos).unwrap().is_leaf() {
-            self.search_prefix_is_found_and_node_is_leaf(literal, pos)
-        } else {
             self.search_prefix_is_found_and_node_is_not_leaf(literal, pos)
+        } else {
+            self.search_prefix_is_found_and_node_is_leaf(literal, pos)
         }
     }
 
-    fn search_prefix_is_found_and_node_is_not_leaf<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
+    fn search_prefix_is_found_and_node_is_leaf<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
         println!("search(): we found a prefix, but it's a leaf");
         if self.literal_children.get(pos).unwrap().literal() == literal {
             println!("search(): we got it");
@@ -112,7 +112,7 @@ impl Node {
         }
     }
 
-    fn search_prefix_is_found_and_node_is_leaf<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
+    fn search_prefix_is_found_and_node_is_not_leaf<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
         let literal_node = self.literal_children.get(pos).unwrap();
         let common_prefix_len = literal_node.literal().common_prefix_len(literal);
 
@@ -237,7 +237,7 @@ impl TrieOperations for Node {
 mod test {
     use matcher::trie::{ParserTrie, TrieOperations};
     use parsers::{Parser, SetParser};
-    use matcher::trie::node::{CompiledPattern, Node, NodeType};
+    use matcher::trie::node::{CompiledPattern, Node, TokenType};
 
     #[test]
     fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
@@ -309,11 +309,11 @@ mod test {
         let mut cp1 = CompiledPattern::new();
         let mut cp2 = CompiledPattern::new();
         let mut cp3 = CompiledPattern::new();
-        cp1.push(NodeType::Literal("app".to_string()));
-        cp1.push(NodeType::Parser(Box::new(SetParser::from_str("test", "01234"))));
-        cp1.push(NodeType::Literal("le".to_string()));
-        cp2.push(NodeType::Literal("appletree".to_string()));
-        cp3.push(NodeType::Literal("apple".to_string()));
+        cp1.push(TokenType::Literal("app".to_string()));
+        cp1.push(TokenType::Parser(Box::new(SetParser::from_str("test", "01234"))));
+        cp1.push(TokenType::Literal("le".to_string()));
+        cp2.push(TokenType::Literal("appletree".to_string()));
+        cp3.push(TokenType::Literal("apple".to_string()));
 
         root.insert(cp1);
         root.insert(cp2);
@@ -363,19 +363,19 @@ mod test {
         let mut cp2 = CompiledPattern::new();
         let mut cp3 = CompiledPattern::new();
         let mut cp4 = CompiledPattern::new();
-        cp1.push(NodeType::Literal("app".to_string()));
-        cp1.push(NodeType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
-        cp1.push(NodeType::Literal("letree".to_string()));
-        cp1.push(NodeType::Parser(Box::new(SetParser::from_str("end", "012"))));
+        cp1.push(TokenType::Literal("app".to_string()));
+        cp1.push(TokenType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
+        cp1.push(TokenType::Literal("letree".to_string()));
+        cp1.push(TokenType::Parser(Box::new(SetParser::from_str("end", "012"))));
 
-        cp2.push(NodeType::Literal("app".to_string()));
-        cp2.push(NodeType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
-        cp2.push(NodeType::Literal("letree".to_string()));
-        cp2.push(NodeType::Parser(Box::new(SetParser::from_str("end", "0123"))));
+        cp2.push(TokenType::Literal("app".to_string()));
+        cp2.push(TokenType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
+        cp2.push(TokenType::Literal("letree".to_string()));
+        cp2.push(TokenType::Parser(Box::new(SetParser::from_str("end", "0123"))));
 
-        cp3.push(NodeType::Literal("bamboo".to_string()));
+        cp3.push(TokenType::Literal("bamboo".to_string()));
 
-        cp4.push(NodeType::Literal("bamba".to_string()));
+        cp4.push(TokenType::Literal("bamba".to_string()));
 
         root.insert(cp1);
         root.insert(cp2);

@@ -1,25 +1,25 @@
 use super::pattern_parser;
-use matcher::trie::node::NodeType;
+use matcher::trie::node::TokenType;
 use parsers::{SetParser, Parser, ObjectSafeHash, IntParser};
 
-fn assert_parser_name_equals(item: Option<&NodeType>, expected_name: &str) {
-    if let Some(&NodeType::Parser(ref parser)) = item {
+fn assert_parser_name_equals(item: Option<&TokenType>, expected_name: &str) {
+    if let Some(&TokenType::Parser(ref parser)) = item {
         assert_eq!(parser.base().name(), expected_name);
     } else {
         unreachable!();
     }
 }
 
-fn assert_parser_equals(got: Option<&NodeType>, expected: &Parser) {
-    if let Some(&NodeType::Parser(ref parser)) = got {
+fn assert_parser_equals(got: Option<&TokenType>, expected: &Parser) {
+    if let Some(&TokenType::Parser(ref parser)) = got {
         assert_eq!(parser.hash_os(), expected.hash_os());
     } else {
         unreachable!();
     }
 }
 
-fn assert_literal_equals(item: Option<&NodeType>, expected: &str) {
-    if let Some(&NodeType::Literal(ref literal)) = item {
+fn assert_literal_equals(item: Option<&TokenType>, expected: &str) {
+    if let Some(&TokenType::Literal(ref literal)) = item {
         assert_eq!(literal, expected);
     } else {
         unreachable!();
@@ -72,7 +72,7 @@ fn test_given_literal_as_a_string_when_it_is_parsed_then_we_stop_at_the_parsers_
 #[test]
 fn test_given_pattern_as_a_string_when_it_is_parsed_with_the_grammar_we_got_the_right_compiled_pattern() {
     let pattern_as_string = "foo %{INT:int_0} bar %{INT:int_1}%{INT:int_2} baz";
-    let vec: Vec<NodeType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
+    let vec: Vec<TokenType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
 
     assert_eq!(vec.len(), 6);
     assert_literal_equals(vec.get(0), "foo ");
