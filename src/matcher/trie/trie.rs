@@ -1,7 +1,6 @@
 use matcher::trie::node::{Node, NodeType};
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::TrieOperations;
-use std::collections::BTreeMap;
 
 #[derive(Debug)]
 pub struct ParserTrie {

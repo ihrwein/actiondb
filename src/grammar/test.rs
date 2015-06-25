@@ -1,5 +1,5 @@
 use super::pattern_parser;
-use matcher::trie::node::{CompiledPattern, NodeType};
+use matcher::trie::node::NodeType;
 use parsers::{SetParser, Parser, ObjectSafeHash, IntParser};
 
 fn assert_parser_name_equals(item: Option<&NodeType>, expected_name: &str) {
@@ -29,7 +29,7 @@ fn assert_literal_equals(item: Option<&NodeType>, expected: &str) {
 #[test]
 fn test_given_parser_as_a_string_when_it_is_parsed_then_we_get_the_instantiated_parser() {
     let string_parser = "%{INT:test_name}";
-    let mut vec = pattern_parser::pattern(string_parser).ok().unwrap();
+    let vec = pattern_parser::pattern(string_parser).ok().unwrap();
 
     assert_eq!(vec.len(), 1);
     println!("{:?}", &vec);
@@ -62,7 +62,7 @@ fn test_given_parser_as_a_string_when_its_type_isnt_exist_then_we_get_an_error()
 #[test]
 fn test_given_literal_as_a_string_when_it_is_parsed_then_we_stop_at_the_parsers_begin() {
     let expected = "foo ";
-    let mut vec = pattern_parser::pattern(expected).ok().unwrap();
+    let vec = pattern_parser::pattern(expected).ok().unwrap();
 
     assert_eq!(vec.len(), 1);
 
@@ -72,7 +72,7 @@ fn test_given_literal_as_a_string_when_it_is_parsed_then_we_stop_at_the_parsers_
 #[test]
 fn test_given_pattern_as_a_string_when_it_is_parsed_with_the_grammar_we_got_the_right_compiled_pattern() {
     let pattern_as_string = "foo %{INT:int_0} bar %{INT:int_1}%{INT:int_2} baz";
-    let mut vec: Vec<NodeType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
+    let vec: Vec<NodeType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
 
     assert_eq!(vec.len(), 6);
     assert_literal_equals(vec.get(0), "foo ");
@@ -101,7 +101,7 @@ fn test_given_string_which_contains_escaped_chars_when_we_parse_it_then_we_get_t
 
 #[test]
 fn test_given_set_parser_with_character_set_parameter_when_we_parse_it_then_we_get_the_right_parser() {
-    let mut expected_parser = SetParser::from_str("test_set", "0123456789");
+    let expected_parser = SetParser::from_str("test_set", "0123456789");
     let vec = pattern_parser::pattern(r#"%{SET("0123456789"):test_set}"#).ok().unwrap();
     assert_eq!(vec.len(), 1);
     assert_parser_equals(vec.get(0), &expected_parser);

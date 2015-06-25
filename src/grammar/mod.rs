@@ -1,5 +1,4 @@
-use parsers::{Parser, OptionalParameter, HasOptionalParameter};
-use matcher::trie::node::NodeType;
+use parsers::{OptionalParameter, HasOptionalParameter};
 
 mod pattern_parser;
 #[cfg(test)]
@@ -13,9 +12,4 @@ pub fn set_optional_params<'a, T: HasOptionalParameter>(parser: &mut T, params: 
     if let Some(optional_params) = params {
       parser.set_optional_params(&optional_params);
     }
-}
-
-pub fn set_name_and_wrap_into(mut parser: Box<Parser>, name: &str) -> NodeType {
-    parser.base_mut().set_name(name.to_string());
-    NodeType::Parser(parser)
 }

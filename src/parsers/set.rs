@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 use std::iter::FromIterator;
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, ParserBase, OptionalParameter, HasOptionalParameter};
+use parsers::{Parser, ObjectSafeHash, ParserBase};
 
 #[derive(Debug)]
 pub struct SetParser {
@@ -94,7 +94,7 @@ mod test {
 
     #[test]
     fn test_given_matching_string_when_parsed_it_matches() {
-        let mut p = SetParser::from_str("name", "0123");
+        let p = SetParser::from_str("name", "0123");
         assert_eq!(p.parse("11230almafa"),
                    Some(("name", "11230")));
     }

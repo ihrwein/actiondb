@@ -62,7 +62,6 @@ impl HasOptionalParameter for ParserBase {
                         _ => return false
                     }
                 }
-                _ => return false
             }
         }
 
