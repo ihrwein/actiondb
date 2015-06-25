@@ -292,7 +292,7 @@ fn parse_parser_SET<'input>(input: &'input str, state: &mut ParseState,
                                     let seq_res =
                                         parse_string(input, state, pos);
                                     match seq_res {
-                                        Matched(pos, s) => {
+                                        Matched(pos, set) => {
                                             {
                                                 let seq_res =
                                                     match parse_parser_SET_optional_params(input,
@@ -321,46 +321,27 @@ fn parse_parser_SET<'input>(input: &'input str, state: &mut ParseState,
                                                                 {
                                                                     {
                                                                         let seq_res =
-                                                                            slice_eq(input,
-                                                                                     state,
-                                                                                     pos,
-                                                                                     ":");
+                                                                            parse_parser_name(input,
+                                                                                              state,
+                                                                                              pos);
                                                                         match seq_res
                                                                             {
                                                                             Matched(pos,
-                                                                                    _)
+                                                                                    name)
                                                                             =>
                                                                             {
                                                                                 {
-                                                                                    let seq_res =
-                                                                                        parse_identifier(input,
-                                                                                                         state,
-                                                                                                         pos);
-                                                                                    match seq_res
-                                                                                        {
-                                                                                        Matched(pos,
-                                                                                                name)
-                                                                                        =>
-                                                                                        {
+                                                                                    let match_str =
+                                                                                        &input[start_pos..pos];
+                                                                                    Matched(pos,
                                                                                             {
-                                                                                                let match_str =
-                                                                                                    &input[start_pos..pos];
-                                                                                                Matched(pos,
-                                                                                                        {
-                                                                                                            let mut parser =
-                                                                                                                SetParser::new();
-                                                                                                            parser.set_character_set(s);
-                                                                                                            parser.base_mut().set_name(name.to_string());
-                                                                                                            grammar::set_optional_params(&mut parser,
-                                                                                                                                         po.as_ref());
-                                                                                                            Box::new(parser)
-                                                                                                        })
-                                                                                            }
-                                                                                        }
-                                                                                        Failed
-                                                                                        =>
-                                                                                        Failed,
-                                                                                    }
+                                                                                                let mut parser =
+                                                                                                    SetParser::from_str(name,
+                                                                                                                        set);
+                                                                                                grammar::set_optional_params(&mut parser,
+                                                                                                                             po.as_ref());
+                                                                                                Box::new(parser)
+                                                                                            })
                                                                                 }
                                                                             }
                                                                             Failed
@@ -472,32 +453,20 @@ fn parse_parser_INT<'input>(input: &'input str, state: &mut ParseState,
                             Matched(pos, po) => {
                                 {
                                     let seq_res =
-                                        slice_eq(input, state, pos, ":");
+                                        parse_parser_name(input, state, pos);
                                     match seq_res {
-                                        Matched(pos, _) => {
+                                        Matched(pos, name) => {
                                             {
-                                                let seq_res =
-                                                    parse_identifier(input,
-                                                                     state,
-                                                                     pos);
-                                                match seq_res {
-                                                    Matched(pos, name) => {
+                                                let match_str =
+                                                    &input[start_pos..pos];
+                                                Matched(pos,
                                                         {
-                                                            let match_str =
-                                                                &input[start_pos..pos];
-                                                            Matched(pos,
-                                                                    {
-                                                                        let mut parser =
-                                                                            IntParser::new();
-                                                                        parser.base_mut().set_name(name.to_string());
-                                                                        grammar::set_optional_params(&mut parser,
-                                                                                                     po.as_ref());
-                                                                        Box::new(parser)
-                                                                    })
-                                                        }
-                                                    }
-                                                    Failed => Failed,
-                                                }
+                                                            let mut parser =
+                                                                IntParser::from_str(name);
+                                                            grammar::set_optional_params(&mut parser,
+                                                                                         po.as_ref());
+                                                            Box::new(parser)
+                                                        })
                                             }
                                         }
                                         Failed => Failed,
@@ -758,6 +727,32 @@ fn parse_PARSER_PARAMS_BEGIN<'input>(input: &'input str,
 fn parse_PARSER_PARAMS_END<'input>(input: &'input str, state: &mut ParseState,
                                    pos: usize) -> RuleResult<()> {
     slice_eq(input, state, pos, ")")
+}
+fn parse_parser_name<'input>(input: &'input str, state: &mut ParseState,
+                             pos: usize) -> RuleResult<&'input str> {
+    {
+        let start_pos = pos;
+        {
+            let seq_res = slice_eq(input, state, pos, ":");
+            match seq_res {
+                Matched(pos, _) => {
+                    {
+                        let seq_res = parse_identifier(input, state, pos);
+                        match seq_res {
+                            Matched(pos, name) => {
+                                {
+                                    let match_str = &input[start_pos..pos];
+                                    Matched(pos, { name })
+                                }
+                            }
+                            Failed => Failed,
+                        }
+                    }
+                }
+                Failed => Failed,
+            }
+        }
+    }
 }
 fn parse_identifier<'input>(input: &'input str, state: &mut ParseState,
                             pos: usize) -> RuleResult<&'input str> {

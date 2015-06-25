@@ -30,10 +30,8 @@ parser_type -> Box<Parser>
   / parser_INT
 
 parser_SET -> Box<Parser>
-  = SET PARSER_PARAMS_BEGIN s:string po:parser_SET_optional_params? PARSER_PARAMS_END name:parser_name {
-    let mut parser = SetParser::new();
-    parser.set_character_set(s);
-    parser.base_mut().set_name(name.to_string());
+  = SET PARSER_PARAMS_BEGIN set:string po:parser_SET_optional_params? PARSER_PARAMS_END name:parser_name {
+    let mut parser = SetParser::from_str(name, set);
     grammar::set_optional_params(&mut parser, po.as_ref());
     Box::new(parser)
   }
@@ -43,8 +41,7 @@ parser_SET_optional_params -> Vec<OptionalParameter<'input>>
 
 parser_INT -> Box<Parser>
   = INT po:parser_INT_optional_params? name:parser_name {
-    let mut parser = IntParser::new();
-    parser.base_mut().set_name(name.to_string());
+    let mut parser = IntParser::from_str(name);
     grammar::set_optional_params(&mut parser, po.as_ref());
     Box::new(parser)
   }
