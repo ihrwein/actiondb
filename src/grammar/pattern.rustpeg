@@ -1,5 +1,5 @@
 use matcher::trie::node::{CompiledPattern};
-use matcher::trie::node::{Node, NodeType};
+use matcher::trie::node::{Node, TokenType};
 use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter};
 use grammar;
 
@@ -10,19 +10,19 @@ pattern -> CompiledPattern
   = pattern_piece+
   / "" { Vec::new() }
 
-pattern_piece -> NodeType
+pattern_piece -> TokenType
   = literal
   / parser
 
-literal -> NodeType
+literal -> TokenType
   = (!PARSER_BEGIN .)+ {
       let unescaped_literal = grammar::unescape_literal(match_str);
-      NodeType::Literal(unescaped_literal)
+      TokenType::Literal(unescaped_literal)
     }
 
-parser -> NodeType
+parser -> TokenType
   = PARSER_BEGIN parser:parser_type PARSER_END {
-    NodeType::Parser(parser)
+    TokenType::Parser(parser)
   }
 
 parser_type -> Box<Parser>

@@ -4,10 +4,10 @@ use matcher::trie::node::LiteralNode;
 use matcher::trie::node::ParserNode;
 use matcher::trie::TrieOperations;
 
-pub type CompiledPattern = Vec<NodeType>;
+pub type CompiledPattern = Vec<TokenType>;
 
 #[derive(Debug)]
-pub enum NodeType {
+pub enum TokenType {
     Parser(Box<Parser>),
     Literal(String)
 }
@@ -237,7 +237,7 @@ impl TrieOperations for Node {
 mod test {
     use matcher::trie::{ParserTrie, TrieOperations};
     use parsers::{Parser, SetParser};
-    use matcher::trie::node::{CompiledPattern, Node, NodeType};
+    use matcher::trie::node::{CompiledPattern, Node, TokenType};
 
     #[test]
     fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
@@ -309,11 +309,11 @@ mod test {
         let mut cp1 = CompiledPattern::new();
         let mut cp2 = CompiledPattern::new();
         let mut cp3 = CompiledPattern::new();
-        cp1.push(NodeType::Literal("app".to_string()));
-        cp1.push(NodeType::Parser(Box::new(SetParser::from_str("test", "01234"))));
-        cp1.push(NodeType::Literal("le".to_string()));
-        cp2.push(NodeType::Literal("appletree".to_string()));
-        cp3.push(NodeType::Literal("apple".to_string()));
+        cp1.push(TokenType::Literal("app".to_string()));
+        cp1.push(TokenType::Parser(Box::new(SetParser::from_str("test", "01234"))));
+        cp1.push(TokenType::Literal("le".to_string()));
+        cp2.push(TokenType::Literal("appletree".to_string()));
+        cp3.push(TokenType::Literal("apple".to_string()));
 
         root.insert(cp1);
         root.insert(cp2);
@@ -363,19 +363,19 @@ mod test {
         let mut cp2 = CompiledPattern::new();
         let mut cp3 = CompiledPattern::new();
         let mut cp4 = CompiledPattern::new();
-        cp1.push(NodeType::Literal("app".to_string()));
-        cp1.push(NodeType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
-        cp1.push(NodeType::Literal("letree".to_string()));
-        cp1.push(NodeType::Parser(Box::new(SetParser::from_str("end", "012"))));
+        cp1.push(TokenType::Literal("app".to_string()));
+        cp1.push(TokenType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
+        cp1.push(TokenType::Literal("letree".to_string()));
+        cp1.push(TokenType::Parser(Box::new(SetParser::from_str("end", "012"))));
 
-        cp2.push(NodeType::Literal("app".to_string()));
-        cp2.push(NodeType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
-        cp2.push(NodeType::Literal("letree".to_string()));
-        cp2.push(NodeType::Parser(Box::new(SetParser::from_str("end", "0123"))));
+        cp2.push(TokenType::Literal("app".to_string()));
+        cp2.push(TokenType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
+        cp2.push(TokenType::Literal("letree".to_string()));
+        cp2.push(TokenType::Parser(Box::new(SetParser::from_str("end", "0123"))));
 
-        cp3.push(NodeType::Literal("bamboo".to_string()));
+        cp3.push(TokenType::Literal("bamboo".to_string()));
 
-        cp4.push(NodeType::Literal("bamba".to_string()));
+        cp4.push(TokenType::Literal("bamba".to_string()));
 
         root.insert(cp1);
         root.insert(cp2);
