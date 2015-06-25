@@ -1,11 +1,9 @@
-use std::collections::BTreeMap;
-use parsers::{Parser, SetParser};
+use parsers::Parser;
 use utils::{SortedVec, CommonPrefix};
 use matcher::trie::node::LiteralNode;
 use matcher::trie::node::ParserNode;
 use matcher::trie::TrieOperations;
 
-pub type MatchResult<'a, 'b> = Option<BTreeMap<&'a str, &'b str>>;
 pub type CompiledPattern = Vec<NodeType>;
 
 #[derive(Debug)]
@@ -127,7 +125,7 @@ impl Node {
             return LiteralLookupResult::Found(pos);
         }
 
-        if let Some(node) = literal_node.node() {
+        if let Some(_) = literal_node.node() {
             println!("search(): literal len = {}", literal.len());
             println!("search(): common_prefix_len = {}", common_prefix_len);
             println!("search(): going deeper");
@@ -140,7 +138,7 @@ impl Node {
     pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<Vec<(&'a str, &'b str)>> {
         println!("parse(): text = {}", text);
         match self.lookup_literal(text) {
-            Ok((node, pos)) => {
+            Ok((_, _)) => {
                 Some(vec!())
             },
             Err((node, remaining_len)) => {

@@ -30,5 +30,4 @@ pub trait HasOptionalParameter {
 #[derive(Debug)]
 pub enum OptionalParameter<'a> {
     Int(&'a str, usize),
-    Str(&'a str, &'a str)
 }

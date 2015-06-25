@@ -2,7 +2,6 @@ mod literal;
 mod parser;
 mod node;
 
-pub use self::node::MatchResult;
 pub use self::node::CompiledPattern;
 pub use self::node::NodeType;
 pub use self::node::Node;
