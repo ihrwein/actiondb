@@ -1,11 +1,10 @@
 extern crate actiondb;
 extern crate clap;
 
-use std::fs::File;
-use std::io::{BufReader, BufRead, Error, BufWriter, Write};
+mod parse;
+mod validate;
+
 use clap::{Arg, App, SubCommand};
-use actiondb::grammar::parser;
-use actiondb::matcher::trie::ParserTrie;
 
 const VERSION: &'static str = "0.1.0";
 const AUTHOR: &'static str = "Tibor Benke <tibor.benke@balabit.com>";
@@ -17,81 +16,6 @@ const PARSE: &'static str = "parse";
 const INPUT_FILE: &'static str = "input file";
 const OUTPUT_FILE: &'static str = "output file";
 
-fn validate_file(file: &File) -> bool {
-    let reader = BufReader::new(file);
-    for line in reader.lines() {
-        if let Ok(l) = line {
-            if let Err(err) = parser::pattern(&l) {
-                println!("{:?}", err);
-                return false;
-            }
-        }
-    }
-
-    true
-}
-
-fn validate(filename: &str) -> bool {
-    match File::open(filename) {
-        Ok(file) => {
-            validate_file(&file)
-        },
-        Err(e) => {
-            println!("{}", e);
-            false
-        }
-    }
-}
-
-fn build_trie_from_pattern_file(file: &File) -> Result<ParserTrie, parser::ParseError> {
-    let mut trie = ParserTrie::new();
-    let reader = BufReader::new(file);
-
-    for line in reader.lines() {
-        if let Ok(l) = line {
-            let compiled_pattern = parser::pattern(&l);
-
-            if compiled_pattern.is_ok() {
-                trie.insert(compiled_pattern.ok().unwrap());
-            } else {
-                return Err(compiled_pattern.err().unwrap());
-            }
-        }
-    }
-
-    Ok(trie)
-}
-
-fn parse(pattern_file_path: &str, input_file_path: &str, output_file_path: &str) -> Result<(), Error> {
-    let pattern_file = try!(File::open(pattern_file_path));
-    let input_file = try!(File::open(input_file_path));
-    let mut output_file= try!(File::create(output_file_path));
-
-    let build_result = build_trie_from_pattern_file(&pattern_file);
-
-    match build_result {
-        Ok(trie) => {
-            parse_file(&input_file, &mut output_file, &trie);
-        },
-        Err(err) => {
-            println!("Failed to parse a pattern in the input file: {:?}", err);
-        }
-    }
-
-    Ok(())
-}
-
-fn parse_file(input_file: &File, output_file: &mut File, trie: &ParserTrie) {
-    let reader = BufReader::new(input_file);
-    let mut writer = BufWriter::new(output_file);
-
-    for line in reader.lines() {
-        if let Ok(l) = line {
-            let parse_result = trie.parse(&l);
-            let _ = write!(&mut writer, "{:?}\n", parse_result);
-        }
-    }
-}
 
 fn main() {
     let matches = App::new(APPNAME)
@@ -125,7 +49,8 @@ fn main() {
                           .get_matches();
 
     if let Some(matches) = matches.subcommand_matches(VALIDATE) {
-        if !validate(matches.value_of(PATTERN_FILE).unwrap()) {
+        let pattern_file = matches.value_of(PATTERN_FILE).unwrap();
+        if !validate::validate(pattern_file) {
             std::process::exit(1);
         }
     } else if let Some(matches) = matches.subcommand_matches(PARSE) {
@@ -133,7 +58,7 @@ fn main() {
         let input_file = matches.value_of(INPUT_FILE).unwrap();
         let output_file = matches.value_of(OUTPUT_FILE).unwrap();
 
-        if let Err(e) = parse(pattern_file, input_file, output_file) {
+        if let Err(e) = parse::parse(pattern_file, input_file, output_file) {
             println!("{}", e);
             std::process::exit(1);
         }
