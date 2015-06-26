@@ -1,6 +1,6 @@
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, ParserBase, SetParser};
+use parsers::{Parser, ObjectSafeHash, ParserBase, SetParser, HasOptionalParameter, OptionalParameter};
 
 #[derive(Debug, Hash)]
 pub struct IntParser {
@@ -16,15 +16,19 @@ impl IntParser {
         let delegate = SetParser::new(name, "0123456789");
         IntParser{ delegate: delegate }
     }
+
+    pub fn set_min_length(&mut self, length: usize) {
+        self.delegate.set_min_length(length)
+    }
+
+    pub fn set_max_length(&mut self, length: usize) {
+        self.delegate.set_max_length(length)
+    }
 }
 
 impl Parser for IntParser {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)> {
         self.delegate.parse(value)
-    }
-
-    fn base_mut(&mut self) -> &mut ParserBase {
-        self.delegate.base_mut()
     }
 
     fn name(&self) -> &str {
@@ -38,6 +42,12 @@ impl ObjectSafeHash for IntParser {
         "parser:int".hash(&mut hasher);
         self.hash(&mut hasher);
         hasher.finish()
+    }
+}
+
+impl HasOptionalParameter for IntParser {
+    fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool {
+        self.delegate.set_optional_params(params)
     }
 }
 

@@ -13,15 +13,9 @@ pub trait ObjectSafeHash {
 
 pub trait Parser: Debug + ObjectSafeHash {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)>;
-    fn base_mut(&mut self) -> &mut ParserBase;
     fn name(&self) -> &str;
 }
 
-impl<T> HasOptionalParameter for T where T:Parser {
-    fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool {
-        self.base_mut().set_optional_params(params)
-    }
-}
 
 pub trait HasOptionalParameter {
     fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool;

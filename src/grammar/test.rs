@@ -110,8 +110,8 @@ fn test_given_set_parser_with_character_set_parameter_when_we_parse_it_then_we_g
 #[test]
 fn test_given_set_parser_with_optional_parameters_when_we_parse_it_then_we_get_the_right_parser() {
     let mut expected_parser = SetParser::from_str("test_set", "0123456789");
-    expected_parser.base_mut().set_min_length(2);
-    expected_parser.base_mut().set_max_length(5);
+    expected_parser.set_min_length(2);
+    expected_parser.set_max_length(5);
 
     let vec = pattern_parser::pattern(r#"%{SET("0123456789",min_len=2, max_len=5):test_set}"#).ok().unwrap();
     assert_eq!(vec.len(), 1);
@@ -121,8 +121,8 @@ fn test_given_set_parser_with_optional_parameters_when_we_parse_it_then_we_get_t
 #[test]
 fn test_given_int_parser_with_optional_parameters_when_we_parse_it_then_we_get_the_right_parser() {
     let mut expected_parser = IntParser::from_str("test_int");
-    expected_parser.base_mut().set_min_length(2);
-    expected_parser.base_mut().set_max_length(5);
+    expected_parser.set_min_length(2);
+    expected_parser.set_max_length(5);
 
     let vec = pattern_parser::pattern(r#"%{INT(min_len=2,max_len=5):test_int}"#).ok().unwrap();
     assert_eq!(vec.len(), 1);

@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 use std::iter::FromIterator;
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, ParserBase};
+use parsers::{Parser, ObjectSafeHash, ParserBase, HasOptionalParameter, OptionalParameter};
 
 #[derive(Debug, Hash)]
 pub struct SetParser {
@@ -22,6 +22,14 @@ impl SetParser {
 
     pub fn set_character_set(&mut self, set: &str) {
         self.character_set = SetParser::create_set_from_str(set);
+    }
+
+    pub fn set_min_length(&mut self, length: usize) {
+        self.base.set_min_length(length)
+    }
+
+    pub fn set_max_length(&mut self, length: usize) {
+        self.base.set_max_length(length)
     }
 
     fn create_set_from_str(set: &str) -> BTreeSet<u8> {
@@ -55,10 +63,6 @@ impl Parser for SetParser {
         }
     }
 
-    fn base_mut(&mut self) -> &mut ParserBase {
-        &mut self.base
-    }
-
     fn name(&self) -> &str {
         self.base.name()
     }
@@ -70,6 +74,12 @@ impl ObjectSafeHash for SetParser {
         "parser:set".hash(&mut hasher);
         self.hash(&mut hasher);
         hasher.finish()
+    }
+}
+
+impl HasOptionalParameter for SetParser {
+    fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool {
+        self.base.set_optional_params(params)
     }
 }
 
@@ -101,7 +111,7 @@ mod test {
     #[test]
     fn test_given_minimum_match_length_when_a_match_is_shorter_it_doesnt_count_as_a_match() {
         let mut p = SetParser::from_str("test", "0123");
-        p.base_mut().set_min_length(7);
+        p.set_min_length(7);
         assert_eq!(p.parse("11230almafa"),
                    None);
     }
@@ -109,7 +119,7 @@ mod test {
     #[test]
     fn test_given_maximum_match_length_when_a_match_is_longer_it_doesnt_count_as_a_match() {
         let mut p = SetParser::from_str("name", "0123");
-        p.base_mut().set_max_length(3);
+        p.set_max_length(3);
         assert_eq!(p.parse("11230almafa"),
                    None);
     }
@@ -117,8 +127,8 @@ mod test {
     #[test]
     fn test_given_minimum_and_maximum_match_length_when_a_proper_length_match_occures_it_counts_as_a_match() {
         let mut p = SetParser::from_str("testname", "0123");
-        p.base_mut().set_min_length(3);
-        p.base_mut().set_max_length(7);
+        p.set_min_length(3);
+        p.set_max_length(7);
         assert_eq!(p.parse("11230almafa"),
                    Some(("testname", "11230")));
     }
