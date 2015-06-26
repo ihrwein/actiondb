@@ -1,6 +1,6 @@
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, ParserBase, SetParser, HasOptionalParameter, OptionalParameter};
+use parsers::{Parser, ObjectSafeHash, SetParser, HasOptionalParameter, OptionalParameter};
 
 #[derive(Debug, Hash)]
 pub struct IntParser {
