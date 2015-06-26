@@ -68,4 +68,12 @@ mod test {
         let parser = IntParser::from_str(parser_name);
         assert_eq!(parser.parse("1234asd").unwrap(), (parser_name, "1234"));
     }
+
+    #[test]
+    fn test_given_matching_string_which_is_longer_than_the_max_match_length_when_it_is_parsed_then_it_does_not_match() {
+        let parser_name = "test_int_parser";
+        let mut parser = IntParser::from_str(parser_name);
+        parser.set_max_length(3);
+        assert_eq!(parser.parse("1234asd"), None);
+    }
 }
