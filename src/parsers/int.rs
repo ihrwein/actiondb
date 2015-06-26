@@ -2,7 +2,7 @@ use std::hash::{SipHasher, Hash, Hasher};
 
 use parsers::{Parser, ObjectSafeHash, ParserBase, SetParser};
 
-#[derive(Debug)]
+#[derive(Debug, Hash)]
 pub struct IntParser {
     delegate: SetParser
 }
@@ -23,12 +23,12 @@ impl Parser for IntParser {
         self.delegate.parse(value)
     }
 
-    fn base(&self) -> &ParserBase {
-        self.delegate.base()
-    }
-
     fn base_mut(&mut self) -> &mut ParserBase {
         self.delegate.base_mut()
+    }
+
+    fn name(&self) -> &str {
+        self.delegate.name()
     }
 }
 
@@ -36,7 +36,7 @@ impl ObjectSafeHash for IntParser {
     fn hash_os(&self) -> u64 {
         let mut hasher = SipHasher::new();
         "parser:int".hash(&mut hasher);
-        self.base().hash(&mut hasher);
+        self.hash(&mut hasher);
         hasher.finish()
     }
 }

@@ -13,8 +13,8 @@ pub trait ObjectSafeHash {
 
 pub trait Parser: Debug + ObjectSafeHash {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)>;
-    fn base(&self) -> &ParserBase;
     fn base_mut(&mut self) -> &mut ParserBase;
+    fn name(&self) -> &str;
 }
 
 impl<T> HasOptionalParameter for T where T:Parser {

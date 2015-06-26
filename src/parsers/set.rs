@@ -4,7 +4,7 @@ use std::hash::{SipHasher, Hash, Hasher};
 
 use parsers::{Parser, ObjectSafeHash, ParserBase};
 
-#[derive(Debug)]
+#[derive(Debug, Hash)]
 pub struct SetParser {
     character_set: BTreeSet<u8>,
     base: ParserBase
@@ -48,19 +48,19 @@ impl Parser for SetParser {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)> {
         let match_len = self.calculate_match_length(value);
 
-        if self.base().is_match_length_ok(match_len) {
-            Some((&self.base.name(), &value[..match_len]))
+        if self.base.is_match_length_ok(match_len) {
+            Some((&self.name(), &value[..match_len]))
         } else {
             None
         }
     }
 
-    fn base(&self) -> &ParserBase {
-        &self.base
-    }
-
     fn base_mut(&mut self) -> &mut ParserBase {
         &mut self.base
+    }
+
+    fn name(&self) -> &str {
+        self.base.name()
     }
 }
 
@@ -68,8 +68,7 @@ impl ObjectSafeHash for SetParser {
     fn hash_os(&self) -> u64 {
         let mut hasher = SipHasher::new();
         "parser:set".hash(&mut hasher);
-        self.character_set.hash(&mut hasher);
-        self.base.hash(&mut hasher);
+        self.hash(&mut hasher);
         hasher.finish()
     }
 }

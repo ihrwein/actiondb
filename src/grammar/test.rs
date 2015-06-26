@@ -4,7 +4,7 @@ use parsers::{SetParser, Parser, ObjectSafeHash, IntParser};
 
 fn assert_parser_name_equals(item: Option<&TokenType>, expected_name: &str) {
     if let Some(&TokenType::Parser(ref parser)) = item {
-        assert_eq!(parser.base().name(), expected_name);
+        assert_eq!(parser.name(), expected_name);
     } else {
         unreachable!();
     }
