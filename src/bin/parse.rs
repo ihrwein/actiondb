@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{BufReader, BufRead, Error, BufWriter, Write};
+use std::io::{BufReader, BufRead, Error, ErrorKind, BufWriter, Write};
 use actiondb::grammar::parser;
 use actiondb::matcher::trie::ParserTrie;
 
@@ -32,13 +32,12 @@ pub fn parse(pattern_file_path: &str, input_file_path: &str, output_file_path: &
     match build_result {
         Ok(trie) => {
             parse_file(&input_file, &mut output_file, &trie);
+            Ok(())
         },
         Err(err) => {
-            println!("Failed to parse a pattern in the input file: {:?}", err);
+            Err(Error::new(ErrorKind::Other, format!("Failed to parse a pattern in the input file: {:?}", err)))
         }
     }
-
-    Ok(())
 }
 
 fn parse_file(input_file: &File, output_file: &mut File, trie: &ParserTrie) {
