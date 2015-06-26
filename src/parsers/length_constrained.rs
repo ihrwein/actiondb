@@ -64,3 +64,35 @@ impl HasOptionalParameter for LengthConstrainedParserBase {
         true
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::LengthConstrainedParserBase;
+
+    #[test]
+    fn test_given_parser_when_the_match_length_is_not_constrained_then_the_match_length_is_ok_in_every_case() {
+        let base = LengthConstrainedParserBase::new("name".to_string());
+        assert_eq!(base.is_match_length_ok(42), true);
+        assert_eq!(base.is_match_length_ok(1), true);
+    }
+
+    #[test]
+    fn test_given_parser_when_the_minimum_match_length_is_set_then_the_shorter_matches_are_discarded() {
+        let mut base = LengthConstrainedParserBase::new("name".to_string());
+        base.set_min_length(10);
+        assert_eq!(base.is_match_length_ok(42), true);
+        assert_eq!(base.is_match_length_ok(1), false);
+        assert_eq!(base.is_match_length_ok(9), false);
+        assert_eq!(base.is_match_length_ok(10), true);
+    }
+
+    #[test]
+    fn test_given_parser_when_the_maximum_match_length_is_set_then_the_longer_matches_are_discarded() {
+        let mut base = LengthConstrainedParserBase::new("name".to_string());
+        base.set_max_length(10);
+        assert_eq!(base.is_match_length_ok(42), false);
+        assert_eq!(base.is_match_length_ok(1), true);
+        assert_eq!(base.is_match_length_ok(9), true);
+        assert_eq!(base.is_match_length_ok(10), true);
+    }
+}
