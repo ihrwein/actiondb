@@ -147,7 +147,7 @@ docker run -it -v ~/workspace/rust-peg:/source -v ~/workspace/actiondb:/actiondb
 4. Generate the grammar files with `peg`:
 
 ```
-target/debug/peg /actiondb/src/grammar/pattern.rustpeg > /actiondb/src/grammar/pattern_parser.rs; echo $?
+target/debug/peg /actiondb/src/grammar/pattern.rustpeg > /actiondb/src/grammar/pattern_parser.rs
 ```
 
 5. Rebuild `actiondb` with `cargo`
