@@ -2,12 +2,14 @@ mod set;
 mod base;
 mod int;
 mod length_checked;
+mod estring;
 
 use std::fmt::Debug;
 pub use self::set::SetParser;
 pub use self::base::ParserBase;
 pub use self::int::IntParser;
 pub use self::length_checked::LengthCheckedParserBase;
+pub use self::estring::EStringParser;
 
 pub trait ObjectSafeHash {
     fn hash_os(&self) -> u64;
