@@ -53,6 +53,24 @@ It's identical to the `[abcd]{1,2}` regular expression.
 It reuses the `SET` parser with the character set of the numbers from `0` to
 `9`. An optional minimum and maximum length can be specified.
 
+#### GREEDY
+
+It tries to fill in the gap between a parser and a literal or two literals. It will use
+the following literal as an "end string" condition.
+
+##### Example
+
+Pattern:
+```
+from %{GREEDY:ipaddr}: %{INT:dunno}
+```
+Sample message:
+```
+from 1.2.3.4: 123
+```
+Extracted key-value pairs:
+* `(ipaddr,1.2.3.4)`
+* `(dunno,123)`
 
 ### adbtool
 
