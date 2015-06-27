@@ -1,6 +1,6 @@
 use super::pattern_parser;
 use matcher::trie::node::TokenType;
-use parsers::{SetParser, Parser, ObjectSafeHash, IntParser};
+use parsers::{SetParser, Parser, ObjectSafeHash, IntParser, EStringParser};
 
 fn assert_parser_name_equals(item: Option<&TokenType>, expected_name: &str) {
     if let Some(&TokenType::Parser(ref parser)) = item {
@@ -12,6 +12,8 @@ fn assert_parser_name_equals(item: Option<&TokenType>, expected_name: &str) {
 
 fn assert_parser_equals(got: Option<&TokenType>, expected: &Parser) {
     if let Some(&TokenType::Parser(ref parser)) = got {
+        println!("expected: {:?}", expected);
+        println!("got: {:?}", parser);
         assert_eq!(parser.hash_os(), expected.hash_os());
     } else {
         unreachable!();
@@ -127,4 +129,19 @@ fn test_given_int_parser_with_optional_parameters_when_we_parse_it_then_we_get_t
     let vec = pattern_parser::pattern(r#"%{INT(min_len=2,max_len=5):test_int}"#).ok().unwrap();
     assert_eq!(vec.len(), 1);
     assert_parser_equals(vec.get(0), &expected_parser);
+}
+
+#[test]
+fn test_given_greedy_parser_when_we_parse_it_then_we_get_the_right_result() {
+    let expected_parser = EStringParser::from_str("greedy", " baz");
+    let pattern_as_string = "foo %{INT:int_0} bar %{GREEDY:greedy} baz";
+    let vec: Vec<TokenType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
+
+    assert_eq!(vec.len(), 5);
+    assert_literal_equals(vec.get(0), "foo ");
+    assert_parser_name_equals(vec.get(1), "int_0");
+    assert_literal_equals(vec.get(2), " bar ");
+    assert_parser_name_equals(vec.get(3), "greedy");
+    assert_literal_equals(vec.get(4), " baz");
+    assert_parser_equals(vec.get(3), &expected_parser);
 }

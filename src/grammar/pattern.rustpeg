@@ -1,31 +1,36 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, TokenType};
-use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter};
+use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter, EStringParser};
 use grammar;
+use utils;
 
 use std::str::FromStr;
 
 #[pub]
 pattern -> CompiledPattern
-  = pattern_piece+
+  = pieces:pattern_piece+ {
+    let mut pieces = pieces;
+    utils::flatten_vec(pieces)
+  }
   / "" { Vec::new() }
 
-pattern_piece -> TokenType
-  = literal
-  / parser
+pattern_piece -> Vec<TokenType>
+  = parser_GREEDY
+  / piece_literal
+  / piece_parser
 
-literal -> TokenType
-  = (!PARSER_BEGIN .)+ {
-      let unescaped_literal = grammar::unescape_literal(match_str);
-      TokenType::Literal(unescaped_literal)
+piece_literal -> Vec<TokenType>
+  = literal:literal {
+      let unescaped_literal = grammar::unescape_literal(literal);
+      vec![TokenType::Literal(unescaped_literal)]
     }
 
-parser -> TokenType
-  = PARSER_BEGIN parser:parser_type PARSER_END {
-    TokenType::Parser(parser)
+piece_parser -> Vec<TokenType>
+  = PARSER_BEGIN parser:parser PARSER_END {
+    vec![TokenType::Parser(parser)]
   }
 
-parser_type -> Box<Parser>
+parser -> Box<Parser>
   = parser_SET
   / parser_INT
 
@@ -49,6 +54,13 @@ parser_INT -> Box<Parser>
 parser_INT_optional_params -> Vec<OptionalParameter<'input>>
   = PARSER_PARAMS_BEGIN params:parser_BASE_optional_param ** comma PARSER_PARAMS_END { params }
 
+parser_GREEDY -> Vec<TokenType>
+  = PARSER_BEGIN GREEDY name:parser_name PARSER_END end_string:literal {
+    let parser = EStringParser::from_str(name, end_string);
+    vec![TokenType::Parser(Box::new(parser)),
+         TokenType::Literal(end_string.to_string())]
+  }
+
 parser_BASE_optional_param -> OptionalParameter<'input>
   = name:MIN_LEN "=" value:int { OptionalParameter::Int(name, value) }
   / name:MAX_LEN "=" value:int { OptionalParameter::Int(name, value) }
@@ -65,6 +77,9 @@ INT -> &'input str
 SET -> &'input str
   = "SET" { match_str }
 
+GREEDY -> &'input str
+  = "GREEDY" { match_str }
+
 PARSER_BEGIN = "%{"
 PARSER_END = "}"
 PARSER_PARAMS_BEGIN = "("
@@ -77,6 +92,9 @@ identifier -> &'input str
 
 string -> &'input str
   = '"' s:all_chars_until_quotation_mark '"' { s }
+
+literal -> &'input str
+  = (!PARSER_BEGIN .)+ { match_str }
 
 all_chars_until_quotation_mark -> &'input str
   = (!'"' .)+ { match_str }
