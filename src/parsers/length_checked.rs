@@ -1,15 +1,15 @@
 use parsers::{HasOptionalParameter, OptionalParameter, ParserBase};
 
 #[derive(Hash, Debug)]
-pub struct LengthConstrainedParserBase {
+pub struct LengthCheckedParserBase {
     base: ParserBase,
     min_length: Option<usize>,
     max_length: Option<usize>
 }
 
-impl LengthConstrainedParserBase {
-    pub fn new(name: String) -> LengthConstrainedParserBase {
-        LengthConstrainedParserBase { base: ParserBase::new(name),
+impl LengthCheckedParserBase {
+    pub fn new(name: String) -> LengthCheckedParserBase {
+        LengthCheckedParserBase { base: ParserBase::new(name),
                      min_length: None,
                      max_length: None }
     }
@@ -47,7 +47,7 @@ impl LengthConstrainedParserBase {
     }
 }
 
-impl HasOptionalParameter for LengthConstrainedParserBase {
+impl HasOptionalParameter for LengthCheckedParserBase {
     fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool {
         for i in params {
             match i {
@@ -67,18 +67,18 @@ impl HasOptionalParameter for LengthConstrainedParserBase {
 
 #[cfg(test)]
 mod test {
-    use super::LengthConstrainedParserBase;
+    use super::LengthCheckedParserBase;
 
     #[test]
     fn test_given_parser_when_the_match_length_is_not_constrained_then_the_match_length_is_ok_in_every_case() {
-        let base = LengthConstrainedParserBase::new("name".to_string());
+        let base = LengthCheckedParserBase::new("name".to_string());
         assert_eq!(base.is_match_length_ok(42), true);
         assert_eq!(base.is_match_length_ok(1), true);
     }
 
     #[test]
     fn test_given_parser_when_the_minimum_match_length_is_set_then_the_shorter_matches_are_discarded() {
-        let mut base = LengthConstrainedParserBase::new("name".to_string());
+        let mut base = LengthCheckedParserBase::new("name".to_string());
         base.set_min_length(10);
         assert_eq!(base.is_match_length_ok(42), true);
         assert_eq!(base.is_match_length_ok(1), false);
@@ -88,7 +88,7 @@ mod test {
 
     #[test]
     fn test_given_parser_when_the_maximum_match_length_is_set_then_the_longer_matches_are_discarded() {
-        let mut base = LengthConstrainedParserBase::new("name".to_string());
+        let mut base = LengthCheckedParserBase::new("name".to_string());
         base.set_max_length(10);
         assert_eq!(base.is_match_length_ok(42), false);
         assert_eq!(base.is_match_length_ok(1), true);

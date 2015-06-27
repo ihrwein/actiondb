@@ -2,18 +2,18 @@ use std::collections::BTreeSet;
 use std::iter::FromIterator;
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, LengthConstrainedParserBase, HasOptionalParameter, OptionalParameter};
+use parsers::{Parser, ObjectSafeHash, LengthCheckedParserBase, HasOptionalParameter, OptionalParameter};
 
 #[derive(Debug, Hash)]
 pub struct SetParser {
     character_set: BTreeSet<u8>,
-    base: LengthConstrainedParserBase
+    base: LengthCheckedParserBase
 }
 
 impl SetParser {
     pub fn new(name: String, set: &str) -> SetParser {
         SetParser{ character_set: SetParser::create_set_from_str(set),
-                   base: LengthConstrainedParserBase::new(name)}
+                   base: LengthCheckedParserBase::new(name)}
     }
 
     pub fn from_str(name: &str, set: &str) -> SetParser {
