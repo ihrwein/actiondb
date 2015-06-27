@@ -3,8 +3,9 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, TokenType};
 use parsers::{SetParser, IntParser, Parser, OptionalParameter,
-              HasOptionalParameter};
+              HasOptionalParameter, EStringParser};
 use grammar;
+use utils;
 use std::str::FromStr;
 use self::RuleResult::{Matched, Failed};
 fn escape_default(s: &str) -> String {
@@ -120,22 +121,42 @@ fn parse_pattern<'input>(input: &'input str, state: &mut ParseState,
     {
         let choice_res =
             {
-                let mut repeat_pos = pos;
-                let mut repeat_value = vec!();
-                loop  {
-                    let pos = repeat_pos;
-                    let step_res = parse_pattern_piece(input, state, pos);
-                    match step_res {
-                        Matched(newpos, value) => {
-                            repeat_pos = newpos;
-                            repeat_value.push(value);
+                let start_pos = pos;
+                {
+                    let seq_res =
+                        {
+                            let mut repeat_pos = pos;
+                            let mut repeat_value = vec!();
+                            loop  {
+                                let pos = repeat_pos;
+                                let step_res =
+                                    parse_pattern_piece(input, state, pos);
+                                match step_res {
+                                    Matched(newpos, value) => {
+                                        repeat_pos = newpos;
+                                        repeat_value.push(value);
+                                    }
+                                    Failed => { break ; }
+                                }
+                            }
+                            if repeat_value.len() >= 1usize {
+                                Matched(repeat_pos, repeat_value)
+                            } else { Failed }
+                        };
+                    match seq_res {
+                        Matched(pos, pieces) => {
+                            {
+                                let match_str = &input[start_pos..pos];
+                                Matched(pos,
+                                        {
+                                            let mut pieces = pieces;
+                                            utils::flatten_vec(pieces)
+                                        })
+                            }
                         }
-                        Failed => { break ; }
+                        Failed => Failed,
                     }
                 }
-                if repeat_value.len() >= 1usize {
-                    Matched(repeat_pos, repeat_value)
-                } else { Failed }
             };
         match choice_res {
             Matched(pos, value) => Matched(pos, value),
@@ -158,66 +179,37 @@ fn parse_pattern<'input>(input: &'input str, state: &mut ParseState,
     }
 }
 fn parse_pattern_piece<'input>(input: &'input str, state: &mut ParseState,
-                               pos: usize) -> RuleResult<TokenType> {
+                               pos: usize) -> RuleResult<Vec<TokenType>> {
     {
-        let choice_res = parse_literal(input, state, pos);
+        let choice_res = parse_parser_GREEDY(input, state, pos);
         match choice_res {
             Matched(pos, value) => Matched(pos, value),
-            Failed => parse_parser(input, state, pos),
+            Failed => {
+                let choice_res = parse_piece_literal(input, state, pos);
+                match choice_res {
+                    Matched(pos, value) => Matched(pos, value),
+                    Failed => parse_piece_parser(input, state, pos),
+                }
+            }
         }
     }
 }
-fn parse_literal<'input>(input: &'input str, state: &mut ParseState,
-                         pos: usize) -> RuleResult<TokenType> {
+fn parse_piece_literal<'input>(input: &'input str, state: &mut ParseState,
+                               pos: usize) -> RuleResult<Vec<TokenType>> {
     {
         let start_pos = pos;
         {
-            let seq_res =
-                {
-                    let mut repeat_pos = pos;
-                    let mut repeat_value = vec!();
-                    loop  {
-                        let pos = repeat_pos;
-                        let step_res =
-                            {
-                                let seq_res =
-                                    {
-                                        let assert_res =
-                                            parse_PARSER_BEGIN(input, state,
-                                                               pos);
-                                        match assert_res {
-                                            Failed => Matched(pos, ()),
-                                            Matched(..) => Failed,
-                                        }
-                                    };
-                                match seq_res {
-                                    Matched(pos, _) => {
-                                        any_char(input, state, pos)
-                                    }
-                                    Failed => Failed,
-                                }
-                            };
-                        match step_res {
-                            Matched(newpos, value) => {
-                                repeat_pos = newpos;
-                                repeat_value.push(value);
-                            }
-                            Failed => { break ; }
-                        }
-                    }
-                    if repeat_value.len() >= 1usize {
-                        Matched(repeat_pos, ())
-                    } else { Failed }
-                };
+            let seq_res = parse_literal(input, state, pos);
             match seq_res {
-                Matched(pos, _) => {
+                Matched(pos, literal) => {
                     {
                         let match_str = &input[start_pos..pos];
                         Matched(pos,
                                 {
                                     let unescaped_literal =
-                                        grammar::unescape_literal(match_str);
-                                    TokenType::Literal(unescaped_literal)
+                                        grammar::unescape_literal(literal);
+                                    vec!(TokenType:: Literal (
+                                         unescaped_literal ))
                                 })
                     }
                 }
@@ -226,8 +218,8 @@ fn parse_literal<'input>(input: &'input str, state: &mut ParseState,
         }
     }
 }
-fn parse_parser<'input>(input: &'input str, state: &mut ParseState,
-                        pos: usize) -> RuleResult<TokenType> {
+fn parse_piece_parser<'input>(input: &'input str, state: &mut ParseState,
+                              pos: usize) -> RuleResult<Vec<TokenType>> {
     {
         let start_pos = pos;
         {
@@ -235,7 +227,7 @@ fn parse_parser<'input>(input: &'input str, state: &mut ParseState,
             match seq_res {
                 Matched(pos, _) => {
                     {
-                        let seq_res = parse_parser_type(input, state, pos);
+                        let seq_res = parse_parser(input, state, pos);
                         match seq_res {
                             Matched(pos, parser) => {
                                 {
@@ -248,7 +240,9 @@ fn parse_parser<'input>(input: &'input str, state: &mut ParseState,
                                                     &input[start_pos..pos];
                                                 Matched(pos,
                                                         {
-                                                            TokenType::Parser(parser)
+                                                            vec!(TokenType::
+                                                                 Parser (
+                                                                 parser ))
                                                         })
                                             }
                                         }
@@ -265,8 +259,8 @@ fn parse_parser<'input>(input: &'input str, state: &mut ParseState,
         }
     }
 }
-fn parse_parser_type<'input>(input: &'input str, state: &mut ParseState,
-                             pos: usize) -> RuleResult<Box<Parser>> {
+fn parse_parser<'input>(input: &'input str, state: &mut ParseState,
+                        pos: usize) -> RuleResult<Box<Parser>> {
     {
         let choice_res = parse_parser_SET(input, state, pos);
         match choice_res {
@@ -552,6 +546,92 @@ fn parse_parser_INT_optional_params<'input>(input: &'input str,
         }
     }
 }
+fn parse_parser_GREEDY<'input>(input: &'input str, state: &mut ParseState,
+                               pos: usize) -> RuleResult<Vec<TokenType>> {
+    {
+        let start_pos = pos;
+        {
+            let seq_res = parse_PARSER_BEGIN(input, state, pos);
+            match seq_res {
+                Matched(pos, _) => {
+                    {
+                        let seq_res = parse_GREEDY(input, state, pos);
+                        match seq_res {
+                            Matched(pos, _) => {
+                                {
+                                    let seq_res =
+                                        parse_parser_name(input, state, pos);
+                                    match seq_res {
+                                        Matched(pos, name) => {
+                                            {
+                                                let seq_res =
+                                                    parse_PARSER_END(input,
+                                                                     state,
+                                                                     pos);
+                                                match seq_res {
+                                                    Matched(pos, _) => {
+                                                        {
+                                                            let seq_res =
+                                                                parse_literal(input,
+                                                                              state,
+                                                                              pos);
+                                                            match seq_res {
+                                                                Matched(pos,
+                                                                        end_string)
+                                                                => {
+                                                                    {
+                                                                        let match_str =
+                                                                            &input[start_pos..pos];
+                                                                        Matched(pos,
+                                                                                {
+                                                                                    let parser =
+                                                                                        EStringParser::from_str(name,
+                                                                                                                end_string);
+                                                                                    vec!(TokenType::
+                                                                                         Parser
+                                                                                         (
+                                                                                         Box::
+                                                                                         new
+                                                                                         (
+                                                                                         parser
+                                                                                         )
+                                                                                         )
+                                                                                         ,
+                                                                                         TokenType::
+                                                                                         Literal
+                                                                                         (
+                                                                                         end_string
+                                                                                         .
+                                                                                         to_string
+                                                                                         (
+
+                                                                                         )
+                                                                                         ))
+                                                                                })
+                                                                    }
+                                                                }
+                                                                Failed =>
+                                                                Failed,
+                                                            }
+                                                        }
+                                                    }
+                                                    Failed => Failed,
+                                                }
+                                            }
+                                        }
+                                        Failed => Failed,
+                                    }
+                                }
+                            }
+                            Failed => Failed,
+                        }
+                    }
+                }
+                Failed => Failed,
+            }
+        }
+    }
+}
 fn parse_parser_BASE_optional_param<'input>(input: &'input str,
                                             state: &mut ParseState,
                                             pos: usize)
@@ -699,6 +779,24 @@ fn parse_SET<'input>(input: &'input str, state: &mut ParseState, pos: usize)
         let start_pos = pos;
         {
             let seq_res = slice_eq(input, state, pos, "SET");
+            match seq_res {
+                Matched(pos, _) => {
+                    {
+                        let match_str = &input[start_pos..pos];
+                        Matched(pos, { match_str })
+                    }
+                }
+                Failed => Failed,
+            }
+        }
+    }
+}
+fn parse_GREEDY<'input>(input: &'input str, state: &mut ParseState,
+                        pos: usize) -> RuleResult<&'input str> {
+    {
+        let start_pos = pos;
+        {
+            let seq_res = slice_eq(input, state, pos, "GREEDY");
             match seq_res {
                 Matched(pos, _) => {
                     {
@@ -884,6 +982,60 @@ fn parse_string<'input>(input: &'input str, state: &mut ParseState,
                             }
                             Failed => Failed,
                         }
+                    }
+                }
+                Failed => Failed,
+            }
+        }
+    }
+}
+fn parse_literal<'input>(input: &'input str, state: &mut ParseState,
+                         pos: usize) -> RuleResult<&'input str> {
+    {
+        let start_pos = pos;
+        {
+            let seq_res =
+                {
+                    let mut repeat_pos = pos;
+                    let mut repeat_value = vec!();
+                    loop  {
+                        let pos = repeat_pos;
+                        let step_res =
+                            {
+                                let seq_res =
+                                    {
+                                        let assert_res =
+                                            parse_PARSER_BEGIN(input, state,
+                                                               pos);
+                                        match assert_res {
+                                            Failed => Matched(pos, ()),
+                                            Matched(..) => Failed,
+                                        }
+                                    };
+                                match seq_res {
+                                    Matched(pos, _) => {
+                                        any_char(input, state, pos)
+                                    }
+                                    Failed => Failed,
+                                }
+                            };
+                        match step_res {
+                            Matched(newpos, value) => {
+                                repeat_pos = newpos;
+                                repeat_value.push(value);
+                            }
+                            Failed => { break ; }
+                        }
+                    }
+                    if repeat_value.len() >= 1usize {
+                        Matched(repeat_pos, ())
+                    } else { Failed }
+                };
+            match seq_res {
+                Matched(pos, _) => {
+                    {
+                        let match_str = &input[start_pos..pos];
+                        Matched(pos, { match_str })
                     }
                 }
                 Failed => Failed,
