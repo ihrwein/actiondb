@@ -4,17 +4,23 @@ use super::{ParserBase, Parser, ObjectSafeHash};
 #[derive(Debug, Hash)]
 pub struct EStringParser {
     base: ParserBase,
-    end_string: String
+    end_string: Option<String>
 }
 
 impl EStringParser {
-    pub fn new(name: String, end_string: String) -> EStringParser {
+    pub fn new(name: String) -> EStringParser {
         EStringParser{ base: ParserBase::new(name),
-                       end_string: end_string }
+                       end_string: None }
     }
 
     pub fn from_str(name: &str, end_string: &str) -> EStringParser {
-        EStringParser::new(name.to_string(), end_string.to_string())
+        let mut parser = EStringParser::new(name.to_string());
+        parser.set_end_string(end_string.to_string());
+        parser
+    }
+
+    pub fn set_end_string(&mut self, end_string: String) {
+        self.end_string = Some(end_string);
     }
 }
 
@@ -29,7 +35,11 @@ impl ObjectSafeHash for EStringParser {
 
 impl Parser for EStringParser {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)> {
-        if let Some(pos) = value.find(&self.end_string) {
+        if self.end_string.is_none() {
+            return Some((self.name(), &value[..]))
+        }
+
+        if let Some(pos) = value.find(&self.end_string.as_ref().unwrap()[..]) {
             Some((self.name(), &value[..pos]))
         } else {
             None

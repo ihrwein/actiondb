@@ -145,3 +145,15 @@ fn test_given_greedy_parser_when_we_parse_it_then_we_get_the_right_result() {
     assert_literal_equals(vec.get(4), " baz");
     assert_parser_equals(vec.get(3), &expected_parser);
 }
+
+#[test]
+fn test_given_greedy_parser_when_there_is_no_literal_after_it_then_we_take_all_the_remaining_intput_as_matching() {
+    let pattern_as_string = "bar %{GREEDY:greedy}";
+    let vec: Vec<TokenType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
+
+    if let &TokenType::Parser(ref parser) = vec.get(1).unwrap() {
+        assert_eq!(parser.parse("the quick brown fox"), Some(("greedy", "the quick brown fox")));
+    } else {
+        unreachable!();
+    }
+}
