@@ -1,6 +1,6 @@
 use super::pattern_parser;
 use matcher::trie::node::TokenType;
-use parsers::{SetParser, Parser, ObjectSafeHash, IntParser, EStringParser};
+use parsers::{SetParser, Parser, ObjectSafeHash, IntParser, GreedyParser};
 
 fn assert_parser_name_equals(item: Option<&TokenType>, expected_name: &str) {
     if let Some(&TokenType::Parser(ref parser)) = item {
@@ -133,7 +133,7 @@ fn test_given_int_parser_with_optional_parameters_when_we_parse_it_then_we_get_t
 
 #[test]
 fn test_given_greedy_parser_when_we_parse_it_then_we_get_the_right_result() {
-    let expected_parser = EStringParser::from_str("greedy", " baz");
+    let expected_parser = GreedyParser::from_str("greedy", " baz");
     let pattern_as_string = "foo %{INT:int_0} bar %{GREEDY:greedy} baz";
     let vec: Vec<TokenType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
 

@@ -1,6 +1,6 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, TokenType};
-use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter, EStringParser};
+use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter, GreedyParser};
 use grammar;
 use utils;
 
@@ -57,7 +57,7 @@ parser_INT_optional_params -> Vec<OptionalParameter<'input>>
 parser_GREEDY -> Vec<TokenType>
   = PARSER_BEGIN GREEDY name:parser_name PARSER_END end_string:literal? {
     let mut tokens = Vec::new();
-    let mut parser = EStringParser::new(name.to_string());
+    let mut parser = GreedyParser::new(name.to_string());
 
     if let Some(end_string) = end_string {
       parser.set_end_string(end_string.to_string());

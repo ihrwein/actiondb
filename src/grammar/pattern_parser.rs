@@ -3,7 +3,7 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, TokenType};
 use parsers::{SetParser, IntParser, Parser, OptionalParameter,
-              HasOptionalParameter, EStringParser};
+              HasOptionalParameter, GreedyParser};
 use grammar;
 use utils;
 use std::str::FromStr;
@@ -600,7 +600,7 @@ fn parse_parser_GREEDY<'input>(input: &'input str, state: &mut ParseState,
                                                                                     let mut tokens =
                                                                                         Vec::new();
                                                                                     let mut parser =
-                                                                                        EStringParser::new(name.to_string());
+                                                                                        GreedyParser::new(name.to_string());
                                                                                     if let Some(end_string)
                                                                                            =
                                                                                            end_string

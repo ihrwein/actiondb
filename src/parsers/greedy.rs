@@ -2,19 +2,19 @@ use std::hash::{SipHasher, Hash, Hasher};
 use super::{ParserBase, Parser, ObjectSafeHash};
 
 #[derive(Debug, Hash)]
-pub struct EStringParser {
+pub struct GreedyParser {
     base: ParserBase,
     end_string: Option<String>
 }
 
-impl EStringParser {
-    pub fn new(name: String) -> EStringParser {
-        EStringParser{ base: ParserBase::new(name),
+impl GreedyParser {
+    pub fn new(name: String) -> GreedyParser {
+        GreedyParser{ base: ParserBase::new(name),
                        end_string: None }
     }
 
-    pub fn from_str(name: &str, end_string: &str) -> EStringParser {
-        let mut parser = EStringParser::new(name.to_string());
+    pub fn from_str(name: &str, end_string: &str) -> GreedyParser {
+        let mut parser = GreedyParser::new(name.to_string());
         parser.set_end_string(end_string.to_string());
         parser
     }
@@ -24,16 +24,16 @@ impl EStringParser {
     }
 }
 
-impl ObjectSafeHash for EStringParser {
+impl ObjectSafeHash for GreedyParser {
     fn hash_os(&self) -> u64 {
         let mut hasher = SipHasher::new();
-        "parser:estring".hash(&mut hasher);
+        "parser:greedy".hash(&mut hasher);
         self.hash(&mut hasher);
         hasher.finish()
     }
 }
 
-impl Parser for EStringParser {
+impl Parser for GreedyParser {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)> {
         if self.end_string.is_none() {
             return Some((self.name(), &value[..]))
@@ -53,17 +53,17 @@ impl Parser for EStringParser {
 
 #[cfg(test)]
 mod test {
-    use parsers::{EStringParser, Parser};
+    use parsers::{GreedyParser, Parser};
 
     #[test]
-    fn test_given_estring_parser_when_the_end_string_is_not_found_in_the_value_then_the_parser_doesnt_match() {
-        let parser = EStringParser::from_str("name", "foo");
+    fn test_given_greedy_parser_when_the_end_string_is_not_found_in_the_value_then_the_parser_doesnt_match() {
+        let parser = GreedyParser::from_str("name", "foo");
         assert_eq!(parser.parse("qux baz bar"), None);
     }
 
     #[test]
-    fn test_given_estring_parser_when_the_end_string_is_found_in_the_value_then_the_parser_matches() {
-        let parser = EStringParser::from_str("name", "foo");
+    fn test_given_greedy_parser_when_the_end_string_is_found_in_the_value_then_the_parser_matches() {
+        let parser = GreedyParser::from_str("name", "foo");
         assert_eq!(parser.parse("qux foo bar"), Some(("name", "qux ")));
     }
 }
