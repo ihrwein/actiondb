@@ -3,7 +3,7 @@
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::node::{Node, TokenType};
 use parsers::{SetParser, IntParser, Parser, OptionalParameter,
-              HasOptionalParameter, EStringParser};
+              HasOptionalParameter, GreedyParser};
 use grammar;
 use utils;
 use std::str::FromStr;
@@ -572,9 +572,22 @@ fn parse_parser_GREEDY<'input>(input: &'input str, state: &mut ParseState,
                                                     Matched(pos, _) => {
                                                         {
                                                             let seq_res =
-                                                                parse_literal(input,
-                                                                              state,
-                                                                              pos);
+                                                                match parse_literal(input,
+                                                                                    state,
+                                                                                    pos)
+                                                                    {
+                                                                    Matched(newpos,
+                                                                            value)
+                                                                    => {
+                                                                        Matched(newpos,
+                                                                                Some(value))
+                                                                    }
+                                                                    Failed =>
+                                                                    {
+                                                                        Matched(pos,
+                                                                                None)
+                                                                    }
+                                                                };
                                                             match seq_res {
                                                                 Matched(pos,
                                                                         end_string)
@@ -584,29 +597,24 @@ fn parse_parser_GREEDY<'input>(input: &'input str, state: &mut ParseState,
                                                                             &input[start_pos..pos];
                                                                         Matched(pos,
                                                                                 {
-                                                                                    let parser =
-                                                                                        EStringParser::from_str(name,
-                                                                                                                end_string);
-                                                                                    vec!(TokenType::
-                                                                                         Parser
-                                                                                         (
-                                                                                         Box::
-                                                                                         new
-                                                                                         (
-                                                                                         parser
-                                                                                         )
-                                                                                         )
-                                                                                         ,
-                                                                                         TokenType::
-                                                                                         Literal
-                                                                                         (
-                                                                                         end_string
-                                                                                         .
-                                                                                         to_string
-                                                                                         (
-
-                                                                                         )
-                                                                                         ))
+                                                                                    let mut tokens =
+                                                                                        Vec::new();
+                                                                                    let mut parser =
+                                                                                        GreedyParser::new(name.to_string());
+                                                                                    if let Some(end_string)
+                                                                                           =
+                                                                                           end_string
+                                                                                           {
+                                                                                        parser.set_end_string(end_string.to_string());
+                                                                                    }
+                                                                                    tokens.push(TokenType::Parser(Box::new(parser)));
+                                                                                    if let Some(end_string)
+                                                                                           =
+                                                                                           end_string
+                                                                                           {
+                                                                                        tokens.push(TokenType::Literal(end_string.to_string()));
+                                                                                    }
+                                                                                    tokens
                                                                                 })
                                                                     }
                                                                 }
