@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate log;
+
 mod parsers;
 mod utils;
 pub mod matcher;

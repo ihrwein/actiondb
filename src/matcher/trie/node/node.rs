@@ -72,9 +72,9 @@ impl Node {
     }
 
     fn search<'a, 'b>(&'a self, literal: &'b str) -> LiteralLookupResult<'b> {
-        println!("search(): stepped in");
-        println!("search(): #children = {}", self.literal_children.len());
-        println!("search(): #pchildren = {}", self.parser_children.len());
+        trace!("search(): stepped in");
+        trace!("search(): #children = {}", self.literal_children.len());
+        trace!("search(): #pchildren = {}", self.parser_children.len());
         let cmp_str = |probe: &LiteralNode| {
             probe.cmp_str(literal)
         };
@@ -84,10 +84,10 @@ impl Node {
                 self.search_prefix_is_found(literal, pos)
             },
             Err(_) => {
-                println!("search(): there is no common prefix with this literal");
-                println!("search(): literal = {}", literal);
-                println!("search(): #children = {}", self.literal_children.len());
-                println!("search(): #pchildren = {}", self.parser_children.len());
+                trace!("search(): there is no common prefix with this literal");
+                trace!("search(): literal = {}", literal);
+                trace!("search(): #children = {}", self.literal_children.len());
+                trace!("search(): #pchildren = {}", self.parser_children.len());
                 LiteralLookupResult::NotFound
             }
         }
@@ -102,12 +102,12 @@ impl Node {
     }
 
     fn search_prefix_is_found_and_node_is_leaf<'a, 'b>(&'a self, literal: &'b str, pos: usize) -> LiteralLookupResult<'b> {
-        println!("search(): we found a prefix, but it's a leaf");
+        trace!("search(): we found a prefix, but it's a leaf");
         if self.literal_children.get(pos).unwrap().literal() == literal {
-            println!("search(): we got it");
+            trace!("search(): we got it");
             LiteralLookupResult::Found(pos)
         } else {
-            println!("search(): we didn't get it");
+            trace!("search(): we didn't get it");
             LiteralLookupResult::NotFound
         }
     }
@@ -121,14 +121,14 @@ impl Node {
         }
 
         if literal_node.has_value() && (literal.is_empty() || common_prefix_len == literal.len()) {
-            println!("search(): we got it");
+            trace!("search(): we got it");
             return LiteralLookupResult::Found(pos);
         }
 
         if let Some(_) = literal_node.node() {
-            println!("search(): literal len = {}", literal.len());
-            println!("search(): common_prefix_len = {}", common_prefix_len);
-            println!("search(): going deeper");
+            trace!("search(): literal len = {}", literal.len());
+            trace!("search(): common_prefix_len = {}", common_prefix_len);
+            trace!("search(): going deeper");
             return LiteralLookupResult::GoDown(pos, literal.ltrunc(common_prefix_len));
         } else {
             unreachable!();
@@ -136,15 +136,15 @@ impl Node {
     }
 
     pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<Vec<(&'a str, &'b str)>> {
-        println!("parse(): text = {}", text);
+        trace!("parse(): text = {}", text);
         match self.lookup_literal(text) {
             Ok((_, _)) => {
                 Some(vec!())
             },
             Err((node, remaining_len)) => {
                 let text = text.ltrunc(text.len() - remaining_len);
-                println!("parse(): text = {}", text);
-                println!("parse(): #parser_children = {}", node.parser_children.len());
+                trace!("parse(): text = {}", text);
+                trace!("parse(): #parser_children = {}", node.parser_children.len());
                 node.parse_with_parsers(text)
             }
         }
@@ -152,7 +152,7 @@ impl Node {
 
     fn parse_with_parsers<'a, 'b>(&'a self, text: &'b str) -> Option<Vec<(&'a str, &'b str)>> {
         for i in self.parser_children.iter() {
-            println!("parse(): testing parser");
+            trace!("parse(): testing parser");
 
             if let Some(vec) = i.parse(text) {
                 return Some(vec);
@@ -175,7 +175,7 @@ impl Node {
     }
 
     fn insert_literal_tail(&mut self, tail: &str) -> &mut LiteralNode {
-        println!("insert_literal_tail(): tail = {}", tail);
+        trace!("insert_literal_tail(): tail = {}", tail);
         let cmp_str = |probe: &LiteralNode| {
             probe.cmp_str(tail)
         };
@@ -183,10 +183,10 @@ impl Node {
         match self.literal_children.binary_search_by(&cmp_str) {
             Ok(pos) => {
                 if let Some(common_prefix_len) = self.literal_children.get(pos).unwrap().literal().has_common_prefix(&tail) {
-                    println!("insert_literal_tail(): common_prefix_len = {}", common_prefix_len);
+                    trace!("insert_literal_tail(): common_prefix_len = {}", common_prefix_len);
                     let hit = self.literal_children.remove(pos);
-                    println!("insert_literal_tail(): to_be_split = {}", hit.literal());
-                    println!("insert_literal_tail(): tail = {}", tail);
+                    trace!("insert_literal_tail(): to_be_split = {}", hit.literal());
+                    trace!("insert_literal_tail(): tail = {}", tail);
                     let new_node = hit.split(common_prefix_len, tail);
                     self.add_literal_node(new_node);
                     self.literal_children.get_mut(pos).unwrap()
@@ -195,7 +195,7 @@ impl Node {
                 }
             },
             Err(pos) => {
-                println!("insert_literal_tail(): creating new literal node from tail = {}", tail);
+                trace!("insert_literal_tail(): creating new literal node from tail = {}", tail);
                 let mut new_node = LiteralNode::from_str(tail);
                 new_node.set_has_value(true);
                 self.add_literal_node(new_node);
@@ -207,15 +207,15 @@ impl Node {
 
 impl TrieOperations for Node {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
-        println!("inserting literal: '{}'", literal);
+        trace!("inserting literal: '{}'", literal);
 
         match self.lookup_literal_mut(literal) {
             Ok((node, index)) => {
-                println!("insert_literal(): it was already inserted");
+                trace!("insert_literal(): it was already inserted");
                 node.literal_children.get_mut(index).unwrap()
             },
             Err((node, rem_len)) => {
-                println!("INSERTING({}), remaining len: {}", literal, rem_len);
+                trace!("INSERTING({}), remaining len: {}", literal, rem_len);
                 let tail = literal.ltrunc(literal.len() - rem_len);
                 node.insert_literal_tail(tail)
             }

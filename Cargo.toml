@@ -9,3 +9,4 @@ path = "src/bin/adbtool.rs"
 
 [dependencies]
 clap = "*"
+log = "*"
