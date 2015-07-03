@@ -77,11 +77,11 @@ impl LiteralNode {
                          node: self_node} = self;
 
         let common_prefix = literal.rtrunc(literal.len() - common_prefix_len);
-        println!("split(): common_prefix = {}", common_prefix);
+        trace!("split(): common_prefix = {}", common_prefix);
         let left_branch = literal.ltrunc(common_prefix_len);
         let right_branch = self_literal.ltrunc(common_prefix_len);
-        println!("split(): left_branch = {}", left_branch);
-        println!("split(): right_branch = {}", right_branch);
+        trace!("split(): left_branch = {}", left_branch);
+        trace!("split(): right_branch = {}", right_branch);
 
         let mut node_to_return = LiteralNode::from_str(common_prefix);
 

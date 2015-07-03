@@ -1,10 +1,14 @@
 extern crate actiondb;
 extern crate clap;
+#[macro_use]
+extern crate log;
 
 mod parse;
 
 use clap::{Arg, App, SubCommand, ArgMatches};
 use actiondb::Matcher;
+use log::{LogLevelFilter};
+use actiondb::utils::logger::StdoutLogger;
 
 const VERSION: &'static str = "0.1.0";
 const AUTHOR: &'static str = "Tibor Benke <tibor.benke@balabit.com>";
@@ -61,12 +65,20 @@ fn handle_parse(matches: &ArgMatches) {
     let output_file = matches.value_of(OUTPUT_FILE).unwrap();
 
     if let Err(e) = parse::parse(pattern_file, input_file, output_file) {
-        println!("{:?}", e);
+        error!("{:?}", e);
         std::process::exit(1);
     }
 }
 
+fn setup_stdout_logger() {
+    let _ = log::set_logger(|max_log_level| {
+        max_log_level.set(LogLevelFilter::Info);
+        Box::new(StdoutLogger)
+    });
+}
+
 fn main() {
+    setup_stdout_logger();
     let matches = build_command_line_argument_parser().get_matches();
 
     if let Some(matches) = matches.subcommand_matches(VALIDATE) {
@@ -74,6 +86,6 @@ fn main() {
     } else if let Some(matches) = matches.subcommand_matches(PARSE) {
         handle_parse(&matches);
     } else {
-        println!("{:?}", matches.usage.as_ref().unwrap());
+        error!("{:?}", matches.usage.as_ref().unwrap());
     }
 }

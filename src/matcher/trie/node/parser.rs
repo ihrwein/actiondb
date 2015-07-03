@@ -34,7 +34,7 @@ impl ParserNode {
 
     pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<Vec<(&'a str, &'b str)>> {
         if let Some(parsed_kwpair) = self.parser.parse(text) {
-            println!("parse(): parsed_kwpair = {:?}", &parsed_kwpair);
+            trace!("parse(): parsed_kwpair = {:?}", &parsed_kwpair);
             let text = text.ltrunc(parsed_kwpair.1.len());
 
             return match self.node() {
