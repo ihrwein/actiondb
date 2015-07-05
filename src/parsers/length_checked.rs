@@ -1,6 +1,6 @@
 use parsers::{HasOptionalParameter, OptionalParameter, ParserBase};
 
-#[derive(Hash, Debug)]
+#[derive(Clone, Hash, Debug)]
 pub struct LengthCheckedParserBase {
     base: ParserBase,
     min_length: Option<usize>,

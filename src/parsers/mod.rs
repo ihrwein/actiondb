@@ -18,8 +18,8 @@ pub trait ObjectSafeHash {
 pub trait Parser: Debug + ObjectSafeHash {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)>;
     fn name(&self) -> &str;
+    fn boxed_clone(&self) -> Box<Parser>;
 }
-
 
 pub trait HasOptionalParameter {
     fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool;

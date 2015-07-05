@@ -2,7 +2,7 @@ use std::hash::{SipHasher, Hash, Hasher};
 
 use parsers::{Parser, ObjectSafeHash, SetParser, HasOptionalParameter, OptionalParameter};
 
-#[derive(Debug, Hash)]
+#[derive(Clone, Debug, Hash)]
 pub struct IntParser {
     delegate: SetParser
 }
@@ -33,6 +33,10 @@ impl Parser for IntParser {
 
     fn name(&self) -> &str {
         self.delegate.name()
+    }
+
+    fn boxed_clone(&self) -> Box<Parser> {
+        Box::new(self.clone())
     }
 }
 

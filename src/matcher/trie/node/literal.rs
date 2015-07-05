@@ -5,7 +5,7 @@ use matcher::trie::node::{Node, ParserNode};
 use matcher::trie::TrieOperations;
 use parsers::Parser;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct LiteralNode {
     literal: String,
     has_value: bool,

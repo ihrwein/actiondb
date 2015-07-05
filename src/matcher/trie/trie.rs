@@ -2,7 +2,7 @@ use matcher::trie::node::{Node, TokenType};
 use matcher::trie::node::{CompiledPattern};
 use matcher::trie::TrieOperations;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ParserTrie {
     root: Node,
 }

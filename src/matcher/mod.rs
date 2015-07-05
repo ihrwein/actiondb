@@ -9,6 +9,7 @@ use grammar::parser;
 use grammar::parser::ParseError;
 use self::trie::ParserTrie;
 
+#[derive(Clone)]
 pub struct Matcher {
     parser: ParserTrie
 }
