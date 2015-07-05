@@ -1,4 +1,4 @@
-#[derive(Hash, Debug)]
+#[derive(Clone, Hash, Debug)]
 pub struct ParserBase {
     name: String
 }

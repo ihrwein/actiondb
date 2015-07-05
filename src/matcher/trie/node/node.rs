@@ -12,7 +12,7 @@ pub enum TokenType {
     Literal(String)
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Node {
     literal_children: SortedVec<LiteralNode>,
     parser_children: Vec<ParserNode>

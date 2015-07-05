@@ -1,7 +1,7 @@
 use std::hash::{SipHasher, Hash, Hasher};
 use super::{ParserBase, Parser, ObjectSafeHash};
 
-#[derive(Debug, Hash)]
+#[derive(Clone, Debug, Hash)]
 pub struct GreedyParser {
     base: ParserBase,
     end_string: Option<String>
@@ -48,6 +48,10 @@ impl Parser for GreedyParser {
 
     fn name(&self) -> &str {
         self.base.name()
+    }
+
+    fn boxed_clone(&self) -> Box<Parser> {
+        Box::new(self.clone())
     }
 }
 

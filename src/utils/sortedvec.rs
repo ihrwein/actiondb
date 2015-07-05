@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SortedVec<T> {
     array: Vec<T>
 }

@@ -75,3 +75,12 @@ impl TrieOperations for ParserNode {
         self.node.as_mut().unwrap().insert_parser(parser)
     }
 }
+
+impl Clone for ParserNode {
+    fn clone(&self) -> ParserNode {
+        ParserNode{
+            parser: self.parser.boxed_clone(),
+            node: self.node.clone()
+        }
+    }
+}

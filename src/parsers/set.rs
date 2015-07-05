@@ -4,7 +4,7 @@ use std::hash::{SipHasher, Hash, Hasher};
 
 use parsers::{Parser, ObjectSafeHash, LengthCheckedParserBase, HasOptionalParameter, OptionalParameter};
 
-#[derive(Debug, Hash)]
+#[derive(Clone, Debug, Hash)]
 pub struct SetParser {
     character_set: BTreeSet<u8>,
     base: LengthCheckedParserBase
@@ -65,6 +65,10 @@ impl Parser for SetParser {
 
     fn name(&self) -> &str {
         self.base.name()
+    }
+
+    fn boxed_clone(&self) -> Box<Parser> {
+        Box::new(self.clone())
     }
 }
 
