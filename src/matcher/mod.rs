@@ -1,7 +1,9 @@
 pub mod trie;
+pub mod pattern;
 mod errors;
 
 pub use self::errors::BuildFromFileError;
+pub use self::pattern::Pattern;
 
 use std::fs::File;
 use std::io::{BufReader, BufRead};
