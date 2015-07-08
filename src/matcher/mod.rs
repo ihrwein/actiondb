@@ -1,5 +1,6 @@
 pub mod trie;
 pub mod pattern;
+pub mod result;
 mod errors;
 
 pub use self::errors::BuildFromFileError;
