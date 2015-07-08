@@ -130,6 +130,10 @@ impl TrieOperations for LiteralNode {
 
         self.node.as_mut().unwrap().insert_parser(parser)
     }
+
+    fn set_pattern(&mut self, pattern: Rc<Pattern>) {
+        self.pattern = Some(pattern);
+    }
 }
 
 

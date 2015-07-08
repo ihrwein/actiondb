@@ -3,6 +3,9 @@ use utils::{SortedVec, CommonPrefix};
 use matcher::trie::node::LiteralNode;
 use matcher::trie::node::ParserNode;
 use matcher::trie::TrieOperations;
+use matcher::Pattern;
+
+use std::rc::Rc;
 
 pub type CompiledPattern = Vec<TokenType>;
 
@@ -230,6 +233,9 @@ impl TrieOperations for Node {
             self.parser_children.push(pnode);
             self.parser_children.last_mut().unwrap()
         }
+    }
+
+    fn set_pattern(&mut self, _: Rc<Pattern>) {
     }
 }
 

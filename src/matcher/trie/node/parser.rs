@@ -79,6 +79,10 @@ impl TrieOperations for ParserNode {
 
         self.node.as_mut().unwrap().insert_parser(parser)
     }
+
+    fn set_pattern(&mut self, pattern: Rc<Pattern>) {
+        self.pattern = Some(pattern);
+    }
 }
 
 impl Clone for ParserNode {
