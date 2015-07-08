@@ -1,17 +1,22 @@
 use matcher::trie::node::{Node, LiteralNode};
 use matcher::trie::TrieOperations;
+use matcher::Pattern;
 use parsers::Parser;
 use utils::CommonPrefix;
+
+use std::rc::Rc;
 
 #[derive(Debug)]
 pub struct ParserNode {
     parser: Box<Parser>,
+    pattern: Option<Rc<Pattern>>,
     node: Option<Box<Node>>,
 }
 
 impl ParserNode {
     pub fn new(parser: Box<Parser>) -> ParserNode {
         ParserNode{ parser: parser,
+                    pattern: None,
                     node: None}
     }
 
@@ -80,6 +85,7 @@ impl Clone for ParserNode {
     fn clone(&self) -> ParserNode {
         ParserNode{
             parser: self.parser.boxed_clone(),
+            pattern: self.pattern.clone(),
             node: self.node.clone()
         }
     }

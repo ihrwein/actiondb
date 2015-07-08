@@ -3,12 +3,16 @@ use utils::common_prefix::CommonPrefix;
 
 use matcher::trie::node::{Node, ParserNode};
 use matcher::trie::TrieOperations;
+use matcher::Pattern;
 use parsers::Parser;
+
+use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub struct LiteralNode {
     literal: String,
     has_value: bool,
+    pattern: Option<Rc<Pattern>>,
     node: Option<Box<Node>>,
 }
 
@@ -16,6 +20,7 @@ impl LiteralNode {
     pub fn new(literal: String) -> LiteralNode {
         LiteralNode{ literal: literal,
                      has_value: false,
+                     pattern: None,
                      node: None}
     }
 
@@ -74,6 +79,7 @@ impl LiteralNode {
                  literal: &str) -> LiteralNode {
         let LiteralNode{ literal: self_literal,
                          has_value: self_has_value,
+                         pattern: _,
                          node: self_node} = self;
 
         let common_prefix = literal.rtrunc(literal.len() - common_prefix_len);
