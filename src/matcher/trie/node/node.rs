@@ -13,6 +13,19 @@ pub enum TokenType {
     Literal(String)
 }
 
+impl Clone for TokenType {
+    fn clone(&self) -> TokenType {
+        match self {
+            &TokenType::Parser(ref parser) => {
+                TokenType::Parser(parser.boxed_clone())
+            },
+            &TokenType::Literal(ref literal) => {
+                TokenType::Literal(literal.clone())
+            }
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub struct Node {
     literal_children: SortedVec<LiteralNode>,
