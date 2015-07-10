@@ -40,7 +40,9 @@ impl Matcher {
         for line in reader.lines() {
             if let Ok(l) = line {
                 let compiled_pattern = try!(parser::pattern(&l));
-                trie.insert(compiled_pattern, Pattern::new(Uuid::new_v4()));
+                let mut pattern = Pattern::new(Uuid::new_v4());
+                pattern.set_pattern(compiled_pattern);
+                trie.insert(pattern);
             }
         }
 

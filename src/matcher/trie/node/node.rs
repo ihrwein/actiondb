@@ -265,7 +265,6 @@ mod test {
     use parsers::{Parser, SetParser};
     use matcher::trie::node::{CompiledPattern, Node, TokenType};
     use matcher::pattern::Pattern;
-    use uuid::Uuid;
 
     #[test]
     fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
@@ -343,13 +342,16 @@ mod test {
         cp2.push(TokenType::Literal("appletree".to_string()));
         cp3.push(TokenType::Literal("apple".to_string()));
 
-        let pattern1 = Pattern::new(Uuid::new_v4());
-        let pattern2 = Pattern::new(Uuid::new_v4());
-        let pattern3 = Pattern::new(Uuid::new_v4());
+        let mut pattern1 = Pattern::with_random_uuid();
+        pattern1.set_pattern(cp1);
+        let mut pattern2 = Pattern::with_random_uuid();
+        pattern2.set_pattern(cp2);
+        let mut pattern3 = Pattern::with_random_uuid();
+        pattern3.set_pattern(cp3);
 
-        root.insert(cp1, pattern1);
-        root.insert(cp2, pattern2);
-        root.insert(cp3, pattern3);
+        root.insert(pattern1);
+        root.insert(pattern2);
+        root.insert(pattern3);
 
         root
     }
@@ -409,15 +411,19 @@ mod test {
 
         cp4.push(TokenType::Literal("bamba".to_string()));
 
-        let pattern1 = Pattern::new(Uuid::new_v4());
-        let pattern2 = Pattern::new(Uuid::new_v4());
-        let pattern3 = Pattern::new(Uuid::new_v4());
-        let pattern4 = Pattern::new(Uuid::new_v4());
+        let mut pattern1 = Pattern::with_random_uuid();
+        pattern1.set_pattern(cp1);
+        let mut pattern2 = Pattern::with_random_uuid();
+        pattern2.set_pattern(cp2);
+        let mut pattern3 = Pattern::with_random_uuid();
+        pattern3.set_pattern(cp3);
+        let mut pattern4 = Pattern::with_random_uuid();
+        pattern4.set_pattern(cp4);
 
-        root.insert(cp1, pattern1);
-        root.insert(cp2, pattern2);
-        root.insert(cp3, pattern3);
-        root.insert(cp4, pattern4);
+        root.insert(pattern1);
+        root.insert(pattern2);
+        root.insert(pattern3);
+        root.insert(pattern4);
 
         root
     }
