@@ -5,8 +5,6 @@ use matcher::Pattern;
 use parsers::Parser;
 use utils::CommonPrefix;
 
-use uuid::Uuid;
-
 #[derive(Debug)]
 pub struct ParserNode {
     parser: Box<Parser>,
