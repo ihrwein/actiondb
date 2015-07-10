@@ -361,7 +361,7 @@ mod test {
         println!("root: {:?}", &root);
         {
             let result = root.parse("bamboo");
-            assert_eq!(result, None);
+            assert_eq!(result.is_none(), true);
         }
         {
             let result = root.parse("app42le");
@@ -438,7 +438,7 @@ mod test {
         println!("root: {:?}", &root);
         {
             let kvpairs = root.parse("lorem ipsum");
-            assert_eq!(kvpairs, None);
+            assert_eq!(kvpairs.is_none(), true);
         }
     }
 
@@ -448,7 +448,7 @@ mod test {
         println!("root: {:?}", &root);
         {
             let kvpairs = root.parse("bamb");
-            assert_eq!(kvpairs, None);
+            assert_eq!(kvpairs.is_none(), true);
         }
     }
 
@@ -458,11 +458,11 @@ mod test {
         println!("root: {:?}", &root);
         {
             let kvpairs = root.parse("bamb");
-            assert_eq!(kvpairs, None);
+            assert_eq!(kvpairs.is_none(), true);
         }
         {
             let kvpairs = root.parse("");
-            assert_eq!(kvpairs, None);
+            assert_eq!(kvpairs.is_none(), true);
         }
     }
 }

@@ -1,6 +1,6 @@
 use matcher::Pattern;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug)]
 pub struct MatchResult<'a, 'b> {
     key_value_pairs: Vec<(&'a str, &'b str)>,
     pattern: &'a Pattern

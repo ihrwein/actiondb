@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug)]
 pub struct Pattern {
     name: Option<String>,
     uuid: Uuid,
