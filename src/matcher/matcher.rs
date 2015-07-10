@@ -16,16 +16,12 @@ pub struct Matcher {
 impl Matcher {
     pub fn from_file(pattern_file_path: &str) -> Result<Matcher, BuildFromFileError> {
         let file = try!(File::open(pattern_file_path));
-        Matcher::build_matcher_from_file(&file)
+        let trie = try!(Matcher::build_trie_from_file(&file));
+        Ok(Matcher{ parser: trie })
     }
 
     pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
         self.parser.parse(text)
-    }
-
-    fn build_matcher_from_file(file: &File) -> Result<Matcher, BuildFromFileError> {
-        let trie =  try!(Matcher::build_trie_from_file(&file));
-        Ok(Matcher{ parser: trie })
     }
 
     fn build_trie_from_file(file: &File) -> Result<ParserTrie, parser::ParseError> {
