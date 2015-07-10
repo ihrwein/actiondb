@@ -140,7 +140,7 @@ impl Node {
         trace!("parse(): text = {}", text);
         match self.lookup_literal(text) {
             Ok((node, pos)) => {
-                println!("{:?}", node);
+                trace!("{:?}", node);
                 let pattern = node.literal_children.get(pos).unwrap().pattern().unwrap();
                 let result = MatchResult::new(pattern);
                 Some(result)
@@ -192,8 +192,11 @@ impl Node {
                     trace!("insert_literal_tail(): to_be_split = {}", hit.literal());
                     trace!("insert_literal_tail(): tail = {}", tail);
                     let new_node = hit.split(common_prefix_len, tail);
+                    trace!("insert_literal_tail(): new_node = {:?}", &new_node);
                     self.add_literal_node(new_node);
-                    self.literal_children.get_mut(pos).unwrap()
+
+                    let suffix = tail.ltrunc(common_prefix_len);
+                    self.lookup_freshly_inserted_literal(pos, suffix)
                 } else {
                     unreachable!()
                 }
@@ -206,6 +209,12 @@ impl Node {
                 self.literal_children.get_mut(pos).unwrap()
             }
         }
+    }
+
+    fn lookup_freshly_inserted_literal(&mut self, pos: usize, literal: &str) -> &mut LiteralNode {
+        let branching_node = self.literal_children.get_mut(pos).unwrap();
+        let (node, pos) = branching_node.node_mut().unwrap().lookup_literal_mut(literal).ok().unwrap();
+        node.literal_children.get_mut(pos).unwrap()
     }
 }
 
@@ -363,7 +372,7 @@ mod test {
         println!("root: {:?}", &root);
         {
             let result = root.parse("apple");
-            assert_eq!(result .unwrap().pairs().is_empty(), true);
+            assert_eq!(result.unwrap().pairs().is_empty(), true);
         }
     }
 
