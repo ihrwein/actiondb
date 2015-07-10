@@ -2,7 +2,8 @@ use parsers::Parser;
 use utils::{SortedVec, CommonPrefix};
 use matcher::trie::node::LiteralNode;
 use matcher::trie::node::ParserNode;
-use matcher::trie::TrieOperations;
+use matcher::trie::{HasPattern, TrieOperations};
+use matcher::result::MatchResult;
 
 pub type CompiledPattern = Vec<TokenType>;
 
@@ -135,11 +136,14 @@ impl Node {
         }
     }
 
-    pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<Vec<(&'a str, &'b str)>> {
+    pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
         trace!("parse(): text = {}", text);
         match self.lookup_literal(text) {
-            Ok((_, _)) => {
-                Some(vec!())
+            Ok((node, pos)) => {
+                trace!("{:?}", node);
+                let pattern = node.literal_children.get(pos).unwrap().pattern().unwrap();
+                let result = MatchResult::new(pattern);
+                Some(result)
             },
             Err((node, remaining_len)) => {
                 let text = text.ltrunc(text.len() - remaining_len);
@@ -150,21 +154,21 @@ impl Node {
         }
     }
 
-    fn parse_with_parsers<'a, 'b>(&'a self, text: &'b str) -> Option<Vec<(&'a str, &'b str)>> {
+    fn parse_with_parsers<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
         for i in self.parser_children.iter() {
             trace!("parse(): testing parser");
 
-            if let Some(vec) = i.parse(text) {
-                return Some(vec);
+            if let Some(result) = i.parse(text) {
+                return Some(result);
             }
         }
         None
     }
 
-    pub fn parse_then_push_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: (&'a str, &'b str)) -> Option<Vec<(&'a str, &'b str)>> {
-        if let Some(mut vec) = self.parse(text) {
-            vec.push(kvpair);
-            Some(vec)
+    pub fn parse_then_push_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: (&'a str, &'b str)) -> Option<MatchResult<'a, 'b>> {
+        if let Some(mut result) = self.parse(text) {
+            result.push_pair(kvpair.0, kvpair.1);
+            Some(result)
         } else {
             None
         }
@@ -188,8 +192,11 @@ impl Node {
                     trace!("insert_literal_tail(): to_be_split = {}", hit.literal());
                     trace!("insert_literal_tail(): tail = {}", tail);
                     let new_node = hit.split(common_prefix_len, tail);
+                    trace!("insert_literal_tail(): new_node = {:?}", &new_node);
                     self.add_literal_node(new_node);
-                    self.literal_children.get_mut(pos).unwrap()
+
+                    let suffix = tail.ltrunc(common_prefix_len);
+                    self.lookup_freshly_inserted_literal(pos, suffix)
                 } else {
                     unreachable!()
                 }
@@ -202,6 +209,12 @@ impl Node {
                 self.literal_children.get_mut(pos).unwrap()
             }
         }
+    }
+
+    fn lookup_freshly_inserted_literal(&mut self, pos: usize, literal: &str) -> &mut LiteralNode {
+        let branching_node = self.literal_children.get_mut(pos).unwrap();
+        let (node, pos) = branching_node.node_mut().unwrap().lookup_literal_mut(literal).ok().unwrap();
+        node.literal_children.get_mut(pos).unwrap()
     }
 }
 
@@ -238,6 +251,8 @@ mod test {
     use matcher::trie::{ParserTrie, TrieOperations};
     use parsers::{Parser, SetParser};
     use matcher::trie::node::{CompiledPattern, Node, TokenType};
+    use matcher::pattern::Pattern;
+    use uuid::Uuid;
 
     #[test]
     fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
@@ -315,9 +330,13 @@ mod test {
         cp2.push(TokenType::Literal("appletree".to_string()));
         cp3.push(TokenType::Literal("apple".to_string()));
 
-        root.insert(cp1);
-        root.insert(cp2);
-        root.insert(cp3);
+        let pattern1 = Pattern::new(Uuid::new_v4());
+        let pattern2 = Pattern::new(Uuid::new_v4());
+        let pattern3 = Pattern::new(Uuid::new_v4());
+
+        root.insert(cp1, pattern1);
+        root.insert(cp2, pattern2);
+        root.insert(cp3, pattern3);
 
         root
     }
@@ -328,12 +347,12 @@ mod test {
 
         println!("root: {:?}", &root);
         {
-            let parsed_kwpairs = root.parse("bamboo");
-            assert_eq!(parsed_kwpairs, None);
+            let result = root.parse("bamboo");
+            assert_eq!(result, None);
         }
         {
-            let parsed_kwpairs = root.parse("app42le");
-            assert_eq!(parsed_kwpairs.is_some(), true);
+            let result = root.parse("app42le");
+            assert_eq!(result.is_some(), true);
         }
     }
 
@@ -342,8 +361,8 @@ mod test {
         let root = create_parser_trie();
         println!("root: {:?}", &root);
         {
-            let parsed_kwpairs = root.parse("appletree");
-            assert_eq!(parsed_kwpairs.unwrap().is_empty(), true);
+            let result = root.parse("appletree");
+            assert_eq!(result.unwrap().pairs().is_empty(), true);
         }
     }
 
@@ -352,8 +371,8 @@ mod test {
         let root = create_parser_trie();
         println!("root: {:?}", &root);
         {
-            let parsed_kwpairs = root.parse("apple");
-            assert_eq!(parsed_kwpairs.unwrap().is_empty(), true);
+            let result = root.parse("apple");
+            assert_eq!(result.unwrap().pairs().is_empty(), true);
         }
     }
 
@@ -377,10 +396,15 @@ mod test {
 
         cp4.push(TokenType::Literal("bamba".to_string()));
 
-        root.insert(cp1);
-        root.insert(cp2);
-        root.insert(cp3);
-        root.insert(cp4);
+        let pattern1 = Pattern::new(Uuid::new_v4());
+        let pattern2 = Pattern::new(Uuid::new_v4());
+        let pattern3 = Pattern::new(Uuid::new_v4());
+        let pattern4 = Pattern::new(Uuid::new_v4());
+
+        root.insert(cp1, pattern1);
+        root.insert(cp2, pattern2);
+        root.insert(cp3, pattern3);
+        root.insert(cp4, pattern4);
 
         root
     }
@@ -390,8 +414,8 @@ mod test {
         let root = create_complex_parser_trie();
         println!("root: {:?}", &root);
         {
-            let kvpairs = root.parse("app42letree123");
-            assert_eq!(kvpairs.unwrap(), vec!(("end", "123"), ("middle", "42")));
+            let result = root.parse("app42letree123");
+            assert_eq!(result.unwrap().pairs(), &vec!(("end", "123"), ("middle", "42")));
         }
     }
 

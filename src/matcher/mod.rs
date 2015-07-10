@@ -1,13 +1,19 @@
 pub mod trie;
+pub mod pattern;
+pub mod result;
 mod errors;
 
 pub use self::errors::BuildFromFileError;
+pub use self::pattern::Pattern;
 
 use std::fs::File;
 use std::io::{BufReader, BufRead};
 use grammar::parser;
 use grammar::parser::ParseError;
 use self::trie::ParserTrie;
+use self::result::MatchResult;
+
+use uuid::Uuid;
 
 #[derive(Clone)]
 pub struct Matcher {
@@ -20,7 +26,7 @@ impl Matcher {
         Matcher::build_matcher_from_file(&file)
     }
 
-    pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<Vec<(&'a str, &'b str)>> {
+    pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
         self.parser.parse(text)
     }
 
@@ -36,7 +42,7 @@ impl Matcher {
         for line in reader.lines() {
             if let Ok(l) = line {
                 let compiled_pattern = try!(parser::pattern(&l));
-                trie.insert(compiled_pattern);
+                trie.insert(compiled_pattern, Pattern::new(Uuid::new_v4()));
             }
         }
 
