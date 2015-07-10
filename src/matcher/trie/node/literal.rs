@@ -2,17 +2,17 @@ use std::cmp::{Ord, Ordering};
 use utils::common_prefix::CommonPrefix;
 
 use matcher::trie::node::{Node, ParserNode};
-use matcher::trie::TrieOperations;
+use matcher::trie::{HasPattern, TrieOperations};
 use matcher::Pattern;
 use parsers::Parser;
 
-use std::rc::Rc;
+use uuid::Uuid;
 
 #[derive(Debug, Clone)]
 pub struct LiteralNode {
     literal: String,
     has_value: bool,
-    pattern: Option<Rc<Pattern>>,
+    pattern: Option<Pattern>,
     node: Option<Box<Node>>,
 }
 
@@ -21,6 +21,7 @@ impl LiteralNode {
         LiteralNode{ literal: literal,
                      has_value: false,
                      pattern: None,
+                    //pattern: Some(Pattern::new(Uuid::new_v4())),
                      node: None}
     }
 
@@ -79,7 +80,7 @@ impl LiteralNode {
                  literal: &str) -> LiteralNode {
         let LiteralNode{ literal: self_literal,
                          has_value: self_has_value,
-                         pattern: _,
+                         pattern: self_pattern,
                          node: self_node} = self;
 
         let common_prefix = literal.rtrunc(literal.len() - common_prefix_len);
@@ -98,6 +99,10 @@ impl LiteralNode {
 
         right_node.set_node(self_node);
         right_node.set_has_value(self_has_value);
+
+        if let Some(pattern) = self_pattern {
+            right_node.set_pattern(pattern);
+        }
 
         new_node.add_literal_node(left_node);
         new_node.add_literal_node(right_node);

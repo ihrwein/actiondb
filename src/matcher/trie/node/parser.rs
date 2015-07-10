@@ -1,15 +1,16 @@
 use matcher::trie::node::{Node, LiteralNode};
-use matcher::trie::TrieOperations;
+use matcher::trie::{HasPattern, TrieOperations};
+use matcher::result::MatchResult;
 use matcher::Pattern;
 use parsers::Parser;
 use utils::CommonPrefix;
 
-use std::rc::Rc;
+use uuid::Uuid;
 
 #[derive(Debug)]
 pub struct ParserNode {
     parser: Box<Parser>,
-    pattern: Option<Rc<Pattern>>,
+    pattern: Option<Pattern>,
     node: Option<Box<Node>>,
 }
 
@@ -37,7 +38,7 @@ impl ParserNode {
         }
     }
 
-    pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<Vec<(&'a str, &'b str)>> {
+    pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
         if let Some(parsed_kwpair) = self.parser.parse(text) {
             trace!("parse(): parsed_kwpair = {:?}", &parsed_kwpair);
             let text = text.ltrunc(parsed_kwpair.1.len());
@@ -54,9 +55,11 @@ impl ParserNode {
         None
     }
 
-    fn push_last_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: (&'a str, &'b str)) -> Option<Vec<(&'a str, &'b str)>> {
+    fn push_last_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: (&'a str, &'b str)) -> Option<MatchResult<'a, 'b>> {
         if text.is_empty() {
-            Some(vec!(kvpair))
+            let mut result = MatchResult::new(self.pattern().unwrap());
+            result.push_pair(kvpair.0, kvpair.1);
+            Some(result)
         } else {
             None
         }
