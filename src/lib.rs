@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate log;
 extern crate uuid;
+extern crate yaml_rust;
 
 pub mod parsers;
 pub mod utils;
