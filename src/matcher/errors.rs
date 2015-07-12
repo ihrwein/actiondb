@@ -1,5 +1,6 @@
 use std::io::Error;
 use grammar::parser::ParseError;
+use matcher::pattern::FromYamlError;
 
 use yaml_rust::scanner::ScanError;
 
@@ -8,7 +9,8 @@ pub enum BuildFromFileError {
     PatternParseError(ParseError),
     IOError(Error),
     YamlScanError(ScanError),
-    FileFormatError
+    FileFormatError,
+    FromYamlError(FromYamlError)
 }
 
 impl From<Error> for BuildFromFileError {
@@ -26,5 +28,11 @@ impl From<ParseError> for BuildFromFileError {
 impl From<ScanError> for BuildFromFileError {
     fn from(error: ScanError) -> BuildFromFileError {
         BuildFromFileError::YamlScanError(error)
+    }
+}
+
+impl From<FromYamlError> for BuildFromFileError {
+    fn from(error: FromYamlError) -> BuildFromFileError {
+        BuildFromFileError::FromYamlError(error)
     }
 }

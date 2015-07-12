@@ -15,6 +15,7 @@ pub struct Pattern {
     pattern: CompiledPattern
 }
 
+#[derive(Debug)]
 pub enum FromYamlError {
     SchemaError,
     PatternParseError(ParseError),
