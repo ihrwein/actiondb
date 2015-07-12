@@ -1,4 +1,4 @@
-pattern:
-  name: SSH_DISCONNECT
-  uuid: 9a49c47d-29e9-4072-be84-3b76c6814743
-  pattern: "Jun %{INT:day %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Received disconnect from %{GREEDY:ipaddr}: %{INT:dunno}: disconnected by user"
+patterns:
+  - name: SSH_DISCONNECT
+    uuid: 9a49c47d-29e9-4072-be84-3b76c6814743
+    pattern: "Jun %{INT:day %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Received disconnect from %{GREEDY:ipaddr}: %{INT:dunno}: disconnected by user"
