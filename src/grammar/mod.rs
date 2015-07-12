@@ -1,6 +1,6 @@
 use parsers::{OptionalParameter, HasOptionalParameter};
 
-mod pattern_parser;
+pub mod pattern_parser;
 #[cfg(test)]
 mod test;
 
