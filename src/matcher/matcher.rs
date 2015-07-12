@@ -49,17 +49,25 @@ impl Matcher {
         Ok(trie)
     }
 
-    fn build_trie_from_yaml_file(file: &mut File) -> Result<ParserTrie, parser::ParseError> {
+    fn build_trie_from_yaml_file(file: &mut File) -> Result<ParserTrie, BuildFromFileError> {
         let mut buffer = String::new();
         let mut trie = ParserTrie::new();
 
         file.read_to_string(&mut buffer).unwrap();
-        let docs = yaml::YamlLoader::load_from_str(&buffer).unwrap();
+        let docs = try!(yaml::YamlLoader::load_from_str(&buffer));
 
         for doc in &docs {
             println!("{:?}", doc);
-            //dump_node(doc, 0);
+            let hash = try!(doc.as_hash().ok_or(BuildFromFileError::FileFormatError));
+            let patterns = try!(hash.get(&yaml::Yaml::String("patterns".to_string())).ok_or(BuildFromFileError::FileFormatError));
+            let patterns_as_vec = try!(patterns.as_vec().ok_or(BuildFromFileError::FileFormatError));
+
+            for pattern in patterns_as_vec {
+                let p = try!(Pattern::from_yaml(pattern));
+                trie.insert(p);
+            }
         }
+
         Ok(trie)
     }
 }
