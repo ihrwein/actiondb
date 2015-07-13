@@ -11,7 +11,7 @@ use super::result::MatchResult;
 use super::errors::BuildFromFileError;
 use super::pattern::Pattern;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Matcher {
     parser: ParserTrie
 }
@@ -57,14 +57,13 @@ impl Matcher {
         let docs = try!(yaml::YamlLoader::load_from_str(&buffer));
 
         for doc in &docs {
-            println!("{:?}", doc);
             let hash = try!(doc.as_hash().ok_or(BuildFromFileError::FileFormatError));
             let patterns = try!(hash.get(&yaml::Yaml::String("patterns".to_string())).ok_or(BuildFromFileError::FileFormatError));
             let patterns_as_vec = try!(patterns.as_vec().ok_or(BuildFromFileError::FileFormatError));
 
-            for pattern in patterns_as_vec {
-                let p = try!(Pattern::from_yaml(pattern));
-                trie.insert(p);
+            for raw_pattern in patterns_as_vec {
+                let pattern = try!(Pattern::from_yaml(raw_pattern));
+                trie.insert(pattern);
             }
         }
 
