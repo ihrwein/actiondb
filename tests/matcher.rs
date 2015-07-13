@@ -25,7 +25,7 @@ fn test_given_yaml_file_when_its_syntax_is_ok_then_matcher_can_be_built_from_it(
     assert_eq!(matcher.is_ok(), true);
 }
 
-//#[test]
+#[test]
 fn test_given_yaml_file_when_its_syntax_is_not_ok_then_matcher_cannot_be_built_from_it() {
     let pattern_file_path = "tests/ssh_wrong_pattern.yaml";
     let matcher = Matcher::from_yaml_file(pattern_file_path);
