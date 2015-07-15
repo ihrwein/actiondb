@@ -1,6 +1,5 @@
 use uuid::Uuid;
-use yaml_rust::yaml;
-
+use serde;
 
 use std::fs::File;
 use std::io::{BufReader, BufRead, Read};
@@ -23,11 +22,11 @@ impl Matcher {
         Ok(Matcher{ parser: trie })
     }
 
-    pub fn from_yaml_file(pattern_file_path: &str) -> Result<Matcher, BuildFromFileError> {
+    /*pub fn from_yaml_file(pattern_file_path: &str) -> Result<Matcher, BuildFromFileError> {
         let mut file = try!(File::open(pattern_file_path));
         let trie = try!(Matcher::build_trie_from_yaml_file(&mut file));
         Ok(Matcher{ parser: trie })
-    }
+    }*/
 
     pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
         self.parser.parse(text)
@@ -49,7 +48,7 @@ impl Matcher {
         Ok(trie)
     }
 
-    fn build_trie_from_yaml_file(file: &mut File) -> Result<ParserTrie, BuildFromFileError> {
+    /*fn build_trie_from_yaml_file(file: &mut File) -> Result<ParserTrie, BuildFromFileError> {
         let mut buffer = String::new();
         let mut trie = ParserTrie::new();
 
@@ -68,5 +67,5 @@ impl Matcher {
         }
 
         Ok(trie)
-    }
+    }*/
 }

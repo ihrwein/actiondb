@@ -1,7 +1,6 @@
 use super::Pattern;
-use yaml_rust::YamlLoader;
 use uuid::Uuid;
-
+/*
 #[test]
 fn test_given_yaml_document_when_it_does_not_contain_errors_then_pattern_can_be_created_from_it() {
     let buffer = r#"
@@ -33,3 +32,4 @@ pattern: "Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:p
     let pattern = Pattern::from_yaml(doc).ok().unwrap();
     assert_eq!(pattern.name(), None);
 }
+*/

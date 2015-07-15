@@ -1,15 +1,18 @@
 use uuid::{self, Uuid};
-use yaml_rust::yaml::Yaml;
 
 use grammar::parser::ParseError;
 use grammar::pattern_parser;
 use matcher::trie::node::{CompiledPattern, TokenType};
+
+use serde::json;
+use serde;
 
 use std::str::FromStr;
 use std::borrow::Borrow;
 
 #[cfg(test)]
 mod test;
+mod deser;
 
 #[derive(Clone, Debug)]
 pub struct Pattern {
@@ -62,7 +65,11 @@ impl Pattern {
         &self.pattern
     }
 
-    pub fn from_yaml(doc: &Yaml) -> Result<Pattern, FromYamlError> {
+    pub fn from_yaml(doc: &str) -> Result<Pattern, serde::json::error::Error> {
+        json::from_str::<Pattern>(doc)
+    }
+
+    /*pub fn from_yaml(doc: &Yaml) -> Result<Pattern, FromYamlError> {
         let mut pattern = None;
         let mut name = None;
         let mut uuid = None;
@@ -89,7 +96,7 @@ impl Pattern {
         };
 
         Ok(Pattern{name: name_final, uuid: uuid_final, pattern: pattern_final})
-    }
+    }*/
 
     pub fn set_pattern(&mut self, pattern: CompiledPattern) {
         self.pattern = pattern;
