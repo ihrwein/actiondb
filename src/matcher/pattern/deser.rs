@@ -54,15 +54,18 @@ impl serde::de::Visitor for PatternVisitor {
         where V: serde::de::MapVisitor
     {
         let mut name = None;
-        let mut uuid: Uuid;
+        let mut uuid = None;
         let mut pattern: Option<String> = None;
 
         loop {
             match try!(visitor.visit_key()) {
                 Some(Field::NAME) => { name = Some(try!(visitor.visit_value())); }
                 Some(Field::UUID) => {
-                    let tmp: String = try!(visitor.visit_value());
-                    uuid = try!(Uuid::parse_str(&tmp).map_err(|e| visitor.missing_field("uuid")));
+                    let value: String = try!(visitor.visit_value());
+                    uuid = match Uuid::parse_str(&value) {
+                        Ok(v) => Some(v),
+                        Err(err) => try!(Err(serde::de::Error::missing_field_error("uuid")))
+                    }
                 }
                 Some(Field::PATTERN) => { pattern = Some(try!(visitor.visit_value())); }
                 None => { break; }
@@ -83,6 +86,6 @@ impl serde::de::Visitor for PatternVisitor {
 
         let pattern_final = pattern_parser::pattern(&pattern).unwrap();
 
-        Ok(Pattern{ name: name, uuid: uuid, pattern: pattern_final })
+        Ok(Pattern{ name: name, uuid: uuid.unwrap(), pattern: pattern_final })
     }
 }
