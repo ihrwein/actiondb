@@ -12,7 +12,19 @@
     },
     {
       "uuid": "fa8bdbcb-e0fd-4da1-9fa4-15ecfec28ad2",
-      "pattern": "Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: pam_unix(sshd:session): session closed for user zts"
+      "pattern": "Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: pam_unix(sshd:session): session closed for user zts",
+      "test_messages": [
+        {
+          "message": "Jun 12 1:2:3 lobotomy sshd[2000]: pam_unix(sshd:session): session closed for user zts",
+          "values" : {
+            "day": "12",
+            "hour": "1",
+            "min": "2",
+            "sec": "3",
+            "pid": "2000"
+          }
+        }
+      ]
     }
   ]
 }
