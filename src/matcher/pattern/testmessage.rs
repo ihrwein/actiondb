@@ -19,7 +19,7 @@ impl TestMessage {
         &self.values
     }
 
-    pub fn test_pairs<'a, 'b>(&self, pairs: &[(&'a str, &'b str)]) -> Result<(), TestPairsError<'a, 'b>> {
+    pub fn test_pairs<'a, 'b>(&'a self, pairs: &[(&'a str, &'b str)]) -> Result<(), TestPairsError<'a, 'b>> {
         if pairs.len() != self.values().len() {
             Err(TestPairsError::InvalidLength{expected: self.values.len(), got: pairs.len()})
         } else  {
@@ -27,12 +27,16 @@ impl TestMessage {
         }
     }
 
-    pub fn test_pairs_values<'a, 'b>(&self, pairs: &[(&'a str, &'b str)]) -> Result<(), TestPairsError<'a, 'b>> {
+    pub fn test_pairs_values<'a, 'b>(&'a self, pairs: &[(&'a str, &'b str)]) -> Result<(), TestPairsError<'a, 'b>> {
         for &(k, v) in pairs {
             let expected_value = self.values().get(k);
             let expected_value_as_str = expected_value.map(|x| x.borrow());
-            if expected_value_as_str != Some(v) {
-                return Err(TestPairsError::PairNotMatch{key: k, value: v});
+            if let Some(exp) = expected_value_as_str {
+                if exp != v {
+                    return Err(TestPairsError::ValueNotMatch{key: k, expected_value: exp, got_value: v});
+                }
+            } else {
+                return Err(TestPairsError::KeyNotFound(k));
             }
         }
         Ok(())
@@ -42,7 +46,8 @@ impl TestMessage {
 #[derive(Debug)]
 pub enum TestPairsError<'a, 'b> {
     InvalidLength{expected: usize, got: usize},
-    PairNotMatch{key: &'a str, expected_value: &'b str, got_value: &'a str}
+    ValueNotMatch{key: &'a str, expected_value: &'b str, got_value: &'a str},
+    KeyNotFound(&'a str)
 }
 
 impl serde::Deserialize for TestMessage {

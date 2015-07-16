@@ -50,7 +50,7 @@ impl Matcher {
         Ok(trie)
     }
 
-    fn build_trie_from_json_file<'a>(file: file::File) -> Result<ParserTrie, FromJsonError<'a>> {
+    fn build_trie_from_json_file<'a, 'b>(file: file::File) -> Result<ParserTrie, FromJsonError<'a, 'b>> {
         let mut trie = ParserTrie::new();
         let file::File {mut patterns} = file;
 
@@ -80,7 +80,7 @@ impl Matcher {
         }
     }
 
-    fn check_test_messages_on_trie<'a>(trie: &ParserTrie, messages: &[TestMessage]) -> Result<(), FromJsonError<'a>> {
+    fn check_test_messages_on_trie<'a, 'b>(trie: &ParserTrie, messages: &[TestMessage]) -> Result<(), FromJsonError<'a, 'b>> {
         for msg in messages {
             if let Some(result) = trie.parse(msg.message()) {
                 try!(msg.test_pairs(result.pairs()));
