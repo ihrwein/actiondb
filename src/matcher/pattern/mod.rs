@@ -62,4 +62,16 @@ impl Pattern {
     pub fn has_more_tokens(&self) -> bool {
         self.pattern.is_empty()
     }
+
+    pub fn pop_test_message(&mut self) -> Option<TestMessage> {
+        if self.has_test_messages() {
+            Some(self.test_messages.as_mut().unwrap().remove(0))
+        } else {
+            None
+        }
+    }
+
+    fn has_test_messages(&self) -> bool {
+        self.test_messages.as_ref().map_or(false, |x| !x.is_empty())
+    }
 }
