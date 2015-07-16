@@ -1,20 +1,20 @@
-use std::io::Error;
+use std::io;
 use grammar::parser::ParseError;
 
 #[derive(Debug)]
 pub enum BuildFromFileError {
-    PatternParseError(ParseError),
-    IOError(Error)
+    PatternParse(ParseError),
+    IO(io::Error),
 }
 
-impl From<Error> for BuildFromFileError {
-    fn from(error: Error) -> BuildFromFileError {
-        BuildFromFileError::IOError(error)
+impl From<io::Error> for BuildFromFileError {
+    fn from(error: io::Error) -> BuildFromFileError {
+        BuildFromFileError::IO(error)
     }
 }
 
 impl From<ParseError> for BuildFromFileError {
     fn from(error: ParseError) -> BuildFromFileError {
-        BuildFromFileError::PatternParseError(error)
+        BuildFromFileError::PatternParse(error)
     }
 }
