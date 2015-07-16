@@ -1,4 +1,6 @@
 use super::Pattern;
+use super::testmessage::TestMessage;
+
 use serde::de::Deserialize;
 use grammar::pattern_parser;
 use serde;
@@ -16,6 +18,7 @@ enum Field {
     NAME,
     UUID,
     PATTERN,
+    TESTMESSAGES,
 }
 
 impl serde::Deserialize for Field {
@@ -34,6 +37,7 @@ impl serde::Deserialize for Field {
                     "name" => Ok(Field::NAME),
                     "uuid" => Ok(Field::UUID),
                     "pattern" => Ok(Field::PATTERN),
+                    "test_messages" => Ok(Field::TESTMESSAGES),
                     _ => Err(serde::de::Error::syntax_error()),
                 }
             }
@@ -55,6 +59,7 @@ impl serde::de::Visitor for PatternVisitor {
         let mut name = None;
         let mut uuid = None;
         let mut pattern: Option<String> = None;
+        let mut test_messages: Option<Vec<TestMessage>> = None;
 
         loop {
             match try!(visitor.visit_key()) {
@@ -67,6 +72,7 @@ impl serde::de::Visitor for PatternVisitor {
                     }
                 }
                 Some(Field::PATTERN) => { pattern = Some(try!(visitor.visit_value())); }
+                Some(Field::TESTMESSAGES) => { test_messages = Some(try!(visitor.visit_value())); }
                 None => { break; }
             }
         }
@@ -90,6 +96,6 @@ impl serde::de::Visitor for PatternVisitor {
 
         let pattern_final = pattern_parser::pattern(&pattern).unwrap();
 
-        Ok(Pattern{ name: name, uuid: uuid_final, pattern: pattern_final })
+        Ok(Pattern{ name: name, uuid: uuid_final, pattern: pattern_final, test_messages: test_messages })
     }
 }

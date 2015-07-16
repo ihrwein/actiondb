@@ -3,6 +3,7 @@ use serde::json;
 use serde;
 
 use matcher::trie::node::{CompiledPattern, TokenType};
+use self::testmessage::TestMessage;
 
 use std::borrow::Borrow;
 
@@ -10,12 +11,14 @@ use std::borrow::Borrow;
 mod test;
 mod deser;
 pub mod file;
+pub mod testmessage;
 
 #[derive(Clone, Debug)]
 pub struct Pattern {
     name: Option<String>,
     uuid: Uuid,
-    pattern: CompiledPattern
+    pattern: CompiledPattern,
+    test_messages: Option<Vec<TestMessage>>
 }
 
 impl Pattern {
@@ -24,6 +27,7 @@ impl Pattern {
             uuid: uuid,
             name: None,
             pattern: Vec::new(),
+            test_messages: None
         }
     }
 
