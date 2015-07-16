@@ -1,4 +1,5 @@
 use std::collections::BTreeMap;
+use std::borrow::Borrow;
 
 use serde;
 use serde::de::Deserialize;
@@ -17,6 +18,31 @@ impl TestMessage {
     pub fn values(&self) -> &BTreeMap<String, String> {
         &self.values
     }
+
+    pub fn test_pairs<'a, 'b>(&self, pairs: &[(&'a str, &'b str)]) -> Result<(), TestPairsError<'a, 'b>> {
+        if pairs.len() != self.values().len() {
+            Err(TestPairsError::InvalidLength{expected: self.values.len(), got: pairs.len()})
+        } else  {
+            self.test_pairs_values(pairs)
+        }
+    }
+
+    pub fn test_pairs_values<'a, 'b>(&self, pairs: &[(&'a str, &'b str)]) -> Result<(), TestPairsError<'a, 'b>> {
+        for &(k, v) in pairs {
+            let expected_value = self.values().get(k);
+            let expected_value_as_str = expected_value.map(|x| x.borrow());
+            if expected_value_as_str != Some(v) {
+                return Err(TestPairsError::PairNotMatch{key: k, value: v});
+            }
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
+pub enum TestPairsError<'a, 'b> {
+    InvalidLength{expected: usize, got: usize},
+    PairNotMatch{key: &'a str, expected_value: &'b str, got_value: &'a str}
 }
 
 impl serde::Deserialize for TestMessage {

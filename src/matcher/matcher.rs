@@ -50,7 +50,7 @@ impl Matcher {
         Ok(trie)
     }
 
-    fn build_trie_from_json_file(file: file::File) -> Result<ParserTrie, FromJsonError> {
+    fn build_trie_from_json_file<'a>(file: file::File) -> Result<ParserTrie, FromJsonError<'a>> {
         let mut trie = ParserTrie::new();
         let file::File {mut patterns} = file;
 
@@ -68,29 +68,24 @@ impl Matcher {
         let mut test_messages = Vec::new();
 
         for mut pattern in patterns {
-            while let Some(test_message) = pattern.pop_test_message() {
-                test_messages.push(test_message);
-            }
+            Matcher::extract_test_messages_from_pattern(pattern, &mut test_messages);
         }
 
         test_messages
     }
 
-    fn check_test_messages_on_trie(trie: &ParserTrie, messages: &[TestMessage]) -> Result<(), FromJsonError> {
+    fn extract_test_messages_from_pattern(pattern: &mut Pattern, messages: &mut Vec<TestMessage>) {
+        while let Some(test_message) = pattern.pop_test_message() {
+            messages.push(test_message);
+        }
+    }
+
+    fn check_test_messages_on_trie<'a>(trie: &ParserTrie, messages: &[TestMessage]) -> Result<(), FromJsonError<'a>> {
         for msg in messages {
             if let Some(result) = trie.parse(msg.message()) {
-
-                if result.pairs().len() != msg.values().len() {
-                    return Err(FromJsonError::TestMessage);
-                }
-                for &(k, v) in result.pairs() {
-                    let expected_value = msg.values().get(k);
-                    if expected_value.map(|x| x.borrow()) != Some(v) {
-                        return Err(FromJsonError::TestMessage);
-                    }
-                }
+                try!(msg.test_pairs(result.pairs()));
             } else {
-                return Err(FromJsonError::TestMessage);
+                return Err(FromJsonError::TestMessageDoesntMatch);
             }
         }
         Ok(())

@@ -1,7 +1,7 @@
 use std::io;
 use grammar::parser::ParseError;
 use super::pattern::file;
-
+use super::pattern::testmessage;
 
 #[derive(Debug)]
 pub enum BuildFromFileError {
@@ -22,13 +22,20 @@ impl From<ParseError> for BuildFromFileError {
 }
 
 #[derive(Debug)]
-pub enum FromJsonError {
+pub enum FromJsonError<'a> {
     File(file::Error),
-    TestMessage
+    TestPairs(testmessage::TestPairsError<'a>),
+    TestMessageDoesntMatch
 }
 
-impl From<file::Error> for FromJsonError {
-    fn from(error: file::Error) -> FromJsonError {
+impl<'a> From<file::Error> for FromJsonError<'a> {
+    fn from(error: file::Error) -> FromJsonError<'a> {
         FromJsonError::File(error)
+    }
+}
+
+impl<'a> From<testmessage::TestPairsError<'a>> for FromJsonError<'a> {
+    fn from(error: testmessage::TestPairsError) -> FromJsonError {
+        FromJsonError::TestPairs(error)
     }
 }
