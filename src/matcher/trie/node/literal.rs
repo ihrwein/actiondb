@@ -19,7 +19,6 @@ impl LiteralNode {
         LiteralNode{ literal: literal,
                      has_value: false,
                      pattern: None,
-                    //pattern: Some(Pattern::new(Uuid::new_v4())),
                      node: None}
     }
 
