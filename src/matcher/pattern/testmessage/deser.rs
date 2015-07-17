@@ -71,6 +71,6 @@ impl serde::de::Visitor for TestMessageVisitor {
 
         try!(visitor.end());
 
-        Ok(TestMessage{ message: message_final, values: values_final })
+        Ok(TestMessage::new(message_final, values_final))
     }
 }
