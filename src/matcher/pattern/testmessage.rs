@@ -21,7 +21,7 @@ impl TestMessage {
 
     pub fn test_pairs(&self, pairs: &[(&str, &str)]) -> Result<(), TestPairsError> {
         if pairs.len() != self.values().len() {
-            Err(TestPairsError::InvalidLength{expected: self.values.len(), got: pairs.len()})
+            Err(TestPairsError::invalid_length(self.values.len(), pairs.len()))
         } else  {
             self.test_pairs_values(pairs)
         }
@@ -50,6 +50,10 @@ pub enum TestPairsError {
 }
 
 impl TestPairsError {
+    pub fn invalid_length(expected: usize, got: usize) -> TestPairsError {
+        TestPairsError::InvalidLength{expected: expected, got: got}
+    }
+
     pub fn value_not_match(key: &str, expected_value: &str, got_value: &str) -> TestPairsError {
         TestPairsError::ValueNotMatch{key: key.to_string(), expected_value: expected_value.to_string(), got_value: got_value.to_string()}
     }
