@@ -1,6 +1,6 @@
 use std::io;
 use grammar::parser::ParseError;
-use super::pattern::file;
+use matcher::pattern::file;
 use super::pattern::testmessage;
 
 #[derive(Debug)]
