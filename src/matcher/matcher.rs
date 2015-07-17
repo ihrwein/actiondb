@@ -1,7 +1,6 @@
 use uuid::Uuid;
 
 use std::fs;
-use std::borrow::Borrow;
 use std::io::{BufReader, BufRead};
 use grammar::parser;
 use grammar::parser::ParseError;
