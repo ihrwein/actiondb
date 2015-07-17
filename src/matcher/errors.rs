@@ -22,20 +22,20 @@ impl From<ParseError> for BuildFromFileError {
 }
 
 #[derive(Debug)]
-pub enum FromJsonError<'a, 'b> {
+pub enum FromJsonError {
     File(file::Error),
-    TestPairs(testmessage::TestPairsError<'a, 'b>),
+    TestPairs(testmessage::TestPairsError),
     TestMessageDoesntMatch
 }
 
-impl<'a, 'b> From<file::Error> for FromJsonError<'a, 'b> {
-    fn from(error: file::Error) -> FromJsonError<'a, 'b> {
+impl From<file::Error> for FromJsonError {
+    fn from(error: file::Error) -> FromJsonError {
         FromJsonError::File(error)
     }
 }
 
-impl<'a, 'b> From<testmessage::TestPairsError<'a, 'b>> for FromJsonError<'a, 'b> {
-    fn from(error: testmessage::TestPairsError) -> FromJsonError<'a, 'b> {
+impl From<testmessage::TestPairsError> for FromJsonError {
+    fn from(error: testmessage::TestPairsError) -> FromJsonError {
         FromJsonError::TestPairs(error)
     }
 }

@@ -19,7 +19,7 @@ impl TestMessage {
         &self.values
     }
 
-    pub fn test_pairs<'a, 'b>(&'a self, pairs: &[(&'a str, &'b str)]) -> Result<(), TestPairsError<'a, 'b>> {
+    pub fn test_pairs(&self, pairs: &[(&str, &str)]) -> Result<(), TestPairsError> {
         if pairs.len() != self.values().len() {
             Err(TestPairsError::InvalidLength{expected: self.values.len(), got: pairs.len()})
         } else  {
@@ -27,16 +27,15 @@ impl TestMessage {
         }
     }
 
-    pub fn test_pairs_values<'a, 'b>(&'a self, pairs: &[(&'a str, &'b str)]) -> Result<(), TestPairsError<'a, 'b>> {
-        for &(k, v) in pairs {
-            let expected_value = self.values().get(k);
-            let expected_value_as_str = expected_value.map(|x| x.borrow());
-            if let Some(exp) = expected_value_as_str {
-                if exp != v {
-                    return Err(TestPairsError::ValueNotMatch{key: k, expected_value: exp, got_value: v});
+    pub fn test_pairs_values(& self, pairs: &[(&str, &str)]) -> Result<(), TestPairsError> {
+        for &(key, value) in pairs {
+            let expected_value = self.values().get(key).map(|x| x.borrow());
+            if let Some(exp) = expected_value {
+                if exp != value {
+                    return Err(TestPairsError::value_not_match(key, exp, value));
                 }
             } else {
-                return Err(TestPairsError::KeyNotFound(k));
+                return Err(TestPairsError::key_not_found(key));
             }
         }
         Ok(())
@@ -44,10 +43,20 @@ impl TestMessage {
 }
 
 #[derive(Debug)]
-pub enum TestPairsError<'a, 'b> {
+pub enum TestPairsError {
     InvalidLength{expected: usize, got: usize},
-    ValueNotMatch{key: &'a str, expected_value: &'b str, got_value: &'a str},
-    KeyNotFound(&'a str)
+    ValueNotMatch{key: String, expected_value: String, got_value: String},
+    KeyNotFound{key: String}
+}
+
+impl TestPairsError {
+    pub fn value_not_match(key: &str, expected_value: &str, got_value: &str) -> TestPairsError {
+        TestPairsError::ValueNotMatch{key: key.to_string(), expected_value: expected_value.to_string(), got_value: got_value.to_string()}
+    }
+
+    pub fn key_not_found(key: &str) -> TestPairsError {
+        TestPairsError::KeyNotFound{key: key.to_string()}
+    }
 }
 
 impl serde::Deserialize for TestMessage {
