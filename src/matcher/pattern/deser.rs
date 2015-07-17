@@ -96,6 +96,6 @@ impl serde::de::Visitor for PatternVisitor {
 
         let pattern_final = pattern_parser::pattern(&pattern).unwrap();
 
-        Ok(Pattern{ name: name, uuid: uuid_final, pattern: pattern_final, test_messages: test_messages })
+        Ok(Pattern::new(name, uuid_final, pattern_final, test_messages))
     }
 }
