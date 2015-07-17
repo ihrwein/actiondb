@@ -1,6 +1,7 @@
 extern crate actiondb;
 
 use actiondb::{Matcher, BuildFromFileError};
+use actiondb::matcher::matcher::builder::BuildError;
 
 #[test]
 fn test_given_pattern_file_when_its_syntax_is_ok_then_matcher_can_be_built_from_it() {
@@ -13,7 +14,7 @@ fn test_given_pattern_file_when_its_syntax_is_ok_then_matcher_can_be_built_from_
 fn test_given_pattern_file_when_its_syntax_is_not_ok_then_matcher_cannot_be_built_from_it() {
     let pattern_file_path = "tests/matcher/ssh_wrong.pattern";
     match Matcher::from_file(pattern_file_path) {
-        Err(BuildFromFileError::PatternParse(_)) => {},
+        Err(BuildError::FromPlain(_)) => {},
         _ => unreachable!()
     }
 }
