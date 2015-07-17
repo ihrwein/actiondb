@@ -24,7 +24,7 @@ impl Matcher {
     }
 
     pub fn from_json_file(pattern_file_path: &str) -> Result<Matcher, FromJsonError> {
-        let file = try!(file::File::open(pattern_file_path));
+        let file = try!(file::SerializedPatternFile::open(pattern_file_path));
         let trie = try!(Matcher::build_trie_from_json_file(file));
         Ok(Matcher{ parser: trie })
     }
@@ -49,9 +49,9 @@ impl Matcher {
         Ok(trie)
     }
 
-    fn build_trie_from_json_file(file: file::File) -> Result<ParserTrie, FromJsonError> {
+    fn build_trie_from_json_file(file: file::SerializedPatternFile) -> Result<ParserTrie, FromJsonError> {
         let mut trie = ParserTrie::new();
-        let file::File {mut patterns} = file;
+        let file::SerializedPatternFile {mut patterns} = file;
 
         let test_messages = Matcher::extract_test_messages_from_patterns(&mut patterns);
         for pattern in patterns.into_iter() {

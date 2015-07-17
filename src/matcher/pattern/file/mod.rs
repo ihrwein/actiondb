@@ -1,3 +1,3 @@
 mod serialized;
 
-pub use self::serialized::{Error, File};
+pub use self::serialized::{Error, SerializedPatternFile};

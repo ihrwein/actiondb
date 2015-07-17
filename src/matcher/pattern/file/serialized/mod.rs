@@ -1,5 +1,5 @@
 pub use self::error::{DeserError, Error};
-pub use self::file::File;
+pub use self::file::SerializedPatternFile;
 
 mod deser;
 mod error;
