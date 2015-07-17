@@ -38,3 +38,18 @@ impl fmt::Display for TestPairsError {
     }
 }
 
+impl error::Error for TestPairsError {
+    fn description(&self) -> &str {
+        match self {
+            &TestPairsError::InvalidLength{expected: _, got: _} => {
+                "The number of parsed key-value pairs does not equal to their expected number"
+            },
+            &TestPairsError::ValueNotMatch{key: _, expected_value: _, got_value: _} => {
+                "A parsed value does not equal to its expected value"
+            },
+            &TestPairsError::KeyNotFound{key: _} => {
+                "A parsed key in not found among the expected ones"
+            }
+        }
+    }
+}
