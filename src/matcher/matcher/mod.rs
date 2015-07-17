@@ -51,32 +51,28 @@ impl Matcher {
 
     fn build_trie_from_json_file(file: file::SerializedPatternFile) -> Result<ParserTrie, FromJsonError> {
         let mut trie = ParserTrie::new();
-        let file::SerializedPatternFile {mut patterns} = file;
+        let file::SerializedPatternFile {patterns} = file;
 
-        let test_messages = Matcher::extract_test_messages_from_patterns(&mut patterns);
         for pattern in patterns.into_iter() {
-            trie.insert(pattern);
+            try!(Matcher::insert_pattern_then_check_its_test_messages(&mut trie, pattern));
         }
-
-        try!(Matcher::check_test_messages_on_trie(&trie, &test_messages));
 
         Ok(trie)
     }
 
-    fn extract_test_messages_from_patterns(patterns: &mut Vec<Pattern>) -> Vec<TestMessage> {
-        let mut test_messages = Vec::new();
-
-        for mut pattern in patterns {
-            Matcher::extract_test_messages_from_pattern(pattern, &mut test_messages);
-        }
-
-        test_messages
+    fn insert_pattern_then_check_its_test_messages(trie: &mut ParserTrie, mut pattern: Pattern) -> Result<(), FromJsonError> {
+        let test_messages = Matcher::extract_test_messages_from_pattern(&mut pattern);
+        trie.insert(pattern);
+        Matcher::check_test_messages_on_trie(&trie, &test_messages)
     }
 
-    fn extract_test_messages_from_pattern(pattern: &mut Pattern, messages: &mut Vec<TestMessage>) {
+    fn extract_test_messages_from_pattern(pattern: &mut Pattern) -> Vec<TestMessage> {
+        let mut messages = Vec::new();
+
         while let Some(test_message) = pattern.pop_test_message() {
             messages.push(test_message);
         }
+        messages
     }
 
     fn check_test_messages_on_trie(trie: &ParserTrie, messages: &[TestMessage]) -> Result<(), FromJsonError> {
