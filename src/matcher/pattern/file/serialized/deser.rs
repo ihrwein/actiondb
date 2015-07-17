@@ -1,0 +1,67 @@
+use serde;
+
+use super::File;
+use matcher::pattern::Pattern;
+
+impl serde::Deserialize for File {
+    fn deserialize<D>(deserializer: &mut D) -> Result<File, D::Error>
+        where D: serde::de::Deserializer
+    {
+        deserializer.visit_named_map("File", FileVisitor)
+    }
+}
+
+enum Field {
+    PATTERNS,
+}
+
+impl serde::Deserialize for Field {
+    fn deserialize<D>(deserializer: &mut D) -> Result<Field, D::Error>
+        where D: serde::de::Deserializer
+    {
+        struct FieldVisitor;
+
+        impl serde::de::Visitor for FieldVisitor {
+            type Value = Field;
+
+            fn visit_str<E>(&mut self, value: &str) -> Result<Field, E>
+                where E: serde::de::Error
+            {
+                match value {
+                    "patterns" => Ok(Field::PATTERNS),
+                    _ => Err(serde::de::Error::syntax_error()),
+                }
+            }
+        }
+
+        deserializer.visit(FieldVisitor)
+    }
+}
+
+struct FileVisitor;
+
+impl serde::de::Visitor for FileVisitor {
+    type Value = File;
+
+    fn visit_map<V>(&mut self, mut visitor: V) -> Result<File, V::Error>
+        where V: serde::de::MapVisitor
+    {
+        let mut patterns: Option<Vec<Pattern>> = None;
+
+        loop {
+            match try!(visitor.visit_key()) {
+                Some(Field::PATTERNS) => { patterns = Some(try!(visitor.visit_value())); }
+                None => { break; }
+            }
+        }
+
+        let patterns_final = match patterns {
+            Some(patterns) => patterns,
+            None => try!(visitor.missing_field("patterns")),
+        };
+
+        try!(visitor.end());
+
+        Ok(File{ patterns: patterns_final })
+    }
+}
