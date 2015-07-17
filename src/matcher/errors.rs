@@ -23,13 +23,13 @@ impl From<ParseError> for BuildFromFileError {
 
 #[derive(Debug)]
 pub enum FromJsonError {
-    File(file::Error),
+    File(file::serialized::Error),
     TestPairs(testmessage::TestPairsError),
     TestMessageDoesntMatch
 }
 
-impl From<file::Error> for FromJsonError {
-    fn from(error: file::Error) -> FromJsonError {
+impl From<file::serialized::Error> for FromJsonError {
+    fn from(error: file::serialized::Error) -> FromJsonError {
         FromJsonError::File(error)
     }
 }
