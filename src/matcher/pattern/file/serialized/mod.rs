@@ -1,40 +1,13 @@
 use matcher::pattern::Pattern;
 use serde::json;
-use serde;
 
 use std::fs;
-use std::io::{self, Read};
+use std::io::Read;
+
+pub use self::error::{DeserError, Error};
 
 mod deser;
-
-#[derive(Debug)]
-pub enum Error {
-    IO(io::Error),
-    Deser(DeserError)
-}
-
-#[derive(Debug)]
-pub enum DeserError {
-    JSON(serde::json::Error)
-}
-
-impl From<io::Error> for Error {
-    fn from(error: io::Error) -> Error {
-        Error::IO(error)
-    }
-}
-
-impl From<json::Error> for DeserError {
-    fn from(error: json::Error) -> DeserError {
-        DeserError::JSON(error)
-    }
-}
-
-impl From<DeserError> for Error {
-    fn from(error: DeserError) -> Error {
-        Error::Deser(error)
-    }
-}
+mod error;
 
 pub struct File {
     pub patterns: Vec<Pattern>
