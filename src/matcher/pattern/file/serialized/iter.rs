@@ -1,14 +1,29 @@
 use super::SerializedPatternFile;
 use matcher::pattern::Pattern;
+use matcher::pattern::source::BuildResult;
 
 use std::iter;
-use std::vec;
 
 impl iter::IntoIterator for SerializedPatternFile {
-    type Item = Pattern;
-    type IntoIter = vec::IntoIter<Self::Item>;
+    type Item = BuildResult;
+    type IntoIter = IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.patterns.into_iter()
+        IntoIter{patterns: self.patterns}
+    }
+}
+
+pub struct IntoIter {
+    patterns: Vec<Pattern>
+}
+
+impl Iterator for IntoIter {
+    type Item = BuildResult;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.patterns.pop() {
+            Some(pattern) => Some(Ok(pattern)),
+            None => None
+        }
     }
 }
