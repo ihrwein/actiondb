@@ -1,5 +1,6 @@
 use super::Pattern;
 
-pub trait PatternSource: Iterator<Item=Pattern> {}
+pub trait Source: Iterator<Item=Pattern> {}
+pub type PatternSource = Source<Item=Pattern>;
 
-impl<T: Iterator<Item=Pattern>> PatternSource for T {}
+impl<T: Iterator<Item=Pattern>> Source for T {}

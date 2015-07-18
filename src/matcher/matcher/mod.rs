@@ -21,7 +21,7 @@ impl Matcher {
         Matcher::drain_into(&mut file.into_iter())
     }
 
-    pub fn drain_into(source: &mut PatternSource<Item=Pattern>) -> Result<Matcher, builder::BuildError> {
+    pub fn drain_into(source: &mut PatternSource) -> Result<Matcher, builder::BuildError> {
         let mut trie = ParserTrie::new();
         try!(builder::Builder::drain_into(source, &mut trie));
         Ok(Matcher{ parser: trie })

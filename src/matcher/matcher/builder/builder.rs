@@ -8,7 +8,7 @@ use super::BuildError;
 pub struct Builder;
 
 impl Builder {
-    pub fn drain_into(from: &mut PatternSource<Item=Pattern>, to: &mut ParserTrie) -> Result<(), BuildError>{
+    pub fn drain_into(from: &mut PatternSource, to: &mut ParserTrie) -> Result<(), BuildError>{
         for mut pattern in from {
             let test_messages = Builder::extract_test_messages_from_pattern(&mut pattern);
             to.insert(pattern);
