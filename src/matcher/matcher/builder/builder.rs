@@ -9,7 +9,8 @@ pub struct Builder;
 
 impl Builder {
     pub fn drain_into(from: &mut PatternSource, to: &mut ParserTrie) -> Result<(), BuildError>{
-        for mut pattern in from {
+        for pattern in from {
+            let mut pattern = try!(pattern);
             let test_messages = Builder::extract_test_messages_from_pattern(&mut pattern);
             to.insert(pattern);
             try!(Builder::check_test_messages_on_trie(&to, &test_messages));
