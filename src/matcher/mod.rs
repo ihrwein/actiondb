@@ -4,6 +4,5 @@ pub mod result;
 pub mod matcher;
 mod errors;
 
-pub use self::errors::BuildFromFileError;
 pub use self::pattern::Pattern;
 pub use self::matcher::Matcher;
