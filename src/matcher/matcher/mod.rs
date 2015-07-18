@@ -1,6 +1,6 @@
 use super::trie::ParserTrie;
 use super::result::MatchResult;
-use super::pattern::{file, Pattern};
+use super::pattern::file;
 use super::pattern::source::PatternSource;
 
 pub mod builder;
