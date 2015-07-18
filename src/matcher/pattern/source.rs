@@ -1,6 +1,9 @@
 use super::Pattern;
+use matcher::matcher::builder::BuildError;
 
-pub trait Source: Iterator<Item=Pattern> {}
-pub type PatternSource = Source<Item=Pattern>;
+pub type BuildResult = Result<Pattern, BuildError>;
 
-impl<T: Iterator<Item=Pattern>> Source for T {}
+pub trait Source: Iterator<Item=BuildResult> {}
+pub type PatternSource = Source<Item=BuildResult>;
+
+impl<T: Iterator<Item=BuildResult>> Source for T {}
