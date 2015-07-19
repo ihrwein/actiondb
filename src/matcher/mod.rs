@@ -6,3 +6,4 @@ pub mod factory;
 
 pub use self::pattern::Pattern;
 pub use self::matcher::Matcher;
+pub use self::factory::Factory;
