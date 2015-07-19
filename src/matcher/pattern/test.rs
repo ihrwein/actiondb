@@ -45,3 +45,14 @@ fn test_given_json_pattern_when_its_uuid_is_invalid_then_pattern_cannot_be_built
     let _ = Pattern::from_json(buffer).err().expect("We created a Pattern with an invalid Uuid");
 }
 
+#[test]
+fn test_given_json_pattern_when_its_pattern_is_invalid_then_pattern_cannot_be_built_from_it() {
+    let buffer = r#"
+{
+  "uuid": "9a49c47d-29e9-4072-be84-3b76c6814743",
+  "pattern": "Jun %{INT:da"
+}
+"#;
+
+    let _ = Pattern::from_json(buffer).err().expect("We created a Pattern with an invalid pattern field");
+}
