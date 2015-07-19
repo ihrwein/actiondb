@@ -86,10 +86,10 @@ impl serde::de::Visitor for PatternVisitor {
             Some(pattern) => {
                 match pattern_parser::pattern(&pattern) {
                     Ok(pattern) => pattern,
-                    Err(_) => try!(Err(serde::de::Error::missing_field_error("uuid")))
+                    Err(_) => try!(Err(serde::de::Error::missing_field_error("pattern")))
                 }
             },
-            None => try!(Err(serde::de::Error::missing_field_error("uuid"))),
+            None => try!(Err(serde::de::Error::missing_field_error("pattern"))),
         };
 
         let uuid_final = match uuid {
