@@ -32,3 +32,27 @@ fn test_given_json_pattern_when_it_does_not_have_name_then_pattern_can_be_built_
     let pattern = Pattern::from_json(buffer).ok().expect("Failed to deserialize a JSON Pattern");
     assert_eq!(pattern.name(), None);
 }
+
+#[test]
+fn test_given_json_pattern_when_its_uuid_is_invalid_then_pattern_cannot_be_built_from_it() {
+    let buffer = r#"
+{
+  "uuid": "sdfsdf-12f-sdfd--23",
+  "pattern": "Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Received disconnect from %{GREEDY:ipaddr}: %{INT:dunno}: disconnected by user"
+}
+"#;
+
+    let _ = Pattern::from_json(buffer).err().expect("We created a Pattern with an invalid Uuid");
+}
+
+#[test]
+fn test_given_json_pattern_when_its_pattern_is_invalid_then_pattern_cannot_be_built_from_it() {
+    let buffer = r#"
+{
+  "uuid": "9a49c47d-29e9-4072-be84-3b76c6814743",
+  "pattern": "Jun %{INT:da"
+}
+"#;
+
+    let _ = Pattern::from_json(buffer).err().expect("We created a Pattern with an invalid pattern field");
+}

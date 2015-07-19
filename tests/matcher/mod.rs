@@ -1,6 +1,5 @@
 extern crate actiondb;
 
-use actiondb::Matcher;
 use actiondb::matcher::Factory;
 use actiondb::matcher::matcher::builder::BuildError;
 
