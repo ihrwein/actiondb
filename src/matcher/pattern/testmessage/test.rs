@@ -52,3 +52,16 @@ fn test_given_json_test_message_when_it_does_not_have_values_field_then_it_can_b
     assert_eq!("lame-servers: info: unexpected RCODE (REFUSED) resolving 'ns1.example.org/AAAA/IN': 192.0.2.1#53", msg.message());
     assert_eq!(0, msg.values().len());
 }
+
+#[test]
+fn test_given_json_test_message_when_it_contains_not_just_the_valid_fields_then_we_return_an_error() {
+    let buffer = r#"
+{
+"message": "lame-servers: info: unexpected RCODE (REFUSED) resolving 'ns1.example.org/AAAA/IN': 192.0.2.1#53",
+"field": "this field is not in TestMessage"
+}
+"#;
+    let result = json::from_str::<TestMessage>(buffer);
+    println!("{:?}", result);
+    let _ = result.err().expect("Failed to return an error when a serialized TestMessage contains non-valid fields");
+}
