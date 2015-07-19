@@ -1,11 +1,14 @@
 use matcher::errors::FromJsonError;
 use matcher::pattern::file::serialized;
 use matcher::pattern::file::plain;
+use matcher::pattern::testmessage;
 
 #[derive(Debug)]
 pub enum BuildError {
     FromSerialized(FromJsonError),
-    FromPlain(plain::Error)
+    FromPlain(plain::Error),
+    TestPairs(testmessage::TestPairsError),
+    TestMessageDoesntMatch
 }
 
 impl From<FromJsonError> for BuildError {
