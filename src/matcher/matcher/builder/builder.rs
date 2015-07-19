@@ -1,7 +1,6 @@
 use matcher::trie::ParserTrie;
 use matcher::pattern::{Pattern, PatternSource};
-use matcher::errors::FromJsonError;
-use matcher::pattern::testmessage::TestMessage;
+use matcher::pattern::testmessage::{TestMessage, TestPairsError};
 
 use super::BuildError;
 
@@ -28,13 +27,10 @@ impl Builder {
         messages
     }
 
-    fn check_test_messages_on_trie(trie: &ParserTrie, messages: &[TestMessage]) -> Result<(), FromJsonError> {
+    fn check_test_messages_on_trie(trie: &ParserTrie, messages: &[TestMessage]) -> Result<(), BuildError> {
         for msg in messages {
-            if let Some(result) = trie.parse(msg.message()) {
-                try!(msg.test_pairs(result.pairs()));
-            } else {
-                return Err(FromJsonError::TestMessageDoesntMatch);
-            }
+            let result = try!(trie.parse(msg.message()).ok_or(TestPairsError::TestMessageDoesntMatch));
+            try!(msg.test_pairs(result.pairs()));
         }
         Ok(())
     }
