@@ -1,5 +1,6 @@
 pub mod node;
 mod trie;
+mod matcher;
 
 use self::node::{LiteralNode, ParserNode};
 use parsers::Parser;
