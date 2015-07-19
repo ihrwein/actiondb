@@ -6,7 +6,7 @@ extern crate log;
 mod parse;
 
 use clap::{Arg, App, SubCommand, ArgMatches};
-use actiondb::Matcher;
+use actiondb::matcher::Factory;
 use log::{LogLevelFilter};
 use actiondb::utils::logger::StdoutLogger;
 
@@ -53,7 +53,7 @@ fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, '
 
 fn handle_validate(matches: &ArgMatches) {
     let pattern_file = matches.value_of(PATTERN_FILE).unwrap();
-    if let Err(e) = Matcher::from_file(pattern_file) {
+    if let Err(e) = Factory::from_plain_file(pattern_file) {
         println!("{:?}", e);
         std::process::exit(1);
     }
