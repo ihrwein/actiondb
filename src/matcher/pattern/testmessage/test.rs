@@ -24,3 +24,31 @@ fn test_given_json_test_message_when_it_is_deserialized_then_we_get_the_right_in
     assert_eq!(6, msg.values().len());
     assert_eq!(Some("AAAA"), msg.values().get("dnsqry.type").map(|x| x.borrow()));
 }
+
+#[test]
+fn test_given_json_test_message_when_it_does_not_have_a_message_field_then_error_is_returned() {
+    let buffer = r#"
+{
+"values": {
+"dnsqry.query": "ns1.example.org",
+}
+}
+"#;
+    let result = json::from_str::<TestMessage>(buffer);
+    println!("{:?}", result);
+    let _ = result.err().expect("Failed to return error when a serialized TestMessage doesn't have a message field");
+}
+
+#[test]
+fn test_given_json_test_message_when_it_does_not_have_values_field_then_it_can_be_loaded_successfully() {
+    let buffer = r#"
+{
+"message": "lame-servers: info: unexpected RCODE (REFUSED) resolving 'ns1.example.org/AAAA/IN': 192.0.2.1#53"
+}
+"#;
+    let result = json::from_str::<TestMessage>(buffer);
+    println!("{:?}", result);
+    let msg = result.ok().expect("Failed to deserialize a valid TestMessage from JSON when it doesn't contain values");
+    assert_eq!("lame-servers: info: unexpected RCODE (REFUSED) resolving 'ns1.example.org/AAAA/IN': 192.0.2.1#53", msg.message());
+    assert_eq!(0, msg.values().len());
+}
