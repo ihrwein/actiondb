@@ -4,19 +4,19 @@ use matcher::pattern::file::plain;
 
 #[derive(Debug)]
 pub enum BuildError {
-    FromJson(FromJsonError),
+    FromSerialized(FromJsonError),
     FromPlain(plain::Error)
 }
 
 impl From<FromJsonError> for BuildError {
     fn from(error: FromJsonError) -> BuildError {
-        BuildError::FromJson(error)
+        BuildError::FromSerialized(error)
     }
 }
 
 impl From<serialized::Error> for BuildError {
     fn from(error: serialized::Error) -> BuildError {
-        BuildError::FromJson(FromJsonError::from(error))
+        BuildError::FromSerialized(FromJsonError::from(error))
     }
 }
 
