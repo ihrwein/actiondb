@@ -1,0 +1,8 @@
+  "patterns": [
+    {
+      "uuid": "c11c806a-766d-4a09-9f24-7de1fe02e51e",
+      "name": "SSH_PUBKEY",
+      "pattern": "Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Accepted publickey for zts from %{INT:oct0}.%{INT:oct1}.%{INT:oct2}.%{INT:oct3} port %{INT:port} ssh2"
+    },
+  ]
+}

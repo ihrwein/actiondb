@@ -6,8 +6,6 @@ use matcher::trie::{HasPattern, TrieOperations};
 use matcher::Pattern;
 use parsers::Parser;
 
-use uuid::Uuid;
-
 #[derive(Debug, Clone)]
 pub struct LiteralNode {
     literal: String,
@@ -21,7 +19,6 @@ impl LiteralNode {
         LiteralNode{ literal: literal,
                      has_value: false,
                      pattern: None,
-                    //pattern: Some(Pattern::new(Uuid::new_v4())),
                      node: None}
     }
 
