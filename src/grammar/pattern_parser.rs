@@ -869,10 +869,11 @@ fn parse_identifier<'input>(input: &'input str, state: &mut ParseState,
                 if input.len() > pos {
                     let (ch, next) = char_range_at(input, pos);
                     match ch {
-                        'a' ...'z' | 'A' ...'Z' | '_' => Matched(next, ()),
-                        _ => state.mark_failure(pos, "[a-zA-Z_]"),
+                        'a' ...'z' | 'A' ...'Z' | '_' | '.' =>
+                        Matched(next, ()),
+                        _ => state.mark_failure(pos, "[a-zA-Z_.]"),
                     }
-                } else { state.mark_failure(pos, "[a-zA-Z_]") };
+                } else { state.mark_failure(pos, "[a-zA-Z_.]") };
             match seq_res {
                 Matched(pos, _) => {
                     {
@@ -891,15 +892,15 @@ fn parse_identifier<'input>(input: &'input str, state: &mut ParseState,
                                                     match ch {
                                                         'a' ...'z' | '-' | 'A'
                                                         ...'Z' | '0' ...'9' |
-                                                        '_' =>
+                                                        '_' | '.' =>
                                                         Matched(next, ()),
                                                         _ =>
                                                         state.mark_failure(pos,
-                                                                           "[a-z-A-Z0-9_]"),
+                                                                           "[a-z-A-Z0-9_.]"),
                                                     }
                                                 } else {
                                                     state.mark_failure(pos,
-                                                                       "[a-z-A-Z0-9_]")
+                                                                       "[a-z-A-Z0-9_.]")
                                                 };
                                             match seq_res {
                                                 Matched(pos, _) => {

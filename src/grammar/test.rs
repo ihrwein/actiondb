@@ -157,3 +157,10 @@ fn test_given_greedy_parser_when_there_is_no_literal_after_it_then_we_take_all_t
         unreachable!();
     }
 }
+
+#[test]
+fn test_given_parser_when_there_is_a_dot_in_its_name_then_it_is_ok() {
+    let pattern_as_string = "bar %{GREEDY:.some.dotted_notation}";
+    let vec: Vec<TokenType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
+    assert_parser_name_equals(vec.get(1), ".some.dotted_notation");
+}
