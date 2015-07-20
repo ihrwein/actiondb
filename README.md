@@ -1,4 +1,4 @@
-[![Coverage Status](https://coveralls.io/repos/ihrwein/actiondb/badge.svg?branch=f%2Fcoveralls&service=github)](https://coveralls.io/github/ihrwein/actiondb?branch=f%2Fcoveralls)
+[![Coverage Status](https://coveralls.io/repos/ihrwein/actiondb/badge.svg?branch=master&service=github)](https://coveralls.io/github/ihrwein/actiondb?branch=master)
 
 # actiondb
 
