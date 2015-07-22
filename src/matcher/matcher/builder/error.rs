@@ -7,7 +7,9 @@ pub enum BuildError {
     FromSerialized(serialized::Error),
     FromPlain(plain::Error),
     TestPairs(testmessage::TestPairsError),
-    TestMessageDoesntMatch
+    TestMessageDoesntMatch,
+    UnsupportedFileExtension,
+    NotUtf8FileName
 }
 
 impl From<serialized::Error> for BuildError {

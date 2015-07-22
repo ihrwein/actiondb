@@ -4,7 +4,7 @@ use actiondb::Matcher;
 use actiondb::matcher;
 
 pub fn parse(pattern_file_path: &str, input_file_path: &str, output_file_path: &str) -> Result<(), Error> {
-    match matcher::Factory::from_plain_file(pattern_file_path) {
+    match matcher::Factory::from_file(pattern_file_path) {
         Ok(matcher) => {
             let input_file = try!(File::open(input_file_path));
             let mut output_file= try!(File::create(output_file_path));
