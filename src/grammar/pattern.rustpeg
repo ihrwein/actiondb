@@ -99,7 +99,7 @@ parser_name -> &'input str
   = ":" name:identifier { name }
 
 identifier -> &'input str
-  = [a-zA-Z_]([a-z-A-Z0-9_]![-])* { match_str }
+  = [a-zA-Z_.]([a-z-A-Z0-9_.]![-])* { match_str }
 
 string -> &'input str
   = '"' s:all_chars_until_quotation_mark '"' { s }
