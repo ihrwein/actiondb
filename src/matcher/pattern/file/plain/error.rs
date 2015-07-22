@@ -12,3 +12,9 @@ impl From<io::Error> for Error {
         Error::IO(error)
     }
 }
+
+impl From<ParseError> for Error {
+    fn from(error: ParseError) -> Error {
+        Error::PatternParse(error)
+    }
+}
