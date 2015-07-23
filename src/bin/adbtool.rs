@@ -10,7 +10,7 @@ use actiondb::matcher::Factory;
 use log::{LogLevelFilter};
 use actiondb::utils::logger::StdoutLogger;
 
-const VERSION: &'static str = "0.1.0";
+const VERSION: &'static str = "0.2.0";
 const AUTHOR: &'static str = "Tibor Benke <tibor.benke@balabit.com>";
 const APPNAME: &'static str = "adbtool";
 
