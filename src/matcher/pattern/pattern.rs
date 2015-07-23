@@ -67,14 +67,6 @@ impl Pattern {
     }
 
     pub fn pop_test_message(&mut self) -> Option<TestMessage> {
-        if self.has_test_messages() {
-            Some(self.test_messages.as_mut().unwrap().remove(0))
-        } else {
-            None
-        }
-    }
-
-    fn has_test_messages(&self) -> bool {
-        self.test_messages.as_ref().map_or(false, |x| !x.is_empty())
+        self.test_messages.as_mut().map_or(None, |x| x.pop())
     }
 }
