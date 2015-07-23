@@ -1,4 +1,5 @@
 use std::io;
+use std::fmt;
 
 pub use self::deser::DeserError;
 
@@ -17,6 +18,15 @@ impl From<io::Error> for Error {
 impl From<DeserError> for Error {
     fn from(error: DeserError) -> Error {
         Error::Deser(error)
+    }
+}
+
+impl fmt::Display for Error {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self {
+            &Error::IO(ref error) => error.fmt(formatter),
+            &Error::Deser(ref error) => error.fmt(formatter)
+        }
     }
 }
 
