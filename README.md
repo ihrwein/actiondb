@@ -84,7 +84,7 @@ An example test message object can be seen in the following example:
           "message":"seq: 0000000001, thread: 0000, runid: 1437655178, stamp: 2015-07-23T14:39:38 PADDPADDPADDPADD",
           "values":{  
             ".loggen.seq":"0000000001",
-            ".loogen.thread":"0000",
+            ".loggen.thread":"0000",
             ".loggen.runid":"1437655178",
             ".loggen.stamp":"2015-07-23T14:39:38",
             ".loggen.padding":"PADDPADDPADDPADD"
