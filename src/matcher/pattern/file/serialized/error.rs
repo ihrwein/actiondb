@@ -1,4 +1,5 @@
 use std::io;
+use std::fmt;
 use serde::json;
 
 #[derive(Debug)]
@@ -27,5 +28,13 @@ impl From<json::Error> for DeserError {
 impl From<DeserError> for Error {
     fn from(error: DeserError) -> Error {
         Error::Deser(error)
+    }
+}
+
+impl fmt::Display for DeserError {
+    fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self {
+            &DeserError::JSON(ref error) => error.fmt(formatter)
+        }
     }
 }
