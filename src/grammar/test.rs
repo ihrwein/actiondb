@@ -164,3 +164,34 @@ fn test_given_parser_when_there_is_a_dot_in_its_name_then_it_is_ok() {
     let vec: Vec<TokenType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
     assert_parser_name_equals(vec.get(1), ".some.dotted_notation");
 }
+
+#[test]
+fn test_given_valid_pattern_as_a_string_when_they_dont_have_new_line_at_the_very_end_then_we_get_a_vector_of_patterns() {
+    let patterns = r#"Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Received disconnect from %{GREEDY:ipaddr}: %{INT:dunno}: disconnected by user
+Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Accepted publickey for zts from %{INT:oct0}.%{INT:oct1}.%{INT:oct2}.%{INT:oct3} port %{INT:port} ssh2"#;
+    let res = pattern_parser::pattern_file(patterns);
+    println!("res: {:?}", &res);
+    let vec: Vec<Vec<TokenType>> = res.ok().expect("Failed to parse patterns lines into a vector");
+    assert_eq!(vec.len(), 2);
+}
+
+#[test]
+fn test_given_valid_pattern_as_a_string_when_they_have_new_line_at_the_very_end_then_we_get_a_vector_of_patterns() {
+    let patterns = r#"Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Received disconnect from %{GREEDY:ipaddr}: %{INT:dunno}: disconnected by user
+Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Accepted publickey for zts from %{INT:oct0}.%{INT:oct1}.%{INT:oct2}.%{INT:oct3} port %{INT:port} ssh2
+"#;
+    let res = pattern_parser::pattern_file(patterns);
+    println!("res: {:?}", &res);
+    let vec: Vec<Vec<TokenType>> = res.ok().expect("Failed to parse patterns lines into a vector");
+    assert_eq!(vec.len(), 2);
+}
+
+#[test]
+fn test_given_invalid_pattern_as_a_string_when_we_parse_them_then_we_get_error() {
+    let patterns = r#"Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Received disconnect from %{GREEDY:ipaddr}: %{INT:dunno}: disconnected by user
+Jun %{INT:day %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Accepted publickey for zts from %{INT:oct0}.%{INT:oct1}.%{INT:oct2}.%{INT:oct3} port %{INT:port} ssh2
+"#;
+    let res = pattern_parser::pattern_file(patterns);
+    println!("res: {:?}", &res);
+    let _ = res.err().expect("Failed to get error when we parsed a patttern file which contains syntax error(s)");
+}

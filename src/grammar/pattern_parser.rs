@@ -116,64 +116,102 @@ impl ParseState {
         Failed
     }
 }
+fn parse_pattern_file<'input>(input: &'input str, state: &mut ParseState,
+                              pos: usize)
+ -> RuleResult<Vec<CompiledPattern>> {
+    {
+        let start_pos = pos;
+        {
+            let seq_res =
+                {
+                    let mut repeat_pos = pos;
+                    let mut repeat_value = vec!();
+                    loop  {
+                        let pos = repeat_pos;
+                        let pos =
+                            if repeat_value.len() > 0 {
+                                let sep_res =
+                                    parse_NEW_LINE(input, state, pos);
+                                match sep_res {
+                                    Matched(newpos, _) => { newpos }
+                                    Failed => break ,
+                                }
+                            } else { pos };
+                        let step_res = parse_pattern(input, state, pos);
+                        match step_res {
+                            Matched(newpos, value) => {
+                                repeat_pos = newpos;
+                                repeat_value.push(value);
+                            }
+                            Failed => { break ; }
+                        }
+                    }
+                    if repeat_value.len() >= 1usize {
+                        Matched(repeat_pos, repeat_value)
+                    } else { Failed }
+                };
+            match seq_res {
+                Matched(pos, patterns) => {
+                    {
+                        let seq_res =
+                            match parse_NEW_LINE(input, state, pos) {
+                                Matched(newpos, value) => {
+                                    Matched(newpos, Some(value))
+                                }
+                                Failed => { Matched(pos, None) }
+                            };
+                        match seq_res {
+                            Matched(pos, _) => {
+                                {
+                                    let match_str = &input[start_pos..pos];
+                                    Matched(pos, { patterns })
+                                }
+                            }
+                            Failed => Failed,
+                        }
+                    }
+                }
+                Failed => Failed,
+            }
+        }
+    }
+}
 fn parse_pattern<'input>(input: &'input str, state: &mut ParseState,
                          pos: usize) -> RuleResult<CompiledPattern> {
     {
-        let choice_res =
-            {
-                let start_pos = pos;
+        let start_pos = pos;
+        {
+            let seq_res =
                 {
-                    let seq_res =
-                        {
-                            let mut repeat_pos = pos;
-                            let mut repeat_value = vec!();
-                            loop  {
-                                let pos = repeat_pos;
-                                let step_res =
-                                    parse_pattern_piece(input, state, pos);
-                                match step_res {
-                                    Matched(newpos, value) => {
-                                        repeat_pos = newpos;
-                                        repeat_value.push(value);
-                                    }
-                                    Failed => { break ; }
-                                }
+                    let mut repeat_pos = pos;
+                    let mut repeat_value = vec!();
+                    loop  {
+                        let pos = repeat_pos;
+                        let step_res = parse_pattern_piece(input, state, pos);
+                        match step_res {
+                            Matched(newpos, value) => {
+                                repeat_pos = newpos;
+                                repeat_value.push(value);
                             }
-                            if repeat_value.len() >= 1usize {
-                                Matched(repeat_pos, repeat_value)
-                            } else { Failed }
-                        };
-                    match seq_res {
-                        Matched(pos, pieces) => {
-                            {
-                                let match_str = &input[start_pos..pos];
-                                Matched(pos,
-                                        {
-                                            let mut pieces = pieces;
-                                            utils::flatten_vec(pieces)
-                                        })
-                            }
+                            Failed => { break ; }
                         }
-                        Failed => Failed,
+                    }
+                    if repeat_value.len() >= 1usize {
+                        Matched(repeat_pos, repeat_value)
+                    } else { Failed }
+                };
+            match seq_res {
+                Matched(pos, pieces) => {
+                    {
+                        let match_str = &input[start_pos..pos];
+                        Matched(pos,
+                                {
+                                    let mut pieces = pieces;
+                                    utils::flatten_vec(pieces)
+                                })
                     }
                 }
-            };
-        match choice_res {
-            Matched(pos, value) => Matched(pos, value),
-            Failed => {
-                let start_pos = pos;
-                {
-                    let seq_res = slice_eq(input, state, pos, "");
-                    match seq_res {
-                        Matched(pos, _) => {
-                            {
-                                let match_str = &input[start_pos..pos];
-                                Matched(pos, { Vec::new() })
-                            }
-                        }
-                        Failed => Failed,
-                    }
-                }
+                Failed => Failed,
             }
         }
     }
@@ -834,6 +872,10 @@ fn parse_PARSER_PARAMS_END<'input>(input: &'input str, state: &mut ParseState,
                                    pos: usize) -> RuleResult<()> {
     slice_eq(input, state, pos, ")")
 }
+fn parse_NEW_LINE<'input>(input: &'input str, state: &mut ParseState,
+                          pos: usize) -> RuleResult<()> {
+    slice_eq(input, state, pos, "\n")
+}
 fn parse_parser_name<'input>(input: &'input str, state: &mut ParseState,
                              pos: usize) -> RuleResult<&'input str> {
     {
@@ -1023,7 +1065,27 @@ fn parse_literal<'input>(input: &'input str, state: &mut ParseState,
                                     };
                                 match seq_res {
                                     Matched(pos, _) => {
-                                        any_char(input, state, pos)
+                                        {
+                                            let seq_res =
+                                                {
+                                                    let assert_res =
+                                                        parse_NEW_LINE(input,
+                                                                       state,
+                                                                       pos);
+                                                    match assert_res {
+                                                        Failed =>
+                                                        Matched(pos, ()),
+                                                        Matched(..) => Failed,
+                                                    }
+                                                };
+                                            match seq_res {
+                                                Matched(pos, _) => {
+                                                    any_char(input, state,
+                                                             pos)
+                                                }
+                                                Failed => Failed,
+                                            }
+                                        }
                                     }
                                     Failed => Failed,
                                 }
@@ -1173,6 +1235,19 @@ fn parse_int<'input>(input: &'input str, state: &mut ParseState, pos: usize)
             }
         }
     }
+}
+pub fn pattern_file<'input>(input: &'input str)
+ -> ParseResult<Vec<CompiledPattern>> {
+    let mut state = ParseState::new();
+    match parse_pattern_file(input, &mut state, 0) {
+        Matched(pos, value) => { if pos == input.len() { return Ok(value) } }
+        _ => { }
+    }
+    let (line, col) = pos_to_line(input, state.max_err_pos);
+    Err(ParseError{line: line,
+                   column: col,
+                   offset: state.max_err_pos,
+                   expected: state.expected,})
 }
 pub fn pattern<'input>(input: &'input str) -> ParseResult<CompiledPattern> {
     let mut state = ParseState::new();
