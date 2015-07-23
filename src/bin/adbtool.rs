@@ -54,7 +54,7 @@ fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, '
 fn handle_validate(matches: &ArgMatches) {
     let pattern_file = matches.value_of(PATTERN_FILE).unwrap();
     if let Err(e) = Factory::from_file(pattern_file) {
-        println!("{:?}", e);
+        println!("{}", e);
         std::process::exit(1);
     }
 }
@@ -65,7 +65,7 @@ fn handle_parse(matches: &ArgMatches) {
     let output_file = matches.value_of(OUTPUT_FILE).unwrap();
 
     if let Err(e) = parse::parse(pattern_file, input_file, output_file) {
-        error!("{:?}", e);
+        error!("{}", e);
         std::process::exit(1);
     }
 }
@@ -86,6 +86,6 @@ fn main() {
     } else if let Some(matches) = matches.subcommand_matches(PARSE) {
         handle_parse(&matches);
     } else {
-        error!("{:?}", matches.usage.as_ref().unwrap());
+        error!("{}", matches.usage.as_ref().unwrap());
     }
 }
