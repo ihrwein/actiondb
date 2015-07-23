@@ -1,10 +1,7 @@
 use std::iter;
-use grammar::parser;
-use std::io::{self, BufReader, BufRead};
-use std::fs;
 use matcher::pattern::Pattern;
 use matcher::pattern::source::BuildResult;
-use matcher::matcher::builder::BuildError;
+use matcher::trie::node::CompiledPattern;
 
 use super::PlainPatternFile;
 
@@ -13,32 +10,33 @@ impl iter::IntoIterator for PlainPatternFile {
     type IntoIter = IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        IntoIter{lines: self.reader().lines()}
+        IntoIter::new(self.patterns())
     }
 }
 
 pub struct IntoIter {
-    lines: io::Lines<io::BufReader<fs::File>>
+    patterns: Vec<CompiledPattern>
+}
+
+impl IntoIter {
+    fn new(patterns: Vec<CompiledPattern>) -> IntoIter {
+        IntoIter{
+            patterns: patterns,
+        }
+    }
 }
 
 impl Iterator for IntoIter {
     type Item = BuildResult;
 
     fn next(&mut self) -> Option<Self::Item> {
-        match self.lines.next() {
-            Some(Ok(line)) => {
-                match parser::pattern(&line) {
-                    Ok(compiled_pattern) => {
-                        let mut pattern = Pattern::with_random_uuid();
-                        pattern.set_pattern(compiled_pattern);
-                        Some(Ok(pattern))
-                    },
-                    Err(err) => {
-                        Some(Err(BuildError::from(super::Error::PatternParse(err))))
-                    }
-                }
+        match self.patterns.pop() {
+            Some(compiled_pattern) => {
+                let mut pattern = Pattern::with_random_uuid();
+                pattern.set_pattern(compiled_pattern);
+                Some(Ok(pattern))
             },
-            _ => {
+            None => {
                 None
             }
         }

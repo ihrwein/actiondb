@@ -1,4 +1,4 @@
-pub use self::error::TestPairsError;
+pub use self::error::Error;
 pub use self::message::TestMessage;
 
 #[cfg(test)]

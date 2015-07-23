@@ -7,12 +7,15 @@ use utils;
 use std::str::FromStr;
 
 #[pub]
+pattern_file -> Vec<CompiledPattern>
+  = patterns:(pattern ++ NEW_LINE) NEW_LINE? { patterns }
+
+#[pub]
 pattern -> CompiledPattern
   = pieces:pattern_piece+ {
     let mut pieces = pieces;
     utils::flatten_vec(pieces)
   }
-  / "" { Vec::new() }
 
 pattern_piece -> Vec<TokenType>
   = parser_GREEDY
@@ -95,6 +98,7 @@ PARSER_BEGIN = "%{"
 PARSER_END = "}"
 PARSER_PARAMS_BEGIN = "("
 PARSER_PARAMS_END = ")"
+NEW_LINE = "\n"
 parser_name -> &'input str
   = ":" name:identifier { name }
 
@@ -105,7 +109,7 @@ string -> &'input str
   = '"' s:all_chars_until_quotation_mark '"' { s }
 
 literal -> &'input str
-  = (!PARSER_BEGIN .)+ { match_str }
+  = (!PARSER_BEGIN !NEW_LINE .)+ { match_str }
 
 all_chars_until_quotation_mark -> &'input str
   = (!'"' .)+ { match_str }
