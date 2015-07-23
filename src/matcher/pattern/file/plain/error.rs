@@ -1,6 +1,7 @@
 use grammar::parser::ParseError;
 use std::io;
 use std::fmt;
+use std::error;
 
 #[derive(Debug)]
 pub enum Error {
@@ -25,6 +26,22 @@ impl fmt::Display for Error {
         match self {
             &Error::PatternParse(ref error) => error.fmt(formatter),
             &Error::IO(ref error) => error.fmt(formatter)
+        }
+    }
+}
+
+impl error::Error for Error {
+    fn description(&self) -> &str {
+        match self {
+            &Error::PatternParse(ref error) => error.description(),
+            &Error::IO(ref error) => error.description()
+        }
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        match self {
+            &Error::PatternParse(ref error) => error.cause(),
+            &Error::IO(ref error) => error.cause()
         }
     }
 }
