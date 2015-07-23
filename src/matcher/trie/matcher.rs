@@ -10,4 +10,7 @@ impl Matcher for ParserTrie {
     fn add_pattern(&mut self, pattern: Pattern) {
         self.insert(pattern);
     }
+    fn boxed_clone(&self) -> Box<Matcher> {
+        Box::new(self.clone())
+    }
 }
