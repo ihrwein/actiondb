@@ -7,7 +7,6 @@ pub enum BuildError {
     FromSerialized(serialized::Error),
     FromPlain(plain::Error),
     TestPairs(testmessage::TestPairsError),
-    TestMessageDoesntMatch,
     UnsupportedFileExtension,
     NotUtf8FileName
 }
