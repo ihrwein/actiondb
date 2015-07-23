@@ -6,7 +6,7 @@ use matcher::pattern::testmessage;
 pub enum BuildError {
     FromSerialized(serialized::Error),
     FromPlain(plain::Error),
-    TestPairs(testmessage::TestPairsError),
+    TestPairs(testmessage::Error),
     UnsupportedFileExtension,
     NotUtf8FileName
 }
@@ -23,8 +23,8 @@ impl From<plain::Error> for BuildError {
     }
 }
 
-impl From<testmessage::TestPairsError> for BuildError {
-    fn from(error: testmessage::TestPairsError) -> BuildError {
+impl From<testmessage::Error> for BuildError {
+    fn from(error: testmessage::Error) -> BuildError {
         BuildError::TestPairs(error)
     }
 }

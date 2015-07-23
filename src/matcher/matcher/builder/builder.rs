@@ -1,5 +1,5 @@
 use matcher::pattern::{Pattern, PatternSource};
-use matcher::pattern::testmessage::{TestMessage, TestPairsError};
+use matcher::pattern::testmessage::{self, TestMessage};
 use matcher::Matcher;
 use super::BuildError;
 
@@ -27,7 +27,7 @@ impl Builder {
 
     fn check_test_messages(matcher: &Matcher, messages: &[TestMessage]) -> Result<(), BuildError> {
         for msg in messages {
-            let result = try!(matcher.parse(msg.message()).ok_or(TestPairsError::TestMessageDoesntMatch));
+            let result = try!(matcher.parse(msg.message()).ok_or(testmessage::Error::TestMessageDoesntMatch));
             try!(msg.test_pairs(result.pairs()));
         }
         Ok(())
