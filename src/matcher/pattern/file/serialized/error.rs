@@ -1,5 +1,6 @@
 use std::io;
 use std::fmt;
+use std::error;
 
 pub use self::deser::DeserError;
 
@@ -26,6 +27,22 @@ impl fmt::Display for Error {
         match self {
             &Error::IO(ref error) => error.fmt(formatter),
             &Error::Deser(ref error) => error.fmt(formatter)
+        }
+    }
+}
+
+impl error::Error for Error {
+    fn description(&self) -> &str {
+        match self {
+            &Error::IO(ref error) => error.description(),
+            &Error::Deser(ref error) => error.description()
+        }
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        match self {
+            &Error::IO(ref error) => error.cause(),
+            &Error::Deser(ref error) => error.cause()
         }
     }
 }
