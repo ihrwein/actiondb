@@ -33,7 +33,9 @@ ActionDB will generate a random UUID for each pattern. If there is a syntax erro
 the rest won't be checked and ActionDB returns an error.
 
 ### JSON pattern files
-These files contains patterns and their attributes. A JSON file looks like the following example
+These files contains patterns and their attributes. Their schema is defined [here](patterns-schema.json)
+
+ A JSON file looks like the following example
 
 ```json
 {
