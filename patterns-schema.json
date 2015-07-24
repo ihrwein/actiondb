@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+    "pattern": {
+      "type": "object",
+      "properties": {
+        "uuid": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "test_messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/test_message"
+          }
+        }
+      },
+      "required": [
+        "uuid",
+        "pattern"
+      ]
+    },
+    "test_message": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "description": "string values"
+          }
+        }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "patterns": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/pattern"
+      }
+    }
+  }
+}
