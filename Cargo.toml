@@ -7,6 +7,7 @@ repository = "https://github.com/ihrwein/actiondb"
 readme = "README.md"
 keywords = ["log", "parser"]
 description = "A safe and efficient unstructured text (log) parsing library."
+license = "LGPL-2.1"
 
 [[bin]]
 name = "adbtool"
