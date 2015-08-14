@@ -17,6 +17,7 @@
         "add1": "v1",
         "add2": "v2"
       },
+      "tags": ["foo", "bar", "baz"],
       "test_messages":[
        {
          "message":"Jun 25 14:09:41 lobotomy sshd[26478]: pam_unix(sshd:session): session closed for user zts",
@@ -28,7 +29,8 @@
            "pid":"26478",
            "add1":"v1",
            "add2":"v2"
-         }
+         },
+        "tags": ["foo", "bar", "baz"]
        }
      ]
     }
