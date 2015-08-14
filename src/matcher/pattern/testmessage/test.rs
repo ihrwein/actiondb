@@ -43,7 +43,7 @@ fn test_given_json_test_message_when_it_does_not_have_a_message_field_then_error
 }
 
 #[test]
-fn test_given_json_test_message_when_it_does_not_have_values_field_then_it_can_be_loaded_successfully() {
+fn test_given_json_test_message_when_it_does_not_have_the_optional_fields_then_it_can_be_loaded_successfully() {
     let buffer = r#"
 {
 "message": "lame-servers: info: unexpected RCODE (REFUSED) resolving 'ns1.example.org/AAAA/IN': 192.0.2.1#53"
