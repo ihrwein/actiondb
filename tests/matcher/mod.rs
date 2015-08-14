@@ -56,3 +56,10 @@ fn test_given_plain_file_when_matcher_is_created_by_factory_then_the_right_file_
     println!("{:?}", &matcher);
     matcher.ok().expect("Failed to create a Matcher from a valid JSON pattern file");
 }
+
+#[test]
+fn test_given_json_file_when_the_tests_contain_tags_but_the_pattern_does_not_have_them_then_we_fail() {
+    let pattern_file_path = "tests/matcher/ssh_tags_are_not_there.json";
+    let matcher = Factory::from_json_file(pattern_file_path);
+    matcher.err().expect("Failed to get an error when the expected number of tags doesn't match with the got one");
+}
