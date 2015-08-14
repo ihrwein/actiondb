@@ -28,6 +28,16 @@ impl TestMessage {
 
     pub fn test_result(&self, result: &MatchResult) -> Result<(), Error> {
         try!(self.test_pairs(result.pairs()));
+        if let Some(values) = result.pattern().values() {
+            try!(self.test_additional_values(values));
+        }
+        Ok(())
+    }
+
+    fn test_additional_values(&self, values: &BTreeMap<String, String>) -> Result<(), Error> {
+        for (key, value) in values {
+            try!(self.test_value(key, value));
+        }
         Ok(())
     }
 
