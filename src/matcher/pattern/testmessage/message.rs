@@ -1,5 +1,7 @@
 use std::collections::BTreeMap;
 use std::borrow::Borrow;
+
+use matcher::result::MatchResult;
 use super::Error;
 
 #[derive(Clone, Debug)]
@@ -24,7 +26,12 @@ impl TestMessage {
         &self.values
     }
 
-    pub fn test_pairs(&self, pairs: &[(&str, &str)]) -> Result<(), Error> {
+    pub fn test_result(&self, result: &MatchResult) -> Result<(), Error> {
+        try!(self.test_pairs(result.pairs()));
+        Ok(())
+    }
+
+    fn test_pairs(&self, pairs: &[(&str, &str)]) -> Result<(), Error> {
         if pairs.len() != self.values().len() {
             Err(Error::invalid_length(self.values.len(), pairs.len()))
         } else  {
