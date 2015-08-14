@@ -63,12 +63,15 @@ A pattern object consists of the following key-value pairs:
 * `uuid`: it's a required field and contains a UUID,
 * `name`: it's an optional field and contains the name of the pattern. Currently there is no restriction about the valid character set.
 * `pattern`: it's the same thing as defined in [Patterns](#patterns)
+* `values`: it's an optional field and contains additional key-value pairs which should be added to the matching message
+* `tags`: it's and optional array and contains tags which should be added to the matching message
 * `test_messages`: it's an array of test messages which can be used to test the patters.
 
 A test message object has the following key-value pairs:
 * `message`: a string message which should be parsed,
 * `values`: an object which defines the expected key-value pairs after the parsing. Every key and value
  must be strings.
+* `tags`: the expected tags
 
 An example test message object can be seen in the following example:
 
@@ -79,6 +82,10 @@ An example test message object can be seen in the following example:
       "uuid":"6d2cba0c-e241-464a-89c3-8035cac8f73e",
       "name":"LOGGEN",
       "pattern":"seq: %{INT:.loggen.seq}, thread: %{INT:.loggen.thread}, runid: %{INT:.loggen.runid}, stamp: %{GREEDY:.loggen.stamp} %{GREEDY:.loggen.padding}",
+      "values": {
+        "foo": "bar"
+      },
+      "tags": ["foo", "bar"],
       "test_messages":[  
         {  
           "message":"seq: 0000000001, thread: 0000, runid: 1437655178, stamp: 2015-07-23T14:39:38 PADDPADDPADDPADD",
