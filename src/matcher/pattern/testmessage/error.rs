@@ -6,7 +6,8 @@ pub enum Error {
     InvalidLength{expected: usize, got: usize},
     ValueNotMatch{key: String, expected_value: String, got_value: String},
     KeyNotFound{key: String},
-    TestMessageDoesntMatch
+    TestMessageDoesntMatch,
+    UnexpectedTags{expected: Option<Vec<String>>, got: Option<Vec<String>>}
 }
 
 impl Error {
@@ -25,6 +26,13 @@ impl Error {
     pub fn test_message_does_not_match() -> Error {
         Error::TestMessageDoesntMatch
     }
+
+    pub fn unexpected_tags(expected: Option<Vec<String>>, got: Option<Vec<String>>) -> Error {
+        Error::UnexpectedTags {
+            expected: expected,
+            got: got
+        }
+    }
 }
 
 impl fmt::Display for Error {
@@ -41,6 +49,9 @@ impl fmt::Display for Error {
             }
             &Error::TestMessageDoesntMatch => {
                 fmt.write_str("A test message cannot be parsed but its pattern is inserted")
+            },
+            &Error::UnexpectedTags{ref expected, ref got} => {
+                fmt.write_fmt(format_args!("Unexpected tags found either in the parse result or among the expected ones: expected: {:?} got={:?}", expected, got))
             }
         }
     }
@@ -60,6 +71,9 @@ impl error::Error for Error {
             },
             &Error::TestMessageDoesntMatch => {
                 "A test message cannot be parsed but its pattern is inserted"
+            },
+            &Error::UnexpectedTags{expected: _, got: _} => {
+                "Unexpected tags found either in the parse result or among the expected ones"
             }
         }
     }
