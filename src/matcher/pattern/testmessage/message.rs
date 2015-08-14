@@ -27,6 +27,7 @@ impl TestMessage {
     }
 
     pub fn test_result(&self, result: &MatchResult) -> Result<(), Error> {
+        try!(self.test_length(result));
         try!(self.test_pairs(result.pairs()));
         if let Some(values) = result.pattern().values() {
             try!(self.test_additional_values(values));
@@ -41,15 +42,21 @@ impl TestMessage {
         Ok(())
     }
 
-    fn test_pairs(&self, pairs: &[(&str, &str)]) -> Result<(), Error> {
-        if pairs.len() != self.values().len() {
-            Err(Error::invalid_length(self.values.len(), pairs.len()))
-        } else  {
-            self.test_pairs_values(pairs)
+    fn test_length(&self, result: &MatchResult) -> Result<(), Error> {
+        let values_num = self.calc_values_number(result);
+        if values_num != self.values().len() {
+            Err(Error::invalid_length(self.values.len(), values_num))
+        } else {
+            Ok(())
         }
     }
 
-    pub fn test_pairs_values(& self, pairs: &[(&str, &str)]) -> Result<(), Error> {
+    fn calc_values_number(&self, result: &MatchResult) -> usize {
+        result.pairs().len() +
+        result.pattern().values().map_or(0, |values| values.len())
+    }
+
+    pub fn test_pairs(& self, pairs: &[(&str, &str)]) -> Result<(), Error> {
         for &(key, value) in pairs {
             try!(self.test_value(key, value));
         }
