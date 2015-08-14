@@ -1,0 +1,38 @@
+{
+  "patterns": [
+    {
+      "uuid": "c11c806a-766d-4a09-9f24-7de1fe02e51e",
+      "name": "SSH_PUBKEY",
+      "pattern": "Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Accepted publickey for zts from %{INT:oct0}.%{INT:oct1}.%{INT:oct2}.%{INT:oct3} port %{INT:port} ssh2"
+    },
+    {
+      "name": "SSH_DISCONNECT",
+      "uuid": "9a49c47d-29e9-4072-be84-3b76c6814743",
+      "pattern": "Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Received disconnect from %{GREEDY:ipaddr}: %{INT:dunno}: disconnected by user"
+    },
+    {
+      "uuid": "fa8bdbcb-e0fd-4da1-9fa4-15ecfec28ad2",
+      "pattern": "Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: pam_unix(sshd:session): session closed for user zts",
+      "values": {
+        "add1": "v1",
+        "add2": "v2"
+      },
+      "tags": ["foo", "baz"],
+      "test_messages":[
+       {
+         "message":"Jun 25 14:09:41 lobotomy sshd[26478]: pam_unix(sshd:session): session closed for user zts",
+         "values":{
+           "day":"25",
+           "hour":"14",
+           "min":"09",
+           "sec":"41",
+           "pid":"26478",
+           "add1":"v1",
+           "add2":"v2"
+         },
+        "tags": ["foo", "bar", "baz"]
+       }
+     ]
+    }
+  ]
+}
