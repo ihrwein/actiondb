@@ -165,7 +165,12 @@ if ($opt -> patterns) {
 	my $p_id;
 	while (my ($uuid, $rule) = each %rule) {
 		my $ruleset = $rule -> {ruleset};
-		my @programs = @{$ruleset{$ruleset}->{patterns}};
+		my @programs;
+		if (ref $ruleset{$ruleset}->{patterns} eq "ARRAY") {
+			@programs = @{$ruleset{$ruleset}->{patterns}}
+		} else {
+			@programs = ($ruleset{$ruleset}->{patterns})
+		}
 		if (@programs > 1) {
 			warn "rule `${uuid}` belongs to a ruleset with multiple patterns (or programs). You must manually check it\n";
 		}
@@ -238,6 +243,8 @@ sub _unescape_pattern {
 
 sub _validate_pattern {
 	my ($type,$key,$opt) = split(/:/,$_[0]);
+	$key ||= "";
+	$type ||= "";
 	for ($type) {
 		if (/^$/) {
 			return "";
