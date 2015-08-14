@@ -34,6 +34,7 @@ impl TestMessage {
 
     pub fn test_result(&self, result: &MatchResult) -> Result<(), Error> {
         try!(self.test_length(result));
+        try!(self.test_tags(result));
         try!(self.test_pairs(result.pairs()));
         if let Some(values) = result.pattern().values() {
             try!(self.test_additional_values(values));
@@ -79,6 +80,16 @@ impl TestMessage {
             }
         } else {
             Err(Error::key_not_found(key))
+        }
+    }
+
+    fn test_tags(&self, result: &MatchResult) -> Result<(), Error> {
+        if self.tags() == result.pattern().tags() {
+            Ok(())
+        } else {
+            let expected = self.tags().map(|tags| { tags.to_vec() });
+            let got = result.pattern().tags().map(|tags| { tags.to_vec() });
+            Err(Error::unexpected_tags(expected, got))
         }
     }
 }
