@@ -263,11 +263,11 @@ sub _validate_pattern {
 			return "%{INT:$key}";
 		} elsif (/^STRING$/) {
 				if ($opt) {
-					my $adbset = "SET(AZERTYUIOPQSDFGHJKLMWXCVBNazertyuiopqsdfghjklmwxcvbn1234567890$opt)";
+					my $adbset = "SET(\"AZERTYUIOPQSDFGHJKLMWXCVBNazertyuiopqsdfghjklmwxcvbn1234567890$opt\")";
 					warn "pdb(`$type`) with options `$opt` partially supported by $adbset\n";
 					return "%{$adbset:$key}";
 				}
-			return "%{SET(AZERTYUIOPQSDFGHJKLMWXCVBNazertyuiopqsdfghjklmwxcvbn1234567890):$key}";
+			return "%{SET(\"AZERTYUIOPQSDFGHJKLMWXCVBNazertyuiopqsdfghjklmwxcvbn1234567890\"):$key}";
 		} elsif (/^PCRE$/) {
 			return "%{SET($opt):$key}";
 		} elsif (/^ANYSTRING$/) {
