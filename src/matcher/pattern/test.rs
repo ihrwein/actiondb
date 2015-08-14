@@ -11,11 +11,13 @@ fn test_given_json_document_when_it_does_not_contain_errors_then_pattern_can_be_
   "values": {
       "key1": "value1",
       "key2": "value2"
-  }
+  },
+  "tags": ["tag1", "tag2"]
 }
 "#;
 
     let expected_uuid = Uuid::parse_str("9a49c47d-29e9-4072-be84-3b76c6814743").ok().unwrap();
+    let expected_tags = &["tag1".to_string(), "tag2".to_string()];
     let result = Pattern::from_json(buffer);
     println!("{:?}", result);
     let pattern = result.ok().expect("Failed to deserialize a JSON Pattern");
@@ -28,6 +30,7 @@ fn test_given_json_document_when_it_does_not_contain_errors_then_pattern_can_be_
                                 .get("key2")
                                 .expect("Pattern created from JSON but it doesn't contain the expected additional value"), "value2");
     assert_eq!(pattern.values().expect("").get("key3"), None);
+    assert_eq!(pattern.tags().expect("Pattern created from JSON but it doesn't contain the expected tags"), expected_tags);
     assert_eq!(pattern.pattern().len(), 15);
 }
 
