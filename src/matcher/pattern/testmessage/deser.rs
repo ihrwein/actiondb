@@ -13,6 +13,7 @@ impl serde::Deserialize for TestMessage {
 enum Field {
     MESSAGE,
     VALUES,
+    TAGS,
 }
 
 impl serde::Deserialize for Field {
@@ -30,6 +31,7 @@ impl serde::Deserialize for Field {
                 match value {
                     "message" => Ok(Field::MESSAGE),
                     "values" => Ok(Field::VALUES),
+                    "tags" => Ok(Field::TAGS),
                     _ => Err(serde::de::Error::syntax_error()),
                 }
             }
@@ -50,11 +52,13 @@ impl serde::de::Visitor for TestMessageVisitor {
     {
         let mut message = None;
         let mut values = None;
+        let mut tags = None;
 
         loop {
             match try!(visitor.visit_key()) {
                 Some(Field::MESSAGE) => { message = Some(try!(visitor.visit_value())); }
                 Some(Field::VALUES) => { values = Some(try!(visitor.visit_value())); }
+                Some(Field::TAGS) => { tags = Some(try!(visitor.visit_value())); }
                 None => { break; }
             }
         }
@@ -71,6 +75,6 @@ impl serde::de::Visitor for TestMessageVisitor {
 
         try!(visitor.end());
 
-        Ok(TestMessage::new(message_final, values_final))
+        Ok(TestMessage::new(message_final, values_final, tags))
     }
 }

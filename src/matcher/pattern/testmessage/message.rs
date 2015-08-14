@@ -7,14 +7,16 @@ use super::Error;
 #[derive(Clone, Debug)]
 pub struct TestMessage {
     message: String,
-    values: BTreeMap<String, String>
+    values: BTreeMap<String, String>,
+    tags: Option<Vec<String>>
 }
 
 impl TestMessage {
-    pub fn new(message: String, values: BTreeMap<String, String>) -> TestMessage {
+    pub fn new(message: String, values: BTreeMap<String, String>, tags: Option<Vec<String>>) -> TestMessage {
         TestMessage{
             message: message,
-            values: values
+            values: values,
+            tags: tags
         }
     }
 
@@ -24,6 +26,10 @@ impl TestMessage {
 
     pub fn values(&self) -> &BTreeMap<String, String> {
         &self.values
+    }
+
+    pub fn tags(&self) -> Option<&[String]> {
+        self.tags.as_ref().map(|x| x.borrow())
     }
 
     pub fn test_result(&self, result: &MatchResult) -> Result<(), Error> {
