@@ -6,12 +6,14 @@ use matcher::trie::node::{CompiledPattern, TokenType};
 use super::testmessage::TestMessage;
 
 use std::borrow::Borrow;
+use std::collections::BTreeMap;
 
 #[derive(Clone, Debug)]
 pub struct Pattern {
     name: Option<String>,
     uuid: Uuid,
     pattern: CompiledPattern,
+    values: Option<BTreeMap<String, String>>,
     test_messages: Option<Vec<TestMessage>>
 }
 
@@ -21,15 +23,17 @@ impl Pattern {
             uuid: uuid,
             name: None,
             pattern: Vec::new(),
+            values: None,
             test_messages: None
         }
     }
 
-    pub fn new(name: Option<String>, uuid: Uuid, pattern: CompiledPattern, test_messages: Option<Vec<TestMessage>>) -> Pattern {
+    pub fn new(name: Option<String>, uuid: Uuid, pattern: CompiledPattern, test_messages: Option<Vec<TestMessage>>, values: Option<BTreeMap<String, String>>) -> Pattern {
         Pattern{
             uuid: uuid,
             name: name,
             pattern: pattern,
+            values: values,
             test_messages: test_messages
         }
     }
@@ -48,6 +52,10 @@ impl Pattern {
 
     pub fn pattern(&self) -> &CompiledPattern {
         &self.pattern
+    }
+
+    pub fn values(&self) -> Option<&BTreeMap<String, String>> {
+        self.values.as_ref()
     }
 
     pub fn from_json(doc: &str) -> Result<Pattern, serde::json::error::Error> {

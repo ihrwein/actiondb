@@ -6,6 +6,8 @@ use grammar::pattern_parser;
 use serde;
 use uuid::Uuid;
 
+use std::collections::BTreeMap;
+
 impl serde::Deserialize for Pattern {
     fn deserialize<D>(deserializer: &mut D) -> Result<Pattern, D::Error>
         where D: serde::de::Deserializer
@@ -18,6 +20,7 @@ enum Field {
     NAME,
     UUID,
     PATTERN,
+    VALUES,
     TESTMESSAGES,
 }
 
@@ -37,6 +40,7 @@ impl serde::Deserialize for Field {
                     "name" => Ok(Field::NAME),
                     "uuid" => Ok(Field::UUID),
                     "pattern" => Ok(Field::PATTERN),
+                    "values" => Ok(Field::VALUES),
                     "test_messages" => Ok(Field::TESTMESSAGES),
                     _ => Err(serde::de::Error::syntax_error()),
                 }
@@ -59,6 +63,7 @@ impl serde::de::Visitor for PatternVisitor {
         let mut name = None;
         let mut uuid = None;
         let mut pattern: Option<String> = None;
+        let mut values: Option<BTreeMap<String, String>> = None;
         let mut test_messages: Option<Vec<TestMessage>> = None;
 
         loop {
@@ -72,6 +77,7 @@ impl serde::de::Visitor for PatternVisitor {
                     }
                 }
                 Some(Field::PATTERN) => { pattern = Some(try!(visitor.visit_value())); }
+                Some(Field::VALUES) => { values = Some(try!(visitor.visit_value())); }
                 Some(Field::TESTMESSAGES) => { test_messages = Some(try!(visitor.visit_value())); }
                 None => { break; }
             }
@@ -99,6 +105,6 @@ impl serde::de::Visitor for PatternVisitor {
 
         try!(visitor.end());
 
-        Ok(Pattern::new(name, uuid_final, pattern, test_messages))
+        Ok(Pattern::new(name, uuid_final, pattern, test_messages, values))
     }
 }
