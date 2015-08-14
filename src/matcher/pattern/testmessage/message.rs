@@ -41,15 +41,21 @@ impl TestMessage {
 
     pub fn test_pairs_values(& self, pairs: &[(&str, &str)]) -> Result<(), Error> {
         for &(key, value) in pairs {
-            let expected_value = self.values().get(key).map(|x| x.borrow());
-            if let Some(exp) = expected_value {
-                if exp != value {
-                    return Err(Error::value_not_match(key, exp, value));
-                }
-            } else {
-                return Err(Error::key_not_found(key));
-            }
+            try!(self.test_value(key, value));
         }
         Ok(())
+    }
+
+    fn test_value(&self, key: &str, value: &str) -> Result<(), Error> {
+        let expected_value = self.values().get(key).map(|x| x.borrow());
+        if let Some(exp) = expected_value {
+            if exp != value {
+                Err(Error::value_not_match(key, exp, value))
+            } else {
+                Ok(())
+            }
+        } else {
+            Err(Error::key_not_found(key))
+        }
     }
 }
