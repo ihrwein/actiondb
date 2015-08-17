@@ -261,6 +261,13 @@ sub _validate_pattern {
 			return "${a}%{GREEDY:$key}${b}";
 		} elsif (/^NUMBER$/) {
 			return "%{INT:$key}";
+		} elsif (/^HOSTNAME$/) {
+				my $adbset = "SET(\"AZERTYUIOPQSDFGHJKLMWXCVBNazertyuiopqsdfghjklmwxcvbn1234567890-.\")";
+				return "%{$adbset:$key}";
+		} elsif (/^FLOAT|DOUBLE$/) {
+				my $adbset = "SET(\"1234567890.\")";
+				warn "pdb(`$type`) partially supported by $adbset\n";
+				return "%{$adbset:$key}";
 		} elsif (/^STRING$/) {
 				if ($opt) {
 					my $adbset = "SET(\"AZERTYUIOPQSDFGHJKLMWXCVBNazertyuiopqsdfghjklmwxcvbn1234567890$opt\")";
@@ -269,10 +276,11 @@ sub _validate_pattern {
 				}
 			return "%{SET(\"AZERTYUIOPQSDFGHJKLMWXCVBNazertyuiopqsdfghjklmwxcvbn1234567890\"):$key}";
 		} elsif (/^PCRE$/) {
-			return "%{SET($opt):$key}";
+			warn "unsupported pattern parser `$type`\n";
+			return
 		} elsif (/^ANYSTRING$/) {
 			return "%{GREEDY:$key}";
-		} elsif (/^(IPvANY|MACADDR)/) {
+		} elsif (/^(IPvANY|MACADDR|IPv4|LLADDR)/) {
 			warn "pdb(`$type`) will use adb('GREEDY') which may match your messages differently.\n";
 			return "%{GREEDY:$key}"
 		} else {
