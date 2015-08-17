@@ -175,7 +175,27 @@ if ($opt -> patterns) {
 			warn "rule `${uuid}` belongs to a ruleset with multiple patterns (or programs). You must manually check it\n";
 		}
 		my $program = $programs[0];
+		unless (defined $program) {
+			warn "rule `${uuid}` belongs to ruleset with no pattern/program. This is unsupported\n";
+			next;
+		}
 		my @test_messages = _test_messages($rule -> {examples});
+		my %extra_values;
+		my %extra_tags;
+		if ($rule -> {values}) {
+			for (my ($k,$v) = each %{$rule -> {values}}) {
+				for ($v) {
+					if (/\$\(/) {
+						warn "rule `${uuid}` contains key-value with macro: `${k}=${v}`. Unsupported\n"
+					} else {
+						$extra_values{values}->{$k} = $v;
+					}
+				}
+			}
+		}
+		if ($rule -> {tags}) {
+			%extra_tags = ( tags => $rule -> {tags})
+		}
 		if (@test_messages > 0 && @{$rule->{patterns}} > 1) {
 			warn "rule `${uuid}` has multiple patterns *and* test_messages. You must manually redistribute test_messages\n";
 		}
@@ -185,6 +205,8 @@ if ($opt -> patterns) {
 				pattern => "${program}: " . _p2p($pattern),
 				name => $rule->{ruleset} . "_" . $p_id++,
 				test_messages => \@test_messages,
+				%extra_values,
+				%extra_tags,
 			} if _p2p($pattern);
 		}
 	}
@@ -243,13 +265,13 @@ sub _unescape_pattern {
 
 sub _validate_pattern {
 	my ($type,$key,$opt) = split(/:/,$_[0]);
-	$key ||= "";
+	$key ||= "pdb2adb2ignore";
 	$type ||= "";
 	for ($type) {
 		if (/^$/) {
 			return "";
 		} elsif (/^ESTRING$/) {
-			return "%{GREEDY:$key}";
+			return "%{GREEDY:$key}$opt";
 		} elsif (/QSTRING/) {
 			my $a = substr($opt,0,1);
 			my $b;
