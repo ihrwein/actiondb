@@ -63,7 +63,7 @@ impl serde::de::Visitor for PatternVisitor {
         where V: serde::de::MapVisitor
     {
         let mut name = None;
-        let mut uuid = None;
+        let mut uuid: Option<String> = None;
         let mut pattern: Option<String> = None;
         let mut values: Option<BTreeMap<String, String>> = None;
         let mut tags: Option<Vec<String>> = None;
@@ -72,16 +72,7 @@ impl serde::de::Visitor for PatternVisitor {
         loop {
             match try!(visitor.visit_key()) {
                 Some(Field::NAME) => { name = Some(try!(visitor.visit_value())); }
-                Some(Field::UUID) => {
-                    let value: String = try!(visitor.visit_value());
-                    uuid = match Uuid::parse_str(&value) {
-                        Ok(v) => Some(v),
-                        Err(err) => {
-                            error!("Invalid field 'uuid': uuid={:?} error={}", value, err);
-                            try!(Err(serde::de::Error::missing_field_error("uuid")))
-                        }
-                    }
-                }
+                Some(Field::UUID) => { uuid = Some(try!(visitor.visit_value())); }
                 Some(Field::PATTERN) => { pattern = Some(try!(visitor.visit_value())); }
                 Some(Field::VALUES) => { values = Some(try!(visitor.visit_value())); }
                 Some(Field::TAGS) => { tags = Some(try!(visitor.visit_value())); }
@@ -89,6 +80,21 @@ impl serde::de::Visitor for PatternVisitor {
                 None => { break; }
             }
         }
+
+        let uuid = match uuid {
+            Some(uuid) => {
+                match Uuid::parse_str(&uuid) {
+                    Ok(value) => Some(value),
+                    Err(err) => {
+                        error!("Invalid field 'uuid': uuid={:?} error={}", &uuid, err);
+                        None
+                    }
+                }
+            },
+            None => {
+                None
+            }
+        };
 
         let name = match name {
             Some(name) => name,
