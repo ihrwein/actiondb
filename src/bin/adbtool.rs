@@ -3,12 +3,13 @@ extern crate clap;
 #[macro_use]
 extern crate log;
 
+mod logger;
 mod parse;
 
 use clap::{Arg, App, SubCommand, ArgMatches};
 use actiondb::matcher::Factory;
 use log::{LogLevelFilter};
-use actiondb::utils::logger::StdoutLogger;
+use self::logger::StdoutLogger;
 
 const VERSION: &'static str = "0.2.1";
 const AUTHOR: &'static str = "Tibor Benke <tibor.benke@balabit.com>";
@@ -54,7 +55,7 @@ fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, '
 fn handle_validate(matches: &ArgMatches) {
     let pattern_file = matches.value_of(PATTERN_FILE).unwrap();
     if let Err(e) = Factory::from_file(pattern_file) {
-        println!("{}", e);
+        error!("{}", e);
         std::process::exit(1);
     }
 }
