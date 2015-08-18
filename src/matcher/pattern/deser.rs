@@ -56,6 +56,33 @@ impl serde::Deserialize for Field {
 
 struct PatternVisitor;
 
+impl PatternVisitor {
+    pub fn parse_uuid<V: serde::de::MapVisitor>(uuid: Option<String>) -> Result<Uuid, V::Error> {
+        let uuid = match uuid {
+            Some(uuid) => {
+                match Uuid::parse_str(&uuid) {
+                    Ok(value) => Some(value),
+                    Err(err) => {
+                        error!("Invalid field 'uuid': uuid={:?} error={}", &uuid, err);
+                        None
+                    }
+                }
+            },
+            None => {
+                None
+            }
+        };
+
+        match uuid {
+            Some(uuid) => Ok(uuid),
+            None => {
+                //error!("Missing field 'uuid': name={:?}", name);
+                try!(Err(serde::de::Error::missing_field_error("uuid")))
+            }
+        }
+    }
+}
+
 impl serde::de::Visitor for PatternVisitor {
     type Value = Pattern;
 
@@ -81,21 +108,7 @@ impl serde::de::Visitor for PatternVisitor {
             }
         }
 
-        let uuid = match uuid {
-            Some(uuid) => {
-                match Uuid::parse_str(&uuid) {
-                    Ok(value) => Some(value),
-                    Err(err) => {
-                        error!("Invalid field 'uuid': uuid={:?} error={}", &uuid, err);
-                        None
-                    }
-                }
-            },
-            None => {
-                None
-            }
-        };
-
+        let uuid = try!(PatternVisitor::parse_uuid::<V>(uuid));
         let name = match name {
             Some(name) => name,
             None => try!(visitor.missing_field("name")),
@@ -117,16 +130,9 @@ impl serde::de::Visitor for PatternVisitor {
             }
         };
 
-        let uuid_final = match uuid {
-            Some(uuid) => uuid,
-            None => {
-                error!("Missing field 'uuid': name={:?}", name);
-                try!(Err(serde::de::Error::missing_field_error("uuid")))
-            }
-        };
 
         try!(visitor.end());
 
-        Ok(Pattern::new(name, uuid_final, pattern, test_messages, values, tags))
+        Ok(Pattern::new(name, uuid, pattern, test_messages, values, tags))
     }
 }
