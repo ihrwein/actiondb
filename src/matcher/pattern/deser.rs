@@ -76,7 +76,10 @@ impl serde::de::Visitor for PatternVisitor {
                     let value: String = try!(visitor.visit_value());
                     uuid = match Uuid::parse_str(&value) {
                         Ok(v) => Some(v),
-                        Err(_) => try!(Err(serde::de::Error::missing_field_error("uuid")))
+                        Err(err) => {
+                            error!("Invalid field 'uuid': uuid={:?} error={}", value, err);
+                            try!(Err(serde::de::Error::missing_field_error("uuid")))
+                        }
                     }
                 }
                 Some(Field::PATTERN) => { pattern = Some(try!(visitor.visit_value())); }
@@ -96,15 +99,24 @@ impl serde::de::Visitor for PatternVisitor {
             Some(pattern) => {
                 match pattern_parser::pattern(&pattern) {
                     Ok(pattern) => pattern,
-                    Err(_) => try!(Err(serde::de::Error::missing_field_error("pattern")))
+                    Err(err) => {
+                        error!("Invalid field 'pattern': name={:?} uuid={:?} error={}", name, uuid, err);
+                        try!(Err(serde::de::Error::missing_field_error("pattern")))
+                    }
                 }
             },
-            None => try!(Err(serde::de::Error::missing_field_error("pattern"))),
+            None => {
+                error!("Missing field 'pattern': name={:?} uuid={:?}", name, uuid);
+                try!(Err(serde::de::Error::missing_field_error("pattern")))
+            }
         };
 
         let uuid_final = match uuid {
             Some(uuid) => uuid,
-            None => return Err(serde::de::Error::missing_field_error("uuid"))
+            None => {
+                error!("Missing field 'uuid': name={:?}", name);
+                try!(Err(serde::de::Error::missing_field_error("uuid")))
+            }
         };
 
         try!(visitor.end());
