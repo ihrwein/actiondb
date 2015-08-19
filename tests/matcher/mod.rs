@@ -63,3 +63,26 @@ fn test_given_json_file_when_the_tests_contain_tags_but_the_pattern_does_not_hav
     let matcher = Factory::from_json_file(pattern_file_path);
     matcher.err().expect("Failed to get an error when the expected number of tags doesn't match with the got one");
 }
+
+#[test]
+fn test_given_json_file_when_a_pattern_contains_test_tags_then_we_only_check_the_expected_ones() {
+    let pattern_file_path = "tests/matcher/ssh_only_expected_tags_are_checked.json";
+    let matcher = Factory::from_json_file(pattern_file_path);
+    matcher.err().expect("We should only check the expected tags");
+}
+
+#[test]
+fn test_given_json_file_when_a_pattern_contains_test_values_then_we_only_check_the_expected_ones() {
+    let pattern_file_path = "tests/matcher/ssh_only_expected_values_are_checked.json";
+    let matcher = Factory::from_json_file(pattern_file_path);
+    println!("matcher: {:?}", &matcher);
+    matcher.ok().expect("We should only check the expected tags");
+}
+
+#[test]
+fn test_given_json_file_when_an_expected_value_is_not_found_then_we_fail() {
+    let pattern_file_path = "tests/matcher/ssh_when_an_expected_value_is_not_found_we_fail.json";
+    let matcher = Factory::from_json_file(pattern_file_path);
+    println!("matcher: {:?}", &matcher);
+    matcher.err().expect("An expected value was not found but we created the Matcher object");
+}
