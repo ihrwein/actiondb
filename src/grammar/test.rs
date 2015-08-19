@@ -195,3 +195,17 @@ Jun %{INT:day %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Accep
     println!("res: {:?}", &res);
     let _ = res.err().expect("Failed to get error when we parsed a patttern file which contains syntax error(s)");
 }
+
+#[test]
+fn test_given_valid_pattern_when_it_contains_cr_character_then_we_can_parse_it() {
+    let pattern_as_string = "foo %{INT:int_0} \n bar %{INT:int_1}";
+    let res = pattern_parser::pattern(pattern_as_string);
+    println!("{:?}", &res);
+    let vec: Vec<TokenType<>> = res.ok().expect("CR characters should be supported in patterns");
+
+    assert_eq!(vec.len(), 4);
+    assert_literal_equals(vec.get(0), "foo ");
+    assert_parser_name_equals(vec.get(1), "int_0");
+    assert_literal_equals(vec.get(2), " \n bar ");
+    assert_parser_name_equals(vec.get(3), "int_1");
+}
