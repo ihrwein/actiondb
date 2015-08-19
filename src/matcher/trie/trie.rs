@@ -99,7 +99,7 @@ mod test {
         match trie.parse("app23le") {
             Some(res) => {
                 println!("{:?}", res);
-                assert_eq!(res.pairs(), &vec!(("test", "23")));
+                assert_eq!(res.values(), &vec!(("test", "23")));
             },
             None => unreachable!()
         }
@@ -124,7 +124,7 @@ mod test {
 
         match trie.parse("appccc12le") {
             Some(res) => {
-                let mut got = res.pairs().clone();
+                let mut got = res.values().clone();
                 got.sort();
                 println!("{:?}", res);
                 assert_eq!(expected, got);

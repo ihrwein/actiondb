@@ -22,7 +22,7 @@ impl <'a, 'b> MatchResult<'a, 'b> {
         self.pattern
     }
 
-    pub fn pairs(&self) -> &Vec<(&'a str, &'b str)> {
+    pub fn values(&self) -> &Vec<(&'a str, &'b str)> {
         &self.key_value_pairs
     }
 }
