@@ -11,7 +11,7 @@ pub struct ParserTrie {
 macro_rules! insert_recurse {
     ($node:expr, $pattern:expr) => {
         {
-            if $pattern.has_more_tokens() {
+            if !$pattern.has_more_tokens() {
                 $node.set_pattern($pattern);
                 $node
             } else {
@@ -27,7 +27,7 @@ impl ParserTrie {
     }
 
     pub fn insert(&mut self, pattern: Pattern) -> &mut TrieOperations {
-        if pattern.has_more_tokens() {
+        if !pattern.has_more_tokens() {
             &mut self.root
         } else {
             ParserTrie::insert_pattern(&mut self.root, pattern)
