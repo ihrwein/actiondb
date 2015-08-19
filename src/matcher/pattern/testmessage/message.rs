@@ -67,7 +67,7 @@ impl TestMessage {
                 merged_values.insert(key.borrow(), value.borrow());
             }
         }
-        for &(key, value) in result.values() {
+        for (key, value) in result.values() {
             merged_values.insert(key, value);
         }
 

@@ -434,7 +434,7 @@ mod test {
         println!("root: {:?}", &root);
         {
             let result = root.parse("app42letree123");
-            assert_eq!(result.unwrap().values(), &vec!(("end", "123"), ("middle", "42")));
+            assert_eq!(result.unwrap().values(), &btreemap!["end" => "123", "middle" => "42"]);
         }
     }
 

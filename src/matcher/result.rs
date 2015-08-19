@@ -1,28 +1,30 @@
+use std::collections::BTreeMap;
+
 use matcher::Pattern;
 
 #[derive(Debug)]
 pub struct MatchResult<'a, 'b> {
-    key_value_pairs: Vec<(&'a str, &'b str)>,
-    pattern: &'a Pattern
+    pattern: &'a Pattern,
+    values: BTreeMap<&'a str, &'b str>
 }
 
 impl <'a, 'b> MatchResult<'a, 'b> {
     pub fn new(pattern: &'a Pattern) -> MatchResult<'a, 'b> {
         MatchResult{
-            key_value_pairs: Vec::new(),
-            pattern: pattern
+            pattern: pattern,
+            values: BTreeMap::new()
         }
     }
 
     pub fn insert(&mut self, key: &'a str, value: &'b str) {
-        self.key_value_pairs.push((key, value));
+        self.values.insert(key, value);
     }
 
     pub fn pattern(&self) -> &Pattern {
         self.pattern
     }
 
-    pub fn values(&self) -> &Vec<(&'a str, &'b str)> {
-        &self.key_value_pairs
+    pub fn values(&self) -> &BTreeMap<&'a str, &'b str> {
+        &self.values
     }
 }
