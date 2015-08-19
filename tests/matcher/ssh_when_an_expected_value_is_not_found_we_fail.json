@@ -1,0 +1,19 @@
+{
+  "patterns": [
+    {
+      "uuid": "fa8bdbcb-e0fd-4da1-9fa4-15ecfec28ad2",
+      "pattern": "Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: pam_unix(sshd:session): session closed for user zts",
+      "values": {
+        "key": "value"
+      },
+      "test_messages":[
+       {
+         "message":"Jun 25 14:09:41 lobotomy sshd[26478]: pam_unix(sshd:session): session closed for user zts",
+         "values":{
+           "not_there":"v2"
+         }
+       }
+     ]
+    }
+  ]
+}
