@@ -33,7 +33,6 @@ impl TestMessage {
     }
 
     pub fn test_result(&self, result: &MatchResult) -> Result<(), Error> {
-        try!(self.test_length(result));
         try!(self.test_tags(result));
         try!(self.test_pairs(result.pairs()));
         if let Some(values) = result.pattern().values() {
@@ -47,20 +46,6 @@ impl TestMessage {
             try!(self.test_value(key, value));
         }
         Ok(())
-    }
-
-    fn test_length(&self, result: &MatchResult) -> Result<(), Error> {
-        let values_num = self.calc_values_number(result);
-        if values_num != self.values().len() {
-            Err(Error::invalid_length(self.values.len(), values_num))
-        } else {
-            Ok(())
-        }
-    }
-
-    fn calc_values_number(&self, result: &MatchResult) -> usize {
-        result.pairs().len() +
-        result.pattern().values().map_or(0, |values| values.len())
     }
 
     pub fn test_pairs(& self, pairs: &[(&str, &str)]) -> Result<(), Error> {
