@@ -78,7 +78,7 @@ impl Pattern {
     }
 
     pub fn has_more_tokens(&self) -> bool {
-        self.pattern.is_empty()
+        !self.pattern.is_empty()
     }
 
     pub fn pop_test_message(&mut self) -> Option<TestMessage> {
