@@ -56,7 +56,7 @@ impl ParserNode {
     fn push_last_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: (&'a str, &'b str)) -> Option<MatchResult<'a, 'b>> {
         if text.is_empty() {
             let mut result = MatchResult::new(self.pattern().unwrap());
-            result.push_pair(kvpair.0, kvpair.1);
+            result.insert(kvpair.0, kvpair.1);
             Some(result)
         } else {
             None

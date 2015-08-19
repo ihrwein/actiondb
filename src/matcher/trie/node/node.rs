@@ -180,7 +180,7 @@ impl Node {
 
     pub fn parse_then_push_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: (&'a str, &'b str)) -> Option<MatchResult<'a, 'b>> {
         if let Some(mut result) = self.parse(text) {
-            result.push_pair(kvpair.0, kvpair.1);
+            result.insert(kvpair.0, kvpair.1);
             Some(result)
         } else {
             None

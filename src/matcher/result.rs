@@ -14,7 +14,7 @@ impl <'a, 'b> MatchResult<'a, 'b> {
         }
     }
 
-    pub fn push_pair(&mut self, key: &'a str, value: &'b str) {
+    pub fn insert(&mut self, key: &'a str, value: &'b str) {
         self.key_value_pairs.push((key, value));
     }
 
