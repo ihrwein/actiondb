@@ -7,6 +7,9 @@ use Digest::MD5;
 use Getopt::Long::Descriptive;
 no warnings 'once';
 use JSON::MaybeXS;
+use Data::UUID;
+
+my $ug = Data::UUID -> new();
 
 my ($opt, $usage) = describe_options(
     '%c %o <some-arg>',
@@ -199,15 +202,18 @@ if ($opt -> patterns) {
 		if (@test_messages > 0 && @{$rule->{patterns}} > 1) {
 			warn "rule `${uuid}` has multiple patterns *and* test_messages. You must manually redistribute test_messages\n";
 		}
+		my $pattern_uuid = $uuid;
 		for my $pattern (@{$rule->{patterns}}) {
 			push @adb_pattern, {
-				uuid => $uuid,
+				uuid => $pattern_uuid,
 				pattern => "${program}: " . _p2p($pattern),
 				name => $rule->{ruleset} . "_" . $p_id++,
 				test_messages => \@test_messages,
 				%extra_values,
 				%extra_tags,
 			} if _p2p($pattern);
+			$pattern_uuid = $ug->create();
+			$pattern_uuid = $ug -> to_string($pattern_uuid);
 		}
 	}
 	#use DDP;p@adb_pattern;
