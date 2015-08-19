@@ -69,12 +69,28 @@ impl TestMessage {
     }
 
     fn test_tags(&self, result: &MatchResult) -> Result<(), Error> {
-        if self.tags() == result.pattern().tags() {
-            Ok(())
-        } else {
-            let expected = self.tags().map(|tags| { tags.to_vec() });
-            let got = result.pattern().tags().map(|tags| { tags.to_vec() });
-            Err(Error::unexpected_tags(expected, got))
+        if let Some(expected_tags) = self.tags() {
+            if let Some(got_tags) = result.pattern().tags() {
+                try!(self.test_expected_tags_can_be_found_in_got_tags(expected_tags, got_tags, result));
+            } else {
+                return Err(self.report_unexpected_tags_error(result));
+            }
         }
+        Ok(())
+    }
+
+    fn test_expected_tags_can_be_found_in_got_tags(&self, expected_tags: &[String], got_tags: &[String], result: &MatchResult) -> Result<(), Error> {
+        for i in expected_tags {
+            if !got_tags.contains(i) {
+                return Err(self.report_unexpected_tags_error(result));
+            }
+        }
+        Ok(())
+    }
+
+    fn report_unexpected_tags_error(&self, result: &MatchResult) -> Error {
+        let expected = self.tags().map(|tags| { tags.to_vec() });
+        let got = result.pattern().tags().map(|tags| { tags.to_vec() });
+        Error::unexpected_tags(expected, got)
     }
 }

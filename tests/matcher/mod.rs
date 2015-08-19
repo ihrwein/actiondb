@@ -63,3 +63,10 @@ fn test_given_json_file_when_the_tests_contain_tags_but_the_pattern_does_not_hav
     let matcher = Factory::from_json_file(pattern_file_path);
     matcher.err().expect("Failed to get an error when the expected number of tags doesn't match with the got one");
 }
+
+#[test]
+fn test_given_json_file_when_a_pattern_contains_test_tags_then_we_only_check_the_expected_ones() {
+    let pattern_file_path = "tests/matcher/ssh_only_expected_tags_are_checked.json";
+    let matcher = Factory::from_json_file(pattern_file_path);
+    matcher.err().expect("We should only check the expected tags");
+}
