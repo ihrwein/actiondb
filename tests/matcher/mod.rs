@@ -61,3 +61,11 @@ fn test_given_json_file_when_an_expected_value_is_not_found_then_we_fail() {
     println!("matcher: {:?}", &matcher);
     matcher.err().expect("An expected value was not found but we created the Matcher object");
 }
+
+#[test]
+fn test_given_json_file_when_a_pattern_contains_cr_characters_then_we_handle_it_properly() {
+    let pattern_file_path = "tests/matcher/ssh_we_can_parse_multiline_messages.json";
+    let matcher = Factory::from_json_file(pattern_file_path);
+    println!("matcher: {:?}", &matcher);
+    let _ = matcher.ok().expect("We should be able to create a Matcher when a pattern has a CR characer in it");
+}
