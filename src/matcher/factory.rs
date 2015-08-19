@@ -11,11 +11,6 @@ use std::ffi;
 pub struct Factory;
 
 impl Factory {
-    pub fn from_plain_file(pattern_file_path: &str) -> Result<Box<Matcher>, builder::BuildError> {
-        let file = try!(file::PlainPatternFile::open(pattern_file_path));
-        Factory::drain_into(&mut file.into_iter())
-    }
-
     pub fn from_json_file(pattern_file_path: &str) -> Result<Box<Matcher>, builder::BuildError> {
         let file = try!(file::SerializedPatternFile::open(pattern_file_path));
         Factory::drain_into(&mut file.into_iter())
@@ -34,7 +29,7 @@ impl Factory {
     fn from_file_based_on_extension(extension: &ffi::OsStr, pattern_file_path: &str) -> Result<Box<Matcher>, builder::BuildError> {
         match try!(extension.to_str().ok_or(builder::BuildError::NotUtf8FileName)) {
             "json" => Factory::from_json_file(pattern_file_path),
-            _ => Factory::from_plain_file(pattern_file_path)
+            _ => Err(builder::BuildError::UnsupportedFileExtension)
         }
     }
 

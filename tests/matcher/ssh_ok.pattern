@@ -1,3 +1,0 @@
-Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Received disconnect from %{GREEDY:ipaddr}: %{INT:dunno}: disconnected by user
-Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: pam_unix(sshd:session): session closed for user zts
-Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Accepted publickey for zts from %{INT:oct0}.%{INT:oct1}.%{INT:oct2}.%{INT:oct3} port %{INT:port} ssh2

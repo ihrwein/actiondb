@@ -1,0 +1,17 @@
+{
+  "patterns": [
+    {
+      "uuid": "fa8bdbcb-e0fd-4da1-9fa4-15ecfec28ad2",
+      "pattern": "lobotomy sshd[%{INT:pid}]:\npam_unix(%{GREEDY:session}): session closed for user zts",
+      "test_messages":[
+       {
+         "message":"lobotomy sshd[26478]:\npam_unix(sshd:session): session closed for user zts",
+         "values":{
+           "pid":"26478",
+           "session": "sshd:session"
+         }
+       }
+     ]
+    }
+  ]
+}

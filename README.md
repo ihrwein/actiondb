@@ -5,7 +5,7 @@
 Actiondb is a library and its associated tools to efficiently extract information from unstructured data. It's a tool
 to parse logs and extract key-value pairs with predefined patterns from them.
 
-The patterns can be specified line-by-line (plain pattern file) or in a JSON serialized file.
+The patterns can be specified in a JSON serialized file.
 The latter one allows you to give a name, a unique identifier (`UUID`) and to test messages to each pattern.
 
 This library is intended to used with `syslog-ng`. You can find a Docker image which uses this library
@@ -26,11 +26,6 @@ It can be used to parse the following log message:
 ```
 Jun 25 14:09:58 server sshd[26665]: Accepted publickey for joe
 ```
-
-### Plain pattern files
-A plain pattern file contains patterns in each lines as they are defined in [Patterns](#patterns).
-ActionDB will generate a random UUID for each pattern. If there is a syntax error in one pattern
-the rest won't be checked and ActionDB returns an error.
 
 ### JSON pattern files
 These files contains patterns and their attributes. A JSON file looks like the following example
@@ -187,7 +182,7 @@ Internal changes:
  * this makes possible to generalize the `Matcher` building logic:
   * `BuildResult`s are being read from a `PatternSource` and if they are `Ok()` then they are added to the `Matcher`
   * in case of an `Err()` value the building process stops and the error is returned
-* `Factory` is introduced to create `Matcher` instances from files (JSON and plain pattern files)
+* `Factory` is introduced to create `Matcher` instances from files (JSON)
  * `Factory::form_file()` is file extension agnostic and creates a `Matcher` instance from the given file
 * the big modules are split into smaller submodules
 * allow `.` character in `Parser` names
