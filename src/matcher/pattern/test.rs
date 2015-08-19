@@ -70,3 +70,46 @@ fn test_given_json_pattern_when_its_pattern_is_invalid_then_pattern_cannot_be_bu
 
     let _ = Pattern::from_json(buffer).err().expect("We created a Pattern with an invalid pattern field");
 }
+
+#[test]
+fn test_given_json_pattern_when_test_messages_are_specified_then_they_are_parsed() {
+    let buffer = r#"
+{
+  "uuid": "9a49c47d-29e9-4072-be84-3b76c6814743",
+  "pattern": "Jun %{INT:day}",
+  "test_messages": [
+      {
+          "message": "Jun 1",
+          "values": {
+              "day": "1"
+          }
+      }
+  ]
+}
+"#;
+
+    let _ = Pattern::from_json(buffer).ok().expect("Failed to create a Pattern when test_messages are specified");
+}
+
+#[test]
+fn test_given_json_pattern_with_invalid_uuid_when_we_try_to_create_pattern_then_it_fails() {
+    let buffer = r#"
+{
+  "uuid": "not valid uuid",
+  "pattern": "Jun %{INT:day}"
+}
+"#;
+
+    let _ = Pattern::from_json(buffer).err().expect("We created a Pattern with an invalid uuid field");
+}
+
+#[test]
+fn test_given_json_pattern_when_it_does_not_have_the_pattern_field_then_it_cannot_be_created() {
+    let buffer = r#"
+{
+  "uuid": "9a49c47d-29e9-4072-be84-3b76c6814743",
+}
+"#;
+
+    let _ = Pattern::from_json(buffer).err().expect("We created a Pattern without the pattern field");
+}
