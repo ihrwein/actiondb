@@ -9,7 +9,7 @@ pub struct GreedyParser {
 
 impl GreedyParser {
     pub fn new(name: String) -> GreedyParser {
-        GreedyParser{ base: ParserBase::new(name),
+        GreedyParser{ base: ParserBase::with_name(name),
                        end_string: None }
     }
 

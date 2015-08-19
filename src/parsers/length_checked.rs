@@ -8,8 +8,8 @@ pub struct LengthCheckedParserBase {
 }
 
 impl LengthCheckedParserBase {
-    pub fn new(name: String) -> LengthCheckedParserBase {
-        LengthCheckedParserBase { base: ParserBase::new(name),
+    pub fn with_name(name: String) -> LengthCheckedParserBase {
+        LengthCheckedParserBase { base: ParserBase::with_name(name),
                      min_length: None,
                      max_length: None }
     }
@@ -71,14 +71,14 @@ mod test {
 
     #[test]
     fn test_given_parser_when_the_match_length_is_not_constrained_then_the_match_length_is_ok_in_every_case() {
-        let base = LengthCheckedParserBase::new("name".to_string());
+        let base = LengthCheckedParserBase::with_name("name".to_string());
         assert_eq!(base.is_match_length_ok(42), true);
         assert_eq!(base.is_match_length_ok(1), true);
     }
 
     #[test]
     fn test_given_parser_when_the_minimum_match_length_is_set_then_the_shorter_matches_are_discarded() {
-        let mut base = LengthCheckedParserBase::new("name".to_string());
+        let mut base = LengthCheckedParserBase::with_name("name".to_string());
         base.set_min_length(10);
         assert_eq!(base.is_match_length_ok(42), true);
         assert_eq!(base.is_match_length_ok(1), false);
@@ -88,7 +88,7 @@ mod test {
 
     #[test]
     fn test_given_parser_when_the_maximum_match_length_is_set_then_the_longer_matches_are_discarded() {
-        let mut base = LengthCheckedParserBase::new("name".to_string());
+        let mut base = LengthCheckedParserBase::with_name("name".to_string());
         base.set_max_length(10);
         assert_eq!(base.is_match_length_ok(42), false);
         assert_eq!(base.is_match_length_ok(1), true);

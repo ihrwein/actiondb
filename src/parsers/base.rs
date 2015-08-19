@@ -4,7 +4,7 @@ pub struct ParserBase {
 }
 
 impl ParserBase {
-    pub fn new(name: String) -> ParserBase {
+    pub fn with_name(name: String) -> ParserBase {
         ParserBase { name: name }
     }
 

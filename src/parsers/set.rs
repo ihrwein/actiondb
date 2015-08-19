@@ -13,7 +13,7 @@ pub struct SetParser {
 impl SetParser {
     pub fn new(name: String, set: &str) -> SetParser {
         SetParser{ character_set: SetParser::create_set_from_str(set),
-                   base: LengthCheckedParserBase::new(name)}
+                   base: LengthCheckedParserBase::with_name(name)}
     }
 
     pub fn from_str(name: &str, set: &str) -> SetParser {
