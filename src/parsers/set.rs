@@ -94,38 +94,36 @@ mod test {
     #[test]
     fn test_given_empty_string_when_parsed_it_wont_match() {
         let p = SetParser::from_str("test", "");
-        assert_eq!(p.parse("almafa"),
-                   None);
+        assert_eq!(p.parse("almafa").is_none(), true);
     }
 
     #[test]
     fn test_given_not_matching_string_when_parsed_it_wont_match() {
         let p = SetParser::from_str("test", "123");
-        assert_eq!(p.parse("almafa"),
-                   None);
+        assert_eq!(p.parse("almafa").is_none(), true);
     }
 
     #[test]
     fn test_given_matching_string_when_parsed_it_matches() {
         let p = SetParser::from_str("name", "0123");
-        assert_eq!(p.parse("11230almafa"),
-                   Some(("name", "11230")));
+        let res = p.parse("11230almafa").unwrap();
+        assert_eq!(res.parser().name(), "name");
+        assert_eq!(res.value(), "11230");
     }
 
     #[test]
     fn test_given_minimum_match_length_when_a_match_is_shorter_it_doesnt_count_as_a_match() {
         let mut p = SetParser::from_str("test", "0123");
         p.set_min_length(7);
-        assert_eq!(p.parse("11230almafa"),
-                   None);
+        let res = p.parse("11230almafa");
+        assert_eq!(res.is_none(), true);
     }
 
     #[test]
     fn test_given_maximum_match_length_when_a_match_is_longer_it_doesnt_count_as_a_match() {
         let mut p = SetParser::from_str("name", "0123");
         p.set_max_length(3);
-        assert_eq!(p.parse("11230almafa"),
-                   None);
+        assert_eq!(p.parse("11230almafa").is_none(), true);
     }
 
     #[test]
@@ -133,8 +131,9 @@ mod test {
         let mut p = SetParser::from_str("testname", "0123");
         p.set_min_length(3);
         p.set_max_length(7);
-        assert_eq!(p.parse("11230almafa"),
-                   Some(("testname", "11230")));
+        let res = p.parse("11230almafa").unwrap();
+        assert_eq!(res.parser().name(), "testname");
+        assert_eq!(res.value(), "11230");
     }
 
     use parsers::ObjectSafeHash;

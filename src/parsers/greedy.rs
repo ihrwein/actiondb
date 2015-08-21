@@ -62,12 +62,14 @@ mod test {
     #[test]
     fn test_given_greedy_parser_when_the_end_string_is_not_found_in_the_value_then_the_parser_doesnt_match() {
         let parser = GreedyParser::from_str("name", "foo");
-        assert_eq!(parser.parse("qux baz bar"), None);
+        assert_eq!(parser.parse("qux baz bar").is_none(), true);
     }
 
     #[test]
     fn test_given_greedy_parser_when_the_end_string_is_found_in_the_value_then_the_parser_matches() {
         let parser = GreedyParser::from_str("name", "foo");
-        assert_eq!(parser.parse("qux foo bar"), Some(("name", "qux ")));
+        let res = parser.parse("qux foo bar").unwrap();
+        assert_eq!(res.parser().name(), "name");
+        assert_eq!(res.value(), "qux ");
     }
 }

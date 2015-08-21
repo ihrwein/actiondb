@@ -152,7 +152,9 @@ fn test_given_greedy_parser_when_there_is_no_literal_after_it_then_we_take_all_t
     let vec: Vec<TokenType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
 
     if let &TokenType::Parser(ref parser) = vec.get(1).unwrap() {
-        assert_eq!(parser.parse("the quick brown fox"), Some(("greedy", "the quick brown fox")));
+        let res = parser.parse("the quick brown fox").unwrap();
+        assert_eq!(res.parser().name(), "greedy");
+        assert_eq!(res.value(), "the quick brown fox");
     } else {
         unreachable!();
     }

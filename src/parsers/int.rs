@@ -62,15 +62,17 @@ mod test {
     #[test]
     fn test_given_int_parser_when_the_match_is_empty_then_the_result_isnt_successful() {
         let parser = IntParser::from_str("test_int_parser");
-        assert_eq!(parser.parse(""), None);
-        assert_eq!(parser.parse("asdf"), None);
+        assert_eq!(parser.parse("").is_none(), true);
+        assert_eq!(parser.parse("asdf").is_none(), true);
     }
 
     #[test]
     fn test_given_matching_string_when_it_is_parsed_then_it_matches() {
         let parser_name = "test_int_parser";
         let parser = IntParser::from_str(parser_name);
-        assert_eq!(parser.parse("1234asd").unwrap(), (parser_name, "1234"));
+        let res = parser.parse("1234asd").unwrap();
+        assert_eq!(res.parser().name(), parser_name);
+        assert_eq!(res.value(), "1234");
     }
 
     #[test]
@@ -78,6 +80,6 @@ mod test {
         let parser_name = "test_int_parser";
         let mut parser = IntParser::from_str(parser_name);
         parser.set_max_length(3);
-        assert_eq!(parser.parse("1234asd"), None);
+        assert_eq!(parser.parse("1234asd").is_none(), true);
     }
 }
