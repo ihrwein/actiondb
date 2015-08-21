@@ -1,12 +1,14 @@
 use std::error;
 use std::fmt;
 
+use super::TestMessage;
+
 #[derive(Debug)]
 pub enum Error {
     InvalidLength{expected: usize, got: usize},
     ValueNotMatch{key: String, expected_value: String, got_value: String},
     KeyNotFound{key: String},
-    TestMessageDoesntMatch,
+    TestMessageDoesntMatch{message: String},
     UnexpectedTags{expected: Option<Vec<String>>, got: Option<Vec<String>>}
 }
 
@@ -23,8 +25,8 @@ impl Error {
         Error::KeyNotFound{key: key.to_string()}
     }
 
-    pub fn test_message_does_not_match() -> Error {
-        Error::TestMessageDoesntMatch
+    pub fn test_message_does_not_match(test_msg: &TestMessage) -> Error {
+        Error::TestMessageDoesntMatch{message: test_msg.message().to_owned()}
     }
 
     pub fn unexpected_tags(expected: Option<Vec<String>>, got: Option<Vec<String>>) -> Error {
@@ -47,8 +49,8 @@ impl fmt::Display for Error {
             &Error::KeyNotFound{ref key} => {
                 fmt.write_fmt(format_args!("A parsed key in not found among the expected ones: key={}", key))
             }
-            &Error::TestMessageDoesntMatch => {
-                fmt.write_str("A test message cannot be parsed but its pattern is inserted")
+            &Error::TestMessageDoesntMatch{ref message} => {
+                fmt.write_fmt(format_args!("A test message cannot be parsed but its pattern is inserted: message='{}'", message))
             },
             &Error::UnexpectedTags{ref expected, ref got} => {
                 fmt.write_fmt(format_args!("Unexpected tags found either in the parse result or among the expected ones: expected: {:?} got={:?}", expected, got))
@@ -69,7 +71,7 @@ impl error::Error for Error {
             &Error::KeyNotFound{key: _} => {
                 "A parsed key in not found among the expected ones"
             },
-            &Error::TestMessageDoesntMatch => {
+            &Error::TestMessageDoesntMatch{message: _} => {
                 "A test message cannot be parsed but its pattern is inserted"
             },
             &Error::UnexpectedTags{expected: _, got: _} => {

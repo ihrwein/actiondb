@@ -28,7 +28,7 @@ impl Builder {
 
     fn check_test_messages(matcher: &Matcher, messages: &[TestMessage]) -> Result<(), BuildError> {
         for msg in messages {
-            let result = try!(matcher.parse(msg.message()).ok_or(testmessage::Error::test_message_does_not_match()));
+            let result = try!(matcher.parse(msg.message()).ok_or(testmessage::Error::test_message_does_not_match(msg)));
             try!(msg.test_result(&result));
         }
         Ok(())
