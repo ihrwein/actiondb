@@ -2,7 +2,7 @@ use super::pattern_parser;
 use matcher::trie::node::TokenType;
 use parsers::{SetParser, Parser, ObjectSafeHash, IntParser, GreedyParser};
 
-fn assert_parser_name_equals(item: Option<&TokenType>, expected_name: &str) {
+fn assert_parser_name_equals(item: Option<&TokenType>, expected_name: Option<&str>) {
     if let Some(&TokenType::Parser(ref parser)) = item {
         assert_eq!(parser.name(), expected_name);
     } else {
@@ -35,7 +35,7 @@ fn test_given_parser_as_a_string_when_it_is_parsed_then_we_get_the_instantiated_
 
     assert_eq!(vec.len(), 1);
     println!("{:?}", &vec);
-    assert_parser_name_equals(vec.get(0), "test_name");
+    assert_parser_name_equals(vec.get(0), Some("test_name"));
 }
 
 #[test]
@@ -78,10 +78,10 @@ fn test_given_pattern_as_a_string_when_it_is_parsed_with_the_grammar_we_got_the_
 
     assert_eq!(vec.len(), 6);
     assert_literal_equals(vec.get(0), "foo ");
-    assert_parser_name_equals(vec.get(1), "int_0");
+    assert_parser_name_equals(vec.get(1), Some("int_0"));
     assert_literal_equals(vec.get(2), " bar ");
-    assert_parser_name_equals(vec.get(3), "int_1");
-    assert_parser_name_equals(vec.get(4), "int_2");
+    assert_parser_name_equals(vec.get(3), Some("int_1"));
+    assert_parser_name_equals(vec.get(4), Some("int_2"));
     assert_literal_equals(vec.get(5), " baz");
 }
 
@@ -97,7 +97,7 @@ fn test_given_string_which_contains_escaped_chars_when_we_parse_it_then_we_get_t
     let vec = pattern_parser::pattern(r#"foo \%\{ %{INT:test_name} baz"#).ok().unwrap();
     assert_eq!(vec.len(), 3);
     assert_literal_equals(vec.get(0), "foo %{ ");
-    assert_parser_name_equals(vec.get(1), "test_name");
+    assert_parser_name_equals(vec.get(1), Some("test_name"));
     assert_literal_equals(vec.get(2), " baz");
 }
 
@@ -139,9 +139,9 @@ fn test_given_greedy_parser_when_we_parse_it_then_we_get_the_right_result() {
 
     assert_eq!(vec.len(), 5);
     assert_literal_equals(vec.get(0), "foo ");
-    assert_parser_name_equals(vec.get(1), "int_0");
+    assert_parser_name_equals(vec.get(1), Some("int_0"));
     assert_literal_equals(vec.get(2), " bar ");
-    assert_parser_name_equals(vec.get(3), "greedy");
+    assert_parser_name_equals(vec.get(3), Some("greedy"));
     assert_literal_equals(vec.get(4), " baz");
     assert_parser_equals(vec.get(3), &expected_parser);
 }
@@ -152,7 +152,9 @@ fn test_given_greedy_parser_when_there_is_no_literal_after_it_then_we_take_all_t
     let vec: Vec<TokenType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
 
     if let &TokenType::Parser(ref parser) = vec.get(1).unwrap() {
-        assert_eq!(parser.parse("the quick brown fox"), Some(("greedy", "the quick brown fox")));
+        let res = parser.parse("the quick brown fox").unwrap();
+        assert_eq!(res.parser().name(), Some("greedy"));
+        assert_eq!(res.value(), "the quick brown fox");
     } else {
         unreachable!();
     }
@@ -162,7 +164,7 @@ fn test_given_greedy_parser_when_there_is_no_literal_after_it_then_we_take_all_t
 fn test_given_parser_when_there_is_a_dot_in_its_name_then_it_is_ok() {
     let pattern_as_string = "bar %{GREEDY:.some.dotted_notation}";
     let vec: Vec<TokenType<>> = pattern_parser::pattern(pattern_as_string).ok().unwrap();
-    assert_parser_name_equals(vec.get(1), ".some.dotted_notation");
+    assert_parser_name_equals(vec.get(1), Some(".some.dotted_notation"));
 }
 
 #[test]
@@ -183,7 +185,17 @@ fn test_given_valid_pattern_when_it_contains_cr_character_then_we_can_parse_it()
 
     assert_eq!(vec.len(), 4);
     assert_literal_equals(vec.get(0), "foo ");
-    assert_parser_name_equals(vec.get(1), "int_0");
+    assert_parser_name_equals(vec.get(1), Some("int_0"));
     assert_literal_equals(vec.get(2), " \n bar ");
-    assert_parser_name_equals(vec.get(3), "int_1");
+    assert_parser_name_equals(vec.get(3), Some("int_1"));
+}
+
+#[test]
+fn test_given_valid_pattern_when_it_does_not_have_a_name_then_we_can_parse_the_pattern() {
+    let string_parser = "%{INT}";
+    let vec = pattern_parser::pattern(string_parser).ok().expect("Failed to get a Parser instance when it doesn't have a name");
+
+    assert_eq!(vec.len(), 1);
+    println!("{:?}", &vec);
+    assert_parser_name_equals(vec.get(0), None);
 }

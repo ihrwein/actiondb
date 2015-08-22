@@ -1,5 +1,5 @@
 use std::hash::{SipHasher, Hash, Hasher};
-use super::{ParserBase, Parser, ObjectSafeHash};
+use super::{ParserBase, Parser, ObjectSafeHash, ParseResult};
 
 #[derive(Clone, Debug, Hash)]
 pub struct GreedyParser {
@@ -8,15 +8,22 @@ pub struct GreedyParser {
 }
 
 impl GreedyParser {
-    pub fn new(name: String) -> GreedyParser {
-        GreedyParser{ base: ParserBase::new(name),
+    pub fn with_name(name: String) -> GreedyParser {
+        GreedyParser{ base: ParserBase::with_name(name),
                        end_string: None }
     }
 
     pub fn from_str(name: &str, end_string: &str) -> GreedyParser {
-        let mut parser = GreedyParser::new(name.to_string());
+        let mut parser = GreedyParser::with_name(name.to_string());
         parser.set_end_string(end_string.to_string());
         parser
+    }
+
+    pub fn new() -> GreedyParser {
+        GreedyParser {
+            base: ParserBase::new(),
+            end_string: None
+        }
     }
 
     pub fn set_end_string(&mut self, end_string: String) {
@@ -34,20 +41,24 @@ impl ObjectSafeHash for GreedyParser {
 }
 
 impl Parser for GreedyParser {
-    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)> {
+    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<ParseResult<'a, 'b>> {
         if self.end_string.is_none() {
-            return Some((self.name(), &value[..]))
+            return Some(ParseResult::new(self, &value[..]))
         }
 
         if let Some(pos) = value.find(&self.end_string.as_ref().unwrap()[..]) {
-            Some((self.name(), &value[..pos]))
+            Some(ParseResult::new(self, &value[..pos]))
         } else {
             None
         }
     }
 
-    fn name(&self) -> &str {
+    fn name(&self) -> Option<&str> {
         self.base.name()
+    }
+
+    fn set_name(&mut self, name: Option<String>) {
+        self.base.set_name(name);
     }
 
     fn boxed_clone(&self) -> Box<Parser> {
@@ -62,12 +73,14 @@ mod test {
     #[test]
     fn test_given_greedy_parser_when_the_end_string_is_not_found_in_the_value_then_the_parser_doesnt_match() {
         let parser = GreedyParser::from_str("name", "foo");
-        assert_eq!(parser.parse("qux baz bar"), None);
+        assert_eq!(parser.parse("qux baz bar").is_none(), true);
     }
 
     #[test]
     fn test_given_greedy_parser_when_the_end_string_is_found_in_the_value_then_the_parser_matches() {
         let parser = GreedyParser::from_str("name", "foo");
-        assert_eq!(parser.parse("qux foo bar"), Some(("name", "qux ")));
+        let res = parser.parse("qux foo bar").unwrap();
+        assert_eq!(res.parser().name(), Some("name"));
+        assert_eq!(res.value(), "qux ");
     }
 }

@@ -99,7 +99,7 @@ mod test {
         match trie.parse("app23le") {
             Some(res) => {
                 println!("{:?}", res);
-                assert_eq!(res.pairs(), &vec!(("test", "23")));
+                assert_eq!(res.values(), &btreemap!["test" => "23"]);
             },
             None => unreachable!()
         }
@@ -109,12 +109,11 @@ mod test {
     fn test_given_pattern_with_two_neighbouring_parser_when_the_pattern_is_inserted_into_the_trie_then_everything_is_ok() {
         let mut trie = ParserTrie::new();
         let mut cp1 = CompiledPattern::new();
-        let mut expected = vec!(("test", "ccc"), ("test2", "12"), ("test3", "le"));
-        expected.sort();
+        let expected = btreemap!["test" => "ccc", "test2" => "12", "test3" => "le"];
         cp1.push(TokenType::Literal("app".to_string()));
         cp1.push(TokenType::Parser(Box::new(SetParser::from_str("test", "abcd"))));
         cp1.push(TokenType::Parser(Box::new(IntParser::from_str("test2"))));
-        cp1.push(TokenType::Parser(Box::new(GreedyParser::new("test3".to_string()))));
+        cp1.push(TokenType::Parser(Box::new(GreedyParser::with_name("test3".to_string()))));
 
         let mut pattern = Pattern::with_random_uuid();
         pattern.set_pattern(cp1);
@@ -124,8 +123,7 @@ mod test {
 
         match trie.parse("appccc12le") {
             Some(res) => {
-                let mut got = res.pairs().clone();
-                got.sort();
+                let got = res.values().clone();
                 println!("{:?}", res);
                 assert_eq!(expected, got);
             },

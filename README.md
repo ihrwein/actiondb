@@ -114,6 +114,12 @@ If a parser doesn't have extra arguments its parameter list can be omitted:
 %{PARSER_TYPE:parser_instance_name}
 ```
 
+The `name` can be omitted too:
+
+```
+%{PARSER_TYPE}
+```
+
 You can use the `_`, `.`, `[0-9]`, `-` and `[a-zA-Z]` characters as parser names.
 
 #### Available parsers

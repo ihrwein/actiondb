@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 use std::iter::FromIterator;
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, LengthCheckedParserBase, HasOptionalParameter, OptionalParameter};
+use parsers::{Parser, ObjectSafeHash, LengthCheckedParserBase, HasOptionalParameter, ParseResult, OptionalParameter};
 
 #[derive(Clone, Debug, Hash)]
 pub struct SetParser {
@@ -11,13 +11,20 @@ pub struct SetParser {
 }
 
 impl SetParser {
-    pub fn new(name: String, set: &str) -> SetParser {
+    pub fn with_name(name: String, set: &str) -> SetParser {
         SetParser{ character_set: SetParser::create_set_from_str(set),
-                   base: LengthCheckedParserBase::new(name)}
+                   base: LengthCheckedParserBase::with_name(name)}
+    }
+
+    pub fn new(set: &str) -> SetParser {
+        SetParser {
+            character_set: SetParser::create_set_from_str(set),
+            base: LengthCheckedParserBase::new()
+        }
     }
 
     pub fn from_str(name: &str, set: &str) -> SetParser {
-        SetParser::new(name.to_string(), set)
+        SetParser::with_name(name.to_string(), set)
     }
 
     pub fn set_character_set(&mut self, set: &str) {
@@ -53,18 +60,22 @@ impl SetParser {
 }
 
 impl Parser for SetParser {
-    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)> {
+    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<ParseResult<'a, 'b>> {
         let match_len = self.calculate_match_length(value);
 
         if self.base.is_match_length_ok(match_len) {
-            Some((&self.name(), &value[..match_len]))
+            Some(ParseResult::new(self, &value[..match_len]))
         } else {
             None
         }
     }
 
-    fn name(&self) -> &str {
+    fn name(&self) -> Option<&str> {
         self.base.name()
+    }
+
+    fn set_name(&mut self, name: Option<String>) {
+        self.base.set_name(name);
     }
 
     fn boxed_clone(&self) -> Box<Parser> {
@@ -94,38 +105,36 @@ mod test {
     #[test]
     fn test_given_empty_string_when_parsed_it_wont_match() {
         let p = SetParser::from_str("test", "");
-        assert_eq!(p.parse("almafa"),
-                   None);
+        assert_eq!(p.parse("almafa").is_none(), true);
     }
 
     #[test]
     fn test_given_not_matching_string_when_parsed_it_wont_match() {
         let p = SetParser::from_str("test", "123");
-        assert_eq!(p.parse("almafa"),
-                   None);
+        assert_eq!(p.parse("almafa").is_none(), true);
     }
 
     #[test]
     fn test_given_matching_string_when_parsed_it_matches() {
         let p = SetParser::from_str("name", "0123");
-        assert_eq!(p.parse("11230almafa"),
-                   Some(("name", "11230")));
+        let res = p.parse("11230almafa").unwrap();
+        assert_eq!(res.parser().name(), Some("name"));
+        assert_eq!(res.value(), "11230");
     }
 
     #[test]
     fn test_given_minimum_match_length_when_a_match_is_shorter_it_doesnt_count_as_a_match() {
         let mut p = SetParser::from_str("test", "0123");
         p.set_min_length(7);
-        assert_eq!(p.parse("11230almafa"),
-                   None);
+        let res = p.parse("11230almafa");
+        assert_eq!(res.is_none(), true);
     }
 
     #[test]
     fn test_given_maximum_match_length_when_a_match_is_longer_it_doesnt_count_as_a_match() {
         let mut p = SetParser::from_str("name", "0123");
         p.set_max_length(3);
-        assert_eq!(p.parse("11230almafa"),
-                   None);
+        assert_eq!(p.parse("11230almafa").is_none(), true);
     }
 
     #[test]
@@ -133,8 +142,9 @@ mod test {
         let mut p = SetParser::from_str("testname", "0123");
         p.set_min_length(3);
         p.set_max_length(7);
-        assert_eq!(p.parse("11230almafa"),
-                   Some(("testname", "11230")));
+        let res = p.parse("11230almafa").unwrap();
+        assert_eq!(res.parser().name(), Some("testname"));
+        assert_eq!(res.value(), "11230");
     }
 
     use parsers::ObjectSafeHash;

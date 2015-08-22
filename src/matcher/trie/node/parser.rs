@@ -2,7 +2,7 @@ use matcher::trie::node::{Node, LiteralNode};
 use matcher::trie::{HasPattern, TrieOperations};
 use matcher::result::MatchResult;
 use matcher::Pattern;
-use parsers::Parser;
+use parsers::{Parser, ParseResult};
 use utils::CommonPrefix;
 
 #[derive(Debug)]
@@ -39,7 +39,7 @@ impl ParserNode {
     pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
         if let Some(parsed_kwpair) = self.parser.parse(text) {
             trace!("parse(): parsed_kwpair = {:?}", &parsed_kwpair);
-            let text = text.ltrunc(parsed_kwpair.1.len());
+            let text = text.ltrunc(parsed_kwpair.value().len());
 
             return match self.node() {
                 Some(node) => {
@@ -53,10 +53,10 @@ impl ParserNode {
         None
     }
 
-    fn push_last_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: (&'a str, &'b str)) -> Option<MatchResult<'a, 'b>> {
+    fn push_last_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: ParseResult<'a, 'b>) -> Option<MatchResult<'a, 'b>> {
         if text.is_empty() {
             let mut result = MatchResult::new(self.pattern().unwrap());
-            result.push_pair(kvpair.0, kvpair.1);
+            result.insert(kvpair);
             Some(result)
         } else {
             None

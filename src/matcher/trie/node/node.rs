@@ -1,4 +1,4 @@
-use parsers::Parser;
+use parsers::{Parser, ParseResult};
 use utils::{SortedVec, CommonPrefix};
 use matcher::trie::node::LiteralNode;
 use matcher::trie::node::ParserNode;
@@ -178,9 +178,9 @@ impl Node {
         None
     }
 
-    pub fn parse_then_push_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: (&'a str, &'b str)) -> Option<MatchResult<'a, 'b>> {
+    pub fn parse_then_push_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: ParseResult<'a, 'b>) -> Option<MatchResult<'a, 'b>> {
         if let Some(mut result) = self.parse(text) {
-            result.push_pair(kvpair.0, kvpair.1);
+            result.insert(kvpair);
             Some(result)
         } else {
             None
@@ -377,7 +377,7 @@ mod test {
         println!("root: {:?}", &root);
         {
             let result = root.parse("appletree");
-            assert_eq!(result.unwrap().pairs().is_empty(), true);
+            assert_eq!(result.unwrap().values().is_empty(), true);
         }
     }
 
@@ -387,7 +387,7 @@ mod test {
         println!("root: {:?}", &root);
         {
             let result = root.parse("apple");
-            assert_eq!(result.unwrap().pairs().is_empty(), true);
+            assert_eq!(result.unwrap().values().is_empty(), true);
         }
     }
 
@@ -434,7 +434,7 @@ mod test {
         println!("root: {:?}", &root);
         {
             let result = root.parse("app42letree123");
-            assert_eq!(result.unwrap().pairs(), &vec!(("end", "123"), ("middle", "42")));
+            assert_eq!(result.unwrap().values(), &btreemap!["end" => "123", "middle" => "42"]);
         }
     }
 

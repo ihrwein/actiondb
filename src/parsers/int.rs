@@ -1,6 +1,6 @@
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, SetParser, HasOptionalParameter, OptionalParameter};
+use parsers::{Parser, ObjectSafeHash, SetParser, HasOptionalParameter, OptionalParameter, ParseResult};
 
 #[derive(Clone, Debug, Hash)]
 pub struct IntParser {
@@ -9,12 +9,18 @@ pub struct IntParser {
 
 impl IntParser {
     pub fn from_str(name: &str) -> IntParser {
-        IntParser::new(name.to_string())
+        IntParser::with_name(name.to_string())
     }
 
-    pub fn new(name: String) -> IntParser {
-        let delegate = SetParser::new(name, "0123456789");
+    pub fn with_name(name: String) -> IntParser {
+        let delegate = SetParser::with_name(name, "0123456789");
         IntParser{ delegate: delegate }
+    }
+
+    pub fn new() -> IntParser {
+        IntParser {
+            delegate: SetParser::new("0123456789")
+        }
     }
 
     pub fn set_min_length(&mut self, length: usize) {
@@ -27,12 +33,16 @@ impl IntParser {
 }
 
 impl Parser for IntParser {
-    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)> {
+    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<ParseResult<'a, 'b>> {
         self.delegate.parse(value)
     }
 
-    fn name(&self) -> &str {
+    fn name(&self) -> Option<&str> {
         self.delegate.name()
+    }
+
+    fn set_name(&mut self, name: Option<String>) {
+        self.delegate.set_name(name);
     }
 
     fn boxed_clone(&self) -> Box<Parser> {
@@ -62,15 +72,17 @@ mod test {
     #[test]
     fn test_given_int_parser_when_the_match_is_empty_then_the_result_isnt_successful() {
         let parser = IntParser::from_str("test_int_parser");
-        assert_eq!(parser.parse(""), None);
-        assert_eq!(parser.parse("asdf"), None);
+        assert_eq!(parser.parse("").is_none(), true);
+        assert_eq!(parser.parse("asdf").is_none(), true);
     }
 
     #[test]
     fn test_given_matching_string_when_it_is_parsed_then_it_matches() {
         let parser_name = "test_int_parser";
         let parser = IntParser::from_str(parser_name);
-        assert_eq!(parser.parse("1234asd").unwrap(), (parser_name, "1234"));
+        let res = parser.parse("1234asd").unwrap();
+        assert_eq!(res.parser().name(), Some(parser_name));
+        assert_eq!(res.value(), "1234");
     }
 
     #[test]
@@ -78,6 +90,6 @@ mod test {
         let parser_name = "test_int_parser";
         let mut parser = IntParser::from_str(parser_name);
         parser.set_max_length(3);
-        assert_eq!(parser.parse("1234asd"), None);
+        assert_eq!(parser.parse("1234asd").is_none(), true);
     }
 }
