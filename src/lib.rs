@@ -2,6 +2,7 @@
 extern crate log;
 extern crate uuid;
 extern crate serde;
+extern crate serde_json;
 #[macro_use]
 extern crate maplit;
 
