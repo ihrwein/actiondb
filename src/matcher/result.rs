@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use parsers::ParseResult;
 use matcher::Pattern;
 
 #[derive(Debug)]
@@ -16,8 +17,8 @@ impl <'a, 'b> MatchResult<'a, 'b> {
         }
     }
 
-    pub fn insert(&mut self, key: &'a str, value: &'b str) {
-        self.values.insert(key, value);
+    pub fn insert(&mut self, result: ParseResult<'a, 'b>) {
+        self.values.insert(result.parser().name(), result.value());
     }
 
     pub fn pattern(&self) -> &Pattern {

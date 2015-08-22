@@ -1,6 +1,6 @@
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, SetParser, HasOptionalParameter, OptionalParameter};
+use parsers::{Parser, ObjectSafeHash, SetParser, HasOptionalParameter, OptionalParameter, ParseResult};
 
 #[derive(Clone, Debug, Hash)]
 pub struct IntParser {
@@ -27,7 +27,7 @@ impl IntParser {
 }
 
 impl Parser for IntParser {
-    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)> {
+    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<ParseResult<'a, 'b>> {
         self.delegate.parse(value)
     }
 

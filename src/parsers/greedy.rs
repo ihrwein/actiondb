@@ -1,5 +1,5 @@
 use std::hash::{SipHasher, Hash, Hasher};
-use super::{ParserBase, Parser, ObjectSafeHash};
+use super::{ParserBase, Parser, ObjectSafeHash, ParseResult};
 
 #[derive(Clone, Debug, Hash)]
 pub struct GreedyParser {
@@ -34,13 +34,13 @@ impl ObjectSafeHash for GreedyParser {
 }
 
 impl Parser for GreedyParser {
-    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)> {
+    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<ParseResult<'a, 'b>> {
         if self.end_string.is_none() {
-            return Some((self.name(), &value[..]))
+            return Some(ParseResult::new(self, &value[..]))
         }
 
         if let Some(pos) = value.find(&self.end_string.as_ref().unwrap()[..]) {
-            Some((self.name(), &value[..pos]))
+            Some(ParseResult::new(self, &value[..pos]))
         } else {
             None
         }

@@ -1,4 +1,4 @@
-use parsers::Parser;
+use parsers::{Parser, ParseResult};
 use utils::{SortedVec, CommonPrefix};
 use matcher::trie::node::LiteralNode;
 use matcher::trie::node::ParserNode;
@@ -178,9 +178,9 @@ impl Node {
         None
     }
 
-    pub fn parse_then_push_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: (&'a str, &'b str)) -> Option<MatchResult<'a, 'b>> {
+    pub fn parse_then_push_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: ParseResult<'a, 'b>) -> Option<MatchResult<'a, 'b>> {
         if let Some(mut result) = self.parse(text) {
-            result.insert(kvpair.0, kvpair.1);
+            result.insert(kvpair);
             Some(result)
         } else {
             None

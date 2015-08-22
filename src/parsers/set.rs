@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 use std::iter::FromIterator;
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, LengthCheckedParserBase, HasOptionalParameter, OptionalParameter};
+use parsers::{Parser, ObjectSafeHash, LengthCheckedParserBase, HasOptionalParameter, ParseResult, OptionalParameter};
 
 #[derive(Clone, Debug, Hash)]
 pub struct SetParser {
@@ -53,11 +53,11 @@ impl SetParser {
 }
 
 impl Parser for SetParser {
-    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<(&'a str, &'b str)> {
+    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<ParseResult<'a, 'b>> {
         let match_len = self.calculate_match_length(value);
 
         if self.base.is_match_length_ok(match_len) {
-            Some((&self.name(), &value[..match_len]))
+            Some(ParseResult::new(self, &value[..match_len]))
         } else {
             None
         }
