@@ -11,13 +11,13 @@ pub struct SetParser {
 }
 
 impl SetParser {
-    pub fn new(name: String, set: &str) -> SetParser {
+    pub fn with_name(name: String, set: &str) -> SetParser {
         SetParser{ character_set: SetParser::create_set_from_str(set),
                    base: LengthCheckedParserBase::with_name(name)}
     }
 
     pub fn from_str(name: &str, set: &str) -> SetParser {
-        SetParser::new(name.to_string(), set)
+        SetParser::with_name(name.to_string(), set)
     }
 
     pub fn set_character_set(&mut self, set: &str) {

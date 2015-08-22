@@ -13,7 +13,7 @@ impl IntParser {
     }
 
     pub fn new(name: String) -> IntParser {
-        let delegate = SetParser::new(name, "0123456789");
+        let delegate = SetParser::with_name(name, "0123456789");
         IntParser{ delegate: delegate }
     }
 
