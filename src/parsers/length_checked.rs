@@ -14,6 +14,14 @@ impl LengthCheckedParserBase {
                      max_length: None }
     }
 
+    pub fn new() -> LengthCheckedParserBase {
+        LengthCheckedParserBase {
+            base: ParserBase::new(),
+            min_length: None,
+            max_length: None
+        }
+    }
+
     pub fn set_min_length(&mut self, length: usize) {
         self.min_length = Some(length);
     }
