@@ -8,13 +8,13 @@ pub struct GreedyParser {
 }
 
 impl GreedyParser {
-    pub fn new(name: String) -> GreedyParser {
+    pub fn with_name(name: String) -> GreedyParser {
         GreedyParser{ base: ParserBase::with_name(name),
                        end_string: None }
     }
 
     pub fn from_str(name: &str, end_string: &str) -> GreedyParser {
-        let mut parser = GreedyParser::new(name.to_string());
+        let mut parser = GreedyParser::with_name(name.to_string());
         parser.set_end_string(end_string.to_string());
         parser
     }

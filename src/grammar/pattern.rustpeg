@@ -56,7 +56,7 @@ parser_INT_optional_params -> Vec<OptionalParameter<'input>>
 parser_GREEDY -> Vec<TokenType>
   = PARSER_BEGIN GREEDY name:parser_name PARSER_END end_string:literal? {
     let mut tokens = Vec::new();
-    let mut parser = GreedyParser::new(name.to_string());
+    let mut parser = GreedyParser::with_name(name.to_string());
 
     if let Some(end_string) = end_string {
       parser.set_end_string(end_string.to_string());

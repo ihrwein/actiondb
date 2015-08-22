@@ -113,7 +113,7 @@ mod test {
         cp1.push(TokenType::Literal("app".to_string()));
         cp1.push(TokenType::Parser(Box::new(SetParser::from_str("test", "abcd"))));
         cp1.push(TokenType::Parser(Box::new(IntParser::from_str("test2"))));
-        cp1.push(TokenType::Parser(Box::new(GreedyParser::new("test3".to_string()))));
+        cp1.push(TokenType::Parser(Box::new(GreedyParser::with_name("test3".to_string()))));
 
         let mut pattern = Pattern::with_random_uuid();
         pattern.set_pattern(cp1);

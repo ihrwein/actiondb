@@ -588,7 +588,7 @@ fn parse_parser_GREEDY<'input>(input: &'input str,
                                                                                     let mut tokens =
                                                                                         Vec::new();
                                                                                     let mut parser =
-                                                                                        GreedyParser::new(name.to_string());
+                                                                                        GreedyParser::with_name(name.to_string());
                                                                                     if let Some(end_string)
                                                                                            =
                                                                                            end_string
