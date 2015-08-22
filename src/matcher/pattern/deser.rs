@@ -119,7 +119,7 @@ impl serde::de::Visitor for PatternVisitor {
                     Ok(pattern) => pattern,
                     Err(err) => {
                         error!("Invalid field 'pattern': pattern={:?} name={:?} uuid={:?} error={}", pattern, name, uuid, err);
-                        try!(Err(serde::de::Error::missing_field("pattern")))
+                        try!(Err(serde::de::Error::syntax("Invalid field 'pattern'")))
                     }
                 }
             },
