@@ -16,6 +16,13 @@ impl SetParser {
                    base: LengthCheckedParserBase::with_name(name)}
     }
 
+    pub fn new(set: &str) -> SetParser {
+        SetParser {
+            character_set: SetParser::create_set_from_str(set),
+            base: LengthCheckedParserBase::new()
+        }
+    }
+
     pub fn from_str(name: &str, set: &str) -> SetParser {
         SetParser::with_name(name.to_string(), set)
     }
