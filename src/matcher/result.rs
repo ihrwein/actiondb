@@ -31,3 +31,23 @@ impl <'a, 'b> MatchResult<'a, 'b> {
         &self.values
     }
 }
+
+#[cfg(test)]
+mod test {
+    use parsers::{IntParser, ParseResult};
+    use super::MatchResult;
+    use matcher::Pattern;
+
+    #[test]
+    fn test_given_match_result_when_a_parse_result_is_inserted_then_we_use_only_the_ones_where_the_parser_has_a_name() {
+        let parser_wo_name = IntParser::new();
+        let parser_with_name = IntParser::with_name("name".to_string());
+        let expected_values = btreemap!{"name" => "c"};
+        let pattern = Pattern::with_random_uuid();
+        let mut match_result = MatchResult::new(&pattern);
+        match_result.insert(ParseResult::new(&parser_wo_name, "a"));
+        match_result.insert(ParseResult::new(&parser_wo_name, "b"));
+        match_result.insert(ParseResult::new(&parser_with_name, "c"));
+        assert_eq!(match_result.values(), &expected_values);
+    }
+}
