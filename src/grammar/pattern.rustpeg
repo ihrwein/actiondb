@@ -34,9 +34,10 @@ parser -> Box<Parser>
   / parser_INT
 
 parser_SET -> Box<Parser>
-  = SET PARSER_PARAMS_BEGIN set:string po:parser_SET_optional_params? PARSER_PARAMS_END name:parser_name {
-    let mut parser = SetParser::from_str(name, set);
+  = SET PARSER_PARAMS_BEGIN set:string po:parser_SET_optional_params? PARSER_PARAMS_END name:parser_name? {
+    let mut parser = SetParser::new(set);
     grammar::set_optional_params(&mut parser, po.as_ref());
+    parser.set_name(name);
     Box::new(parser)
   }
 
@@ -44,9 +45,10 @@ parser_SET_optional_params -> Vec<OptionalParameter<'input>>
   = comma params:parser_BASE_optional_param ** comma { params }
 
 parser_INT -> Box<Parser>
-  = INT po:parser_INT_optional_params? name:parser_name {
-    let mut parser = IntParser::from_str(name);
+  = INT po:parser_INT_optional_params? name:parser_name? {
+    let mut parser = IntParser::new();
     grammar::set_optional_params(&mut parser, po.as_ref());
+    parser.set_name(name);
     Box::new(parser)
   }
 
@@ -54,9 +56,10 @@ parser_INT_optional_params -> Vec<OptionalParameter<'input>>
   = PARSER_PARAMS_BEGIN params:parser_BASE_optional_param ** comma PARSER_PARAMS_END { params }
 
 parser_GREEDY -> Vec<TokenType>
-  = PARSER_BEGIN GREEDY name:parser_name PARSER_END end_string:literal? {
+  = PARSER_BEGIN GREEDY name:parser_name? PARSER_END end_string:literal? {
     let mut tokens = Vec::new();
-    let mut parser = GreedyParser::with_name(name.to_string());
+    let mut parser = GreedyParser::new();
+    parser.set_name(name);
 
     if let Some(end_string) = end_string {
       parser.set_end_string(end_string.to_string());
@@ -94,8 +97,8 @@ PARSER_BEGIN = "%{"
 PARSER_END = "}"
 PARSER_PARAMS_BEGIN = "("
 PARSER_PARAMS_END = ")"
-parser_name -> &'input str
-  = ":" name:identifier { name }
+parser_name -> String
+  = ":" name:identifier { name.to_string() }
 
 identifier -> &'input str
   = [a-zA-Z_.]([a-z-A-Z0-9_.]![-])* { match_str }

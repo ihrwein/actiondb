@@ -189,3 +189,13 @@ fn test_given_valid_pattern_when_it_contains_cr_character_then_we_can_parse_it()
     assert_literal_equals(vec.get(2), " \n bar ");
     assert_parser_name_equals(vec.get(3), Some("int_1"));
 }
+
+#[test]
+fn test_given_valid_pattern_when_it_does_not_have_a_name_then_we_can_parse_the_pattern() {
+    let string_parser = "%{INT}";
+    let vec = pattern_parser::pattern(string_parser).ok().expect("Failed to get a Parser instance when it doesn't have a name");
+
+    assert_eq!(vec.len(), 1);
+    println!("{:?}", &vec);
+    assert_parser_name_equals(vec.get(0), None);
+}

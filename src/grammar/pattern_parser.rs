@@ -301,9 +301,24 @@ fn parse_parser_SET<'input>(input: &'input str,
                                                                 {
                                                                     {
                                                                         let seq_res =
-                                                                            parse_parser_name(input,
-                                                                                              state,
-                                                                                              pos);
+                                                                            match parse_parser_name(input,
+                                                                                                    state,
+                                                                                                    pos)
+                                                                                {
+                                                                                Matched(newpos,
+                                                                                        value)
+                                                                                =>
+                                                                                {
+                                                                                    Matched(newpos,
+                                                                                            Some(value))
+                                                                                }
+                                                                                Failed
+                                                                                =>
+                                                                                {
+                                                                                    Matched(pos,
+                                                                                            None)
+                                                                                }
+                                                                            };
                                                                         match seq_res
                                                                             {
                                                                             Matched(pos,
@@ -316,10 +331,10 @@ fn parse_parser_SET<'input>(input: &'input str,
                                                                                     Matched(pos,
                                                                                             {
                                                                                                 let mut parser =
-                                                                                                    SetParser::from_str(name,
-                                                                                                                        set);
+                                                                                                    SetParser::new(set);
                                                                                                 grammar::set_optional_params(&mut parser,
                                                                                                                              po.as_ref());
+                                                                                                parser.set_name(name);
                                                                                                 Box::new(parser)
                                                                                             })
                                                                                 }
@@ -434,7 +449,13 @@ fn parse_parser_INT<'input>(input: &'input str,
                             Matched(pos, po) => {
                                 {
                                     let seq_res =
-                                        parse_parser_name(input, state, pos);
+                                        match parse_parser_name(input, state,
+                                                                pos) {
+                                            Matched(newpos, value) => {
+                                                Matched(newpos, Some(value))
+                                            }
+                                            Failed => { Matched(pos, None) }
+                                        };
                                     match seq_res {
                                         Matched(pos, name) => {
                                             {
@@ -443,9 +464,10 @@ fn parse_parser_INT<'input>(input: &'input str,
                                                 Matched(pos,
                                                         {
                                                             let mut parser =
-                                                                IntParser::from_str(name);
+                                                                IntParser::new();
                                                             grammar::set_optional_params(&mut parser,
                                                                                          po.as_ref());
+                                                            parser.set_name(name);
                                                             Box::new(parser)
                                                         })
                                             }
@@ -548,7 +570,13 @@ fn parse_parser_GREEDY<'input>(input: &'input str,
                             Matched(pos, _) => {
                                 {
                                     let seq_res =
-                                        parse_parser_name(input, state, pos);
+                                        match parse_parser_name(input, state,
+                                                                pos) {
+                                            Matched(newpos, value) => {
+                                                Matched(newpos, Some(value))
+                                            }
+                                            Failed => { Matched(pos, None) }
+                                        };
                                     match seq_res {
                                         Matched(pos, name) => {
                                             {
@@ -588,7 +616,8 @@ fn parse_parser_GREEDY<'input>(input: &'input str,
                                                                                     let mut tokens =
                                                                                         Vec::new();
                                                                                     let mut parser =
-                                                                                        GreedyParser::with_name(name.to_string());
+                                                                                        GreedyParser::new();
+                                                                                    parser.set_name(name);
                                                                                     if let Some(end_string)
                                                                                            =
                                                                                            end_string
@@ -827,7 +856,7 @@ fn parse_PARSER_PARAMS_END<'input>(input: &'input str,
 }
 fn parse_parser_name<'input>(input: &'input str,
                              state: &mut ParseState<'input>, pos: usize)
- -> RuleResult<&'input str> {
+ -> RuleResult<String> {
     {
         let start_pos = pos;
         {
@@ -840,7 +869,7 @@ fn parse_parser_name<'input>(input: &'input str,
                             Matched(pos, name) => {
                                 {
                                     let match_str = &input[start_pos..pos];
-                                    Matched(pos, { name })
+                                    Matched(pos, { name.to_string() })
                                 }
                             }
                             Failed => Failed,
