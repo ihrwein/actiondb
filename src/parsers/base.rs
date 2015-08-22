@@ -10,6 +10,12 @@ impl ParserBase {
         ParserBase { name: Some(name) }
     }
 
+    pub fn new() -> ParserBase {
+        ParserBase {
+            name: None
+        }
+    }
+
     pub fn name(&self) -> Option<&str> {
         self.name.as_ref().and_then(|x| Some(x.borrow()))
     }
