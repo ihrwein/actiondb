@@ -1,5 +1,5 @@
 use super::TestMessage;
-use serde::json;
+use serde_json;
 use std::borrow::Borrow;
 
 #[test]
@@ -18,7 +18,7 @@ fn test_given_json_test_message_when_it_is_deserialized_then_we_get_the_right_in
 "tags": ["tag1", "tag2"]
 }
 "#;
-    let result = json::from_str::<TestMessage>(buffer);
+    let result = serde_json::from_str::<TestMessage>(buffer);
     let expexted_tags = &["tag1".to_string(), "tag2".to_string()];
     println!("{:?}", result);
     let msg = result.ok().expect("Failed to deserialize a valid TestMessage from JSON");
@@ -37,7 +37,7 @@ fn test_given_json_test_message_when_it_does_not_have_a_message_field_then_error
 }
 }
 "#;
-    let result = json::from_str::<TestMessage>(buffer);
+    let result = serde_json::from_str::<TestMessage>(buffer);
     println!("{:?}", result);
     let _ = result.err().expect("Failed to return error when a serialized TestMessage doesn't have a message field");
 }
@@ -49,7 +49,7 @@ fn test_given_json_test_message_when_it_does_not_have_the_optional_fields_then_i
 "message": "lame-servers: info: unexpected RCODE (REFUSED) resolving 'ns1.example.org/AAAA/IN': 192.0.2.1#53"
 }
 "#;
-    let result = json::from_str::<TestMessage>(buffer);
+    let result = serde_json::from_str::<TestMessage>(buffer);
     println!("{:?}", result);
     let msg = result.ok().expect("Failed to deserialize a valid TestMessage from JSON when it doesn't contain values");
     assert_eq!("lame-servers: info: unexpected RCODE (REFUSED) resolving 'ns1.example.org/AAAA/IN': 192.0.2.1#53", msg.message());
@@ -64,7 +64,7 @@ fn test_given_json_test_message_when_it_contains_not_just_the_valid_fields_then_
 "field": "this field is not in TestMessage"
 }
 "#;
-    let result = json::from_str::<TestMessage>(buffer);
+    let result = serde_json::from_str::<TestMessage>(buffer);
     println!("{:?}", result);
     let _ = result.err().expect("Failed to return an error when a serialized TestMessage contains non-valid fields");
 }

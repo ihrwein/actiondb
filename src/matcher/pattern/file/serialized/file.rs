@@ -1,5 +1,5 @@
 use matcher::pattern::Pattern;
-use serde::json;
+use serde_json;
 
 use std::fs;
 use std::io::Read;
@@ -16,7 +16,7 @@ impl SerializedPatternFile {
         let mut file = try!(fs::File::open(path));
 
         try!(file.read_to_string(&mut buffer));
-        json::from_str::<SerializedPatternFile>(&buffer).map_err(|error| Error::from(DeserError::from(error)))
+        serde_json::from_str::<SerializedPatternFile>(&buffer).map_err(|error| Error::from(DeserError::from(error)))
     }
 
     pub fn patterns(&self) -> &Vec<Pattern> {

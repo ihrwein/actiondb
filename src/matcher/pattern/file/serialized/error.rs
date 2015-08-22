@@ -50,15 +50,15 @@ impl error::Error for Error {
 mod deser {
     use std::fmt;
     use std::error;
-    use serde::json;
+    use serde_json;
 
     #[derive(Debug)]
     pub enum DeserError {
-        JSON(json::Error)
+        JSON(serde_json::Error)
     }
 
-    impl From<json::Error> for DeserError {
-        fn from(error: json::Error) -> DeserError {
+    impl From<serde_json::Error> for DeserError {
+        fn from(error: serde_json::Error) -> DeserError {
             DeserError::JSON(error)
         }
     }
