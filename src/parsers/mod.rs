@@ -29,3 +29,26 @@ pub trait HasOptionalParameter {
 pub enum OptionalParameter<'a> {
     Int(&'a str, usize),
 }
+
+#[derive(Debug)]
+pub struct ParseResult<'a, 'b> {
+    parser: &'a Parser,
+    value: &'b str
+}
+
+impl<'a, 'b> ParseResult<'a, 'b> {
+    pub fn new(parser: &'a Parser, value: &'b str) -> ParseResult<'a, 'b> {
+        ParseResult {
+            parser: parser,
+            value: value
+        }
+    }
+
+    pub fn parser(&self) -> &'a Parser {
+        self.parser
+    }
+
+    pub fn value(&self) -> &'b str {
+        self.value
+    }
+}
