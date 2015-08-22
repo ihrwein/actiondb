@@ -19,6 +19,13 @@ impl GreedyParser {
         parser
     }
 
+    pub fn new() -> GreedyParser {
+        GreedyParser {
+            base: ParserBase::new(),
+            end_string: None
+        }
+    }
+
     pub fn set_end_string(&mut self, end_string: String) {
         self.end_string = Some(end_string);
     }
