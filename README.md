@@ -172,6 +172,18 @@ It support the `validate` and `parse` subcommands. For more information check
 it's `--help` option.
 
 ## Changelog
+### Actiondb 0.3.0
+* Plain pattern file support is removed
+* CR characters can be used in patterns
+* improved error messages
+* upgrade to `serde 0.5`
+* parsed messages can be tagged
+* parsed messages can have additional key-value pairs
+* the tests checks only the expected tags and values
+* parser names are optional(like `%{GREEDY}`)
+
+This release would not be possible without the help of Fabien Wernli. Thanks, Fabien!
+
 ### Actiondb 0.2.0
 User visible changes:
 
