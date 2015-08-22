@@ -12,7 +12,7 @@ impl serde::Deserialize for Pattern {
     fn deserialize<D>(deserializer: &mut D) -> Result<Pattern, D::Error>
         where D: serde::de::Deserializer
     {
-        deserializer.visit_named_map("Pattern", PatternVisitor)
+        deserializer.visit_struct("Pattern", &[], PatternVisitor)
     }
 }
 
@@ -44,7 +44,7 @@ impl serde::Deserialize for Field {
                     "values" => Ok(Field::VALUES),
                     "tags" => Ok(Field::TAGS),
                     "test_messages" => Ok(Field::TESTMESSAGES),
-                    _ => Err(serde::de::Error::syntax_error()),
+                    name @_ => Err(serde::de::Error::syntax(&format!("Unexpected field: {}", name))),
                 }
             }
         }
@@ -76,8 +76,7 @@ impl PatternVisitor {
         match uuid {
             Some(uuid) => Ok(uuid),
             None => {
-                //error!("Missing field 'uuid': name={:?}", name);
-                try!(Err(serde::de::Error::missing_field_error("uuid")))
+                try!(Err(serde::de::Error::missing_field("uuid")))
             }
         }
     }
@@ -120,13 +119,13 @@ impl serde::de::Visitor for PatternVisitor {
                     Ok(pattern) => pattern,
                     Err(err) => {
                         error!("Invalid field 'pattern': pattern={:?} name={:?} uuid={:?} error={}", pattern, name, uuid, err);
-                        try!(Err(serde::de::Error::missing_field_error("pattern")))
+                        try!(Err(serde::de::Error::syntax("Invalid field 'pattern'")))
                     }
                 }
             },
             None => {
                 error!("Missing field 'pattern': name={:?} uuid={:?}", name, uuid);
-                try!(Err(serde::de::Error::missing_field_error("pattern")))
+                try!(Err(serde::de::Error::missing_field("pattern")))
             }
         };
 

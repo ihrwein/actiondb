@@ -7,7 +7,7 @@ impl serde::Deserialize for SerializedPatternFile {
     fn deserialize<D>(deserializer: &mut D) -> Result<SerializedPatternFile, D::Error>
         where D: serde::de::Deserializer
     {
-        deserializer.visit_named_map("File", FileVisitor)
+        deserializer.visit_struct("File", &[], FileVisitor)
     }
 }
 
@@ -29,7 +29,7 @@ impl serde::Deserialize for Field {
             {
                 match value {
                     "patterns" => Ok(Field::PATTERNS),
-                    _ => Err(serde::de::Error::syntax_error()),
+                    name @ _ => Err(serde::de::Error::syntax(&format!("Unexpected field: {}", name))),
                 }
             }
         }

@@ -1,6 +1,5 @@
 use uuid::Uuid;
-use serde::json;
-use serde;
+use serde_json;
 
 use matcher::trie::node::{CompiledPattern, TokenType};
 use super::testmessage::TestMessage;
@@ -65,8 +64,8 @@ impl Pattern {
         self.tags.as_ref().map(|tags| tags.borrow())
     }
 
-    pub fn from_json(doc: &str) -> Result<Pattern, serde::json::error::Error> {
-        json::from_str::<Pattern>(doc)
+    pub fn from_json(doc: &str) -> Result<Pattern, serde_json::error::Error> {
+        serde_json::from_str::<Pattern>(doc)
     }
 
     pub fn set_pattern(&mut self, pattern: CompiledPattern) {
