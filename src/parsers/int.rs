@@ -9,10 +9,10 @@ pub struct IntParser {
 
 impl IntParser {
     pub fn from_str(name: &str) -> IntParser {
-        IntParser::new(name.to_string())
+        IntParser::with_name(name.to_string())
     }
 
-    pub fn new(name: String) -> IntParser {
+    pub fn with_name(name: String) -> IntParser {
         let delegate = SetParser::with_name(name, "0123456789");
         IntParser{ delegate: delegate }
     }
