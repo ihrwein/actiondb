@@ -74,6 +74,10 @@ impl Parser for SetParser {
         self.base.name()
     }
 
+    fn set_name(&mut self, name: Option<String>) {
+        self.base.set_name(name);
+    }
+
     fn boxed_clone(&self) -> Box<Parser> {
         Box::new(self.clone())
     }

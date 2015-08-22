@@ -36,6 +36,10 @@ impl LengthCheckedParserBase {
             self.is_max_length_ok(match_length)
     }
 
+    pub fn set_name(&mut self, name: Option<String>) {
+        self.base.set_name(name);
+    }
+
     pub fn name(&self) -> Option<&str> {
         self.base.name()
     }

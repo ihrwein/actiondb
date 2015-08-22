@@ -35,6 +35,10 @@ impl Parser for IntParser {
         self.delegate.name()
     }
 
+    fn set_name(&mut self, name: Option<String>) {
+        self.delegate.set_name(name);
+    }
+
     fn boxed_clone(&self) -> Box<Parser> {
         Box::new(self.clone())
     }

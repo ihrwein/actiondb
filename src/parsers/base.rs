@@ -20,7 +20,7 @@ impl ParserBase {
         self.name.as_ref().and_then(|x| Some(x.borrow()))
     }
 
-    pub fn set_name(&mut self, name: String) {
-        self.name = Some(name);
+    pub fn set_name(&mut self, name: Option<String>) {
+        self.name = name;
     }
 }
