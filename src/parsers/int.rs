@@ -17,6 +17,12 @@ impl IntParser {
         IntParser{ delegate: delegate }
     }
 
+    pub fn new() -> IntParser {
+        IntParser {
+            delegate: SetParser::new("0123456789")
+        }
+    }
+
     pub fn set_min_length(&mut self, length: usize) {
         self.delegate.set_min_length(length)
     }
