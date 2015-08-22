@@ -28,7 +28,7 @@ impl LengthCheckedParserBase {
             self.is_max_length_ok(match_length)
     }
 
-    pub fn name(&self) -> &str {
+    pub fn name(&self) -> Option<&str> {
         self.base.name()
     }
 

@@ -18,7 +18,9 @@ impl <'a, 'b> MatchResult<'a, 'b> {
     }
 
     pub fn insert(&mut self, result: ParseResult<'a, 'b>) {
-        self.values.insert(result.parser().name(), result.value());
+        if let Some(name) = result.parser().name() {
+            self.values.insert(name, result.value());
+        }
     }
 
     pub fn pattern(&self) -> &Pattern {

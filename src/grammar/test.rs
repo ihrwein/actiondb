@@ -4,7 +4,7 @@ use parsers::{SetParser, Parser, ObjectSafeHash, IntParser, GreedyParser};
 
 fn assert_parser_name_equals(item: Option<&TokenType>, expected_name: &str) {
     if let Some(&TokenType::Parser(ref parser)) = item {
-        assert_eq!(parser.name(), expected_name);
+        assert_eq!(parser.name(), Some(expected_name));
     } else {
         unreachable!();
     }
@@ -153,7 +153,7 @@ fn test_given_greedy_parser_when_there_is_no_literal_after_it_then_we_take_all_t
 
     if let &TokenType::Parser(ref parser) = vec.get(1).unwrap() {
         let res = parser.parse("the quick brown fox").unwrap();
-        assert_eq!(res.parser().name(), "greedy");
+        assert_eq!(res.parser().name(), Some("greedy"));
         assert_eq!(res.value(), "the quick brown fox");
     } else {
         unreachable!();

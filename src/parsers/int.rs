@@ -31,7 +31,7 @@ impl Parser for IntParser {
         self.delegate.parse(value)
     }
 
-    fn name(&self) -> &str {
+    fn name(&self) -> Option<&str> {
         self.delegate.name()
     }
 
@@ -71,7 +71,7 @@ mod test {
         let parser_name = "test_int_parser";
         let parser = IntParser::from_str(parser_name);
         let res = parser.parse("1234asd").unwrap();
-        assert_eq!(res.parser().name(), parser_name);
+        assert_eq!(res.parser().name(), Some(parser_name));
         assert_eq!(res.value(), "1234");
     }
 

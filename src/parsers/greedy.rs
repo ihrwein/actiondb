@@ -46,7 +46,7 @@ impl Parser for GreedyParser {
         }
     }
 
-    fn name(&self) -> &str {
+    fn name(&self) -> Option<&str> {
         self.base.name()
     }
 
@@ -69,7 +69,7 @@ mod test {
     fn test_given_greedy_parser_when_the_end_string_is_found_in_the_value_then_the_parser_matches() {
         let parser = GreedyParser::from_str("name", "foo");
         let res = parser.parse("qux foo bar").unwrap();
-        assert_eq!(res.parser().name(), "name");
+        assert_eq!(res.parser().name(), Some("name"));
         assert_eq!(res.value(), "qux ");
     }
 }

@@ -63,7 +63,7 @@ impl Parser for SetParser {
         }
     }
 
-    fn name(&self) -> &str {
+    fn name(&self) -> Option<&str> {
         self.base.name()
     }
 
@@ -107,7 +107,7 @@ mod test {
     fn test_given_matching_string_when_parsed_it_matches() {
         let p = SetParser::from_str("name", "0123");
         let res = p.parse("11230almafa").unwrap();
-        assert_eq!(res.parser().name(), "name");
+        assert_eq!(res.parser().name(), Some("name"));
         assert_eq!(res.value(), "11230");
     }
 
@@ -132,7 +132,7 @@ mod test {
         p.set_min_length(3);
         p.set_max_length(7);
         let res = p.parse("11230almafa").unwrap();
-        assert_eq!(res.parser().name(), "testname");
+        assert_eq!(res.parser().name(), Some("testname"));
         assert_eq!(res.value(), "11230");
     }
 

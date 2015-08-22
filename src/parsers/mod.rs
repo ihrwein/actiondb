@@ -17,7 +17,7 @@ pub trait ObjectSafeHash {
 
 pub trait Parser: Debug + ObjectSafeHash {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<ParseResult<'a, 'b>>;
-    fn name(&self) -> &str;
+    fn name(&self) -> Option<&str>;
     fn boxed_clone(&self) -> Box<Parser>;
 }
 
