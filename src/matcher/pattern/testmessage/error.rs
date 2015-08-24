@@ -1,3 +1,5 @@
+use uuid::Uuid;
+
 use std::error;
 use std::fmt;
 
@@ -6,7 +8,7 @@ use super::TestMessage;
 #[derive(Debug)]
 pub enum Error {
     InvalidLength{expected: usize, got: usize},
-    ValueNotMatch{key: String, expected_value: String, got_value: String},
+    ValueNotMatch{pattern_uuid: String, key: String, expected_value: String, got_value: String},
     KeyNotFound{key: String},
     TestMessageDoesntMatch{message: String},
     UnexpectedTags{expected: Option<Vec<String>>, got: Option<Vec<String>>}
@@ -17,8 +19,8 @@ impl Error {
         Error::InvalidLength{expected: expected, got: got}
     }
 
-    pub fn value_not_match(key: &str, expected_value: &str, got_value: &str) -> Error {
-        Error::ValueNotMatch{key: key.to_string(), expected_value: expected_value.to_string(), got_value: got_value.to_string()}
+    pub fn value_not_match(pattern_uuid: &Uuid, key: &str, expected_value: &str, got_value: &str) -> Error {
+        Error::ValueNotMatch{pattern_uuid: pattern_uuid.to_hyphenated_string(), key: key.to_string(), expected_value: expected_value.to_string(), got_value: got_value.to_string()}
     }
 
     pub fn key_not_found(key: &str) -> Error {
@@ -43,8 +45,8 @@ impl fmt::Display for Error {
             &Error::InvalidLength{expected, got} => {
                 fmt.write_fmt(format_args!("The number of parsed key-value pairs does not equal to their expected number: expected={} got={}", expected, got))
             },
-            &Error::ValueNotMatch{ref key, ref expected_value, ref got_value} => {
-                fmt.write_fmt(format_args!("A parsed value does not equal to its expected value: key={} expected={} got={}", key, expected_value, got_value))
+            &Error::ValueNotMatch{ref pattern_uuid, ref key, ref expected_value, ref got_value} => {
+                fmt.write_fmt(format_args!("A parsed value does not equal to its expected value: uuid={} key={} expected={} got={}", pattern_uuid, key, expected_value, got_value))
             },
             &Error::KeyNotFound{ref key} => {
                 fmt.write_fmt(format_args!("A parsed key in not found among the expected ones: key={}", key))
@@ -65,7 +67,7 @@ impl error::Error for Error {
             &Error::InvalidLength{expected: _, got: _} => {
                 "The number of parsed key-value pairs does not equal to their expected number"
             },
-            &Error::ValueNotMatch{key: _, expected_value: _, got_value: _} => {
+            &Error::ValueNotMatch{pattern_uuid: _, key: _, expected_value: _, got_value: _} => {
                 "A parsed value does not equal to its expected value"
             },
             &Error::KeyNotFound{key: _} => {

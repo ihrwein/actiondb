@@ -41,16 +41,16 @@ impl TestMessage {
         let merged_values = TestMessage::merge_values(result);
 
         for (key, value) in self.values() {
-            try!(TestMessage::test_value(key, value, &merged_values));
+            try!(TestMessage::test_value(key, value, &merged_values, result));
         }
         Ok(())
     }
 
-    fn test_value(key: &str, value: &str, values: &BTreeMap<&str, &str>) -> Result<(), Error> {
+    fn test_value(key: &str, value: &str, values: &BTreeMap<&str, &str>, result: &MatchResult) -> Result<(), Error> {
         if let Some(got_value) = values.get(key) {
             let got_value: &str = got_value;
             if value != got_value {
-                return Err(Error::value_not_match(key, value, got_value));
+                return Err(Error::value_not_match(result.pattern().uuid(), key, value, got_value));
             } else {
                 Ok(())
             }
