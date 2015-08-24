@@ -7,7 +7,6 @@ use super::TestMessage;
 
 #[derive(Debug)]
 pub enum Error {
-    InvalidLength{expected: usize, got: usize},
     ValueNotMatch{pattern_uuid: String, key: String, expected_value: String, got_value: String},
     KeyNotFound{key: String},
     TestMessageDoesntMatch{message: String},
@@ -15,10 +14,6 @@ pub enum Error {
 }
 
 impl Error {
-    pub fn invalid_length(expected: usize, got: usize) -> Error {
-        Error::InvalidLength{expected: expected, got: got}
-    }
-
     pub fn value_not_match(pattern_uuid: &Uuid, key: &str, expected_value: &str, got_value: &str) -> Error {
         Error::ValueNotMatch{pattern_uuid: pattern_uuid.to_hyphenated_string(), key: key.to_string(), expected_value: expected_value.to_string(), got_value: got_value.to_string()}
     }
@@ -42,9 +37,6 @@ impl Error {
 impl fmt::Display for Error {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         match self {
-            &Error::InvalidLength{expected, got} => {
-                fmt.write_fmt(format_args!("The number of parsed key-value pairs does not equal to their expected number: expected={} got={}", expected, got))
-            },
             &Error::ValueNotMatch{ref pattern_uuid, ref key, ref expected_value, ref got_value} => {
                 fmt.write_fmt(format_args!("A parsed value does not equal to its expected value: uuid={} key={} expected={} got={}", pattern_uuid, key, expected_value, got_value))
             },
@@ -64,9 +56,6 @@ impl fmt::Display for Error {
 impl error::Error for Error {
     fn description(&self) -> &str {
         match self {
-            &Error::InvalidLength{expected: _, got: _} => {
-                "The number of parsed key-value pairs does not equal to their expected number"
-            },
             &Error::ValueNotMatch{pattern_uuid: _, key: _, expected_value: _, got_value: _} => {
                 "A parsed value does not equal to its expected value"
             },
