@@ -5,6 +5,7 @@ extern crate serde;
 extern crate serde_json;
 #[macro_use]
 extern crate maplit;
+extern crate handlebars;
 
 pub mod parsers;
 pub mod utils;
