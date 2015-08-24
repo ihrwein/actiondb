@@ -277,6 +277,8 @@ sub _validate_pattern {
 		if (/^$/) {
 			return "";
 		} elsif (/^ESTRING$/) {
+			# ugly hack to detect ESTRING:foo::
+			$opt = ":" if (substr($_[0],-2) eq "::");
 			return "%{GREEDY:$key}$opt";
 		} elsif (/QSTRING/) {
 			my $a = substr($opt,0,1);
