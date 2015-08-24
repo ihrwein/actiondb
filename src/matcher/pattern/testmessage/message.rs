@@ -97,6 +97,6 @@ impl TestMessage {
     fn report_unexpected_tags_error(&self, result: &MatchResult) -> Error {
         let expected = self.tags().map(|tags| { tags.to_vec() });
         let got = result.pattern().tags().map(|tags| { tags.to_vec() });
-        Error::unexpected_tags(expected, got)
+        Error::unexpected_tags(result.pattern().uuid(), expected, got)
     }
 }

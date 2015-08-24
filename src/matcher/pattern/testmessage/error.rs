@@ -10,7 +10,7 @@ pub enum Error {
     ValueNotMatch{pattern_uuid: String, key: String, expected_value: String, got_value: String},
     KeyNotFound{pattern_uuid: String, key: String},
     TestMessageDoesntMatch{pattern_uuid: String, message: String},
-    UnexpectedTags{expected: Option<Vec<String>>, got: Option<Vec<String>>}
+    UnexpectedTags{pattern_uuid: String, expected: Option<Vec<String>>, got: Option<Vec<String>>}
 }
 
 impl Error {
@@ -26,8 +26,9 @@ impl Error {
         Error::TestMessageDoesntMatch{pattern_uuid: pattern_uuid.to_hyphenated_string(), message: test_msg.message().to_owned()}
     }
 
-    pub fn unexpected_tags(expected: Option<Vec<String>>, got: Option<Vec<String>>) -> Error {
+    pub fn unexpected_tags(pattern_uuid: &Uuid, expected: Option<Vec<String>>, got: Option<Vec<String>>) -> Error {
         Error::UnexpectedTags {
+            pattern_uuid: pattern_uuid.to_hyphenated_string(),
             expected: expected,
             got: got
         }
@@ -46,8 +47,8 @@ impl fmt::Display for Error {
             &Error::TestMessageDoesntMatch{ref pattern_uuid, ref message} => {
                 fmt.write_fmt(format_args!("A test message cannot be parsed but its pattern is inserted: uuid={} message='{}'", pattern_uuid, message))
             },
-            &Error::UnexpectedTags{ref expected, ref got} => {
-                fmt.write_fmt(format_args!("Unexpected tags found either in the parse result or among the expected ones: expected: {:?} got={:?}", expected, got))
+            &Error::UnexpectedTags{ref pattern_uuid, ref expected, ref got} => {
+                fmt.write_fmt(format_args!("Unexpected tags found either in the parse result or among the expected ones: uuid={} expected: {:?} got={:?}", pattern_uuid, expected, got))
             }
         }
     }
@@ -65,7 +66,7 @@ impl error::Error for Error {
             &Error::TestMessageDoesntMatch{pattern_uuid: _, message: _} => {
                 "A test message cannot be parsed but its pattern is inserted"
             },
-            &Error::UnexpectedTags{expected: _, got: _} => {
+            &Error::UnexpectedTags{pattern_uuid: _, expected: _, got: _} => {
                 "Unexpected tags found either in the parse result or among the expected ones"
             }
         }
