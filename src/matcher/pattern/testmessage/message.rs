@@ -55,7 +55,7 @@ impl TestMessage {
                 Ok(())
             }
         } else {
-            return Err(Error::key_not_found(key));
+            return Err(Error::key_not_found(result.pattern().uuid(), key));
         }
     }
 

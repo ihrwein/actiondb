@@ -8,7 +8,7 @@ use super::TestMessage;
 #[derive(Debug)]
 pub enum Error {
     ValueNotMatch{pattern_uuid: String, key: String, expected_value: String, got_value: String},
-    KeyNotFound{key: String},
+    KeyNotFound{pattern_uuid: String, key: String},
     TestMessageDoesntMatch{message: String},
     UnexpectedTags{expected: Option<Vec<String>>, got: Option<Vec<String>>}
 }
@@ -18,8 +18,8 @@ impl Error {
         Error::ValueNotMatch{pattern_uuid: pattern_uuid.to_hyphenated_string(), key: key.to_string(), expected_value: expected_value.to_string(), got_value: got_value.to_string()}
     }
 
-    pub fn key_not_found(key: &str) -> Error {
-        Error::KeyNotFound{key: key.to_string()}
+    pub fn key_not_found(pattern_uuid: &Uuid, key: &str) -> Error {
+        Error::KeyNotFound{pattern_uuid: pattern_uuid.to_hyphenated_string(), key: key.to_string()}
     }
 
     pub fn test_message_does_not_match(test_msg: &TestMessage) -> Error {
@@ -40,8 +40,8 @@ impl fmt::Display for Error {
             &Error::ValueNotMatch{ref pattern_uuid, ref key, ref expected_value, ref got_value} => {
                 fmt.write_fmt(format_args!("A parsed value does not equal to its expected value: uuid={} key={} expected={} got={}", pattern_uuid, key, expected_value, got_value))
             },
-            &Error::KeyNotFound{ref key} => {
-                fmt.write_fmt(format_args!("A parsed key in not found among the expected ones: key={}", key))
+            &Error::KeyNotFound{ref pattern_uuid, ref key} => {
+                fmt.write_fmt(format_args!("A parsed key in not found among the expected ones: uuid={} key={}", pattern_uuid, key))
             }
             &Error::TestMessageDoesntMatch{ref message} => {
                 fmt.write_fmt(format_args!("A test message cannot be parsed but its pattern is inserted: message='{}'", message))
@@ -59,7 +59,7 @@ impl error::Error for Error {
             &Error::ValueNotMatch{pattern_uuid: _, key: _, expected_value: _, got_value: _} => {
                 "A parsed value does not equal to its expected value"
             },
-            &Error::KeyNotFound{key: _} => {
+            &Error::KeyNotFound{pattern_uuid: _, key: _} => {
                 "A parsed key in not found among the expected ones"
             },
             &Error::TestMessageDoesntMatch{message: _} => {
