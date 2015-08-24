@@ -9,7 +9,7 @@ use super::TestMessage;
 pub enum Error {
     ValueNotMatch{pattern_uuid: String, key: String, expected_value: String, got_value: String},
     KeyNotFound{pattern_uuid: String, key: String},
-    TestMessageDoesntMatch{message: String},
+    TestMessageDoesntMatch{pattern_uuid: String, message: String},
     UnexpectedTags{expected: Option<Vec<String>>, got: Option<Vec<String>>}
 }
 
@@ -22,8 +22,8 @@ impl Error {
         Error::KeyNotFound{pattern_uuid: pattern_uuid.to_hyphenated_string(), key: key.to_string()}
     }
 
-    pub fn test_message_does_not_match(test_msg: &TestMessage) -> Error {
-        Error::TestMessageDoesntMatch{message: test_msg.message().to_owned()}
+    pub fn test_message_does_not_match(pattern_uuid: &Uuid, test_msg: &TestMessage) -> Error {
+        Error::TestMessageDoesntMatch{pattern_uuid: pattern_uuid.to_hyphenated_string(), message: test_msg.message().to_owned()}
     }
 
     pub fn unexpected_tags(expected: Option<Vec<String>>, got: Option<Vec<String>>) -> Error {
@@ -43,8 +43,8 @@ impl fmt::Display for Error {
             &Error::KeyNotFound{ref pattern_uuid, ref key} => {
                 fmt.write_fmt(format_args!("A parsed key in not found among the expected ones: uuid={} key={}", pattern_uuid, key))
             }
-            &Error::TestMessageDoesntMatch{ref message} => {
-                fmt.write_fmt(format_args!("A test message cannot be parsed but its pattern is inserted: message='{}'", message))
+            &Error::TestMessageDoesntMatch{ref pattern_uuid, ref message} => {
+                fmt.write_fmt(format_args!("A test message cannot be parsed but its pattern is inserted: uuid={} message='{}'", pattern_uuid, message))
             },
             &Error::UnexpectedTags{ref expected, ref got} => {
                 fmt.write_fmt(format_args!("Unexpected tags found either in the parse result or among the expected ones: expected: {:?} got={:?}", expected, got))
@@ -62,7 +62,7 @@ impl error::Error for Error {
             &Error::KeyNotFound{pattern_uuid: _, key: _} => {
                 "A parsed key in not found among the expected ones"
             },
-            &Error::TestMessageDoesntMatch{message: _} => {
+            &Error::TestMessageDoesntMatch{pattern_uuid: _, message: _} => {
                 "A test message cannot be parsed but its pattern is inserted"
             },
             &Error::UnexpectedTags{expected: _, got: _} => {
