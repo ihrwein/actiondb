@@ -186,7 +186,7 @@ if ($opt -> patterns) {
 		my %extra_values;
 		my %extra_tags;
 		if ($rule -> {values}) {
-			for (my ($k,$v) = each %{$rule -> {values}}) {
+			while (my ($k,$v) = each %{$rule -> {values}}) {
 				for ($v) {
 					if (/\$\(/) {
 						warn "rule `${uuid}` contains key-value with macro: `${k}=${v}`. Unsupported\n"
