@@ -54,7 +54,7 @@ impl fmt::Display for Error {
                 fmt.write_fmt(format_args!("A parsed key in not found among the expected ones: uuid={} key={}", pattern_uuid, key))
             }
             &Error::TestMessageDoesntMatch{ref pattern_uuid, ref message} => {
-                fmt.write_fmt(format_args!("A test message cannot be parsed but its pattern is inserted: uuid={} message='{}'", pattern_uuid, message))
+                fmt.write_fmt(format_args!("A test message did not match its pattern: uuid={} message='{}'", pattern_uuid, message))
             },
             &Error::MatchedToOtherPattern{ref expected_uuid, ref got_uuid, ref message} => {
                 fmt.write_fmt(format_args!("The test message matched to an other pattern: expected_uuid={} got_uuid={} test_message='{}'", expected_uuid, got_uuid, message))
