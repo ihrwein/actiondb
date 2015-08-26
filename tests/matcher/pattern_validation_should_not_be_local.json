@@ -1,0 +1,22 @@
+{  
+  "patterns":[  
+    {  
+      "pattern":"%{GREEDY:foo}",
+      "test_messages":[  
+        {  
+          "message":"named: zone coagulants.devotions.tld/IN: NS 'gateway.pecs-mikro.hu.coagulants.devotions.tld' has no address records (A or AAAA)"
+        }
+      ],
+      "uuid":"4a853792-2fad-44da-9b4b-059a0caad6e2"
+    },
+    {  
+      "uuid":"1252c927-b0a3-4ce7-b863-da1427dc57ef",
+      "pattern":"named: zone %{GREEDY:appacct.zone_name}/IN: NS '%{GREEDY:appacct.zone_ns}' has no address records (A or AAAA)",
+      "test_messages":[  
+        {  
+          "message":"named: zone foo.bar.tld/IN: NS 'gateway.pecs-mikro.hu.coagulants.devotions.tld' has no address records (A or AAAA)"
+        }
+      ]
+    }
+  ]
+}

@@ -3,6 +3,7 @@ use uuid::Uuid;
 use matcher::pattern::{Pattern, PatternSource};
 use matcher::pattern::testmessage::{self, TestMessage};
 use matcher::Matcher;
+use matcher::result::MatchResult;
 use super::BuildError;
 
 
@@ -32,8 +33,16 @@ impl Builder {
     fn check_test_messages(matcher: &Matcher, messages: &[TestMessage], uuid: &Uuid) -> Result<(), BuildError> {
         for msg in messages {
             let result = try!(matcher.parse(msg.message()).ok_or(testmessage::Error::test_message_does_not_match(uuid, msg)));
-            try!(msg.test_result(&result));
+            try!(Builder::check_test_message(msg, &result, uuid));
         }
         Ok(())
+    }
+
+    fn check_test_message(message: &TestMessage, result: &MatchResult, expected_uuid: &Uuid) -> Result<(), testmessage::Error> {
+        if result.pattern().uuid() != expected_uuid {
+            Err(testmessage::Error::matched_to_other_pattern(expected_uuid, result.pattern().uuid(), message.message()))
+        } else {
+            message.test_result(&result)
+        }
     }
 }

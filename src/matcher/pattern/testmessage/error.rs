@@ -10,6 +10,7 @@ pub enum Error {
     ValueNotMatch{pattern_uuid: String, key: String, expected_value: String, got_value: String},
     KeyNotFound{pattern_uuid: String, key: String},
     TestMessageDoesntMatch{pattern_uuid: String, message: String},
+    MatchedToOtherPattern{expected_uuid: String, got_uuid: String, message: String},
     UnexpectedTags{pattern_uuid: String, expected: Option<Vec<String>>, got: Option<Vec<String>>}
 }
 
@@ -24,6 +25,14 @@ impl Error {
 
     pub fn test_message_does_not_match(pattern_uuid: &Uuid, test_msg: &TestMessage) -> Error {
         Error::TestMessageDoesntMatch{pattern_uuid: pattern_uuid.to_hyphenated_string(), message: test_msg.message().to_owned()}
+    }
+
+    pub fn matched_to_other_pattern(expected_uuid: &Uuid, got_uuid: &Uuid, test_message: &str) -> Error {
+        Error::MatchedToOtherPattern {
+            expected_uuid: expected_uuid.to_hyphenated_string(),
+            got_uuid: got_uuid.to_hyphenated_string(),
+            message: test_message.to_string()
+        }
     }
 
     pub fn unexpected_tags(pattern_uuid: &Uuid, expected: Option<Vec<String>>, got: Option<Vec<String>>) -> Error {
@@ -47,6 +56,9 @@ impl fmt::Display for Error {
             &Error::TestMessageDoesntMatch{ref pattern_uuid, ref message} => {
                 fmt.write_fmt(format_args!("A test message cannot be parsed but its pattern is inserted: uuid={} message='{}'", pattern_uuid, message))
             },
+            &Error::MatchedToOtherPattern{ref expected_uuid, ref got_uuid, ref message} => {
+                fmt.write_fmt(format_args!("The test message matched to an other pattern: expected_uuid={} got_uuid={} test_message='{}'", expected_uuid, got_uuid, message))
+            },
             &Error::UnexpectedTags{ref pattern_uuid, ref expected, ref got} => {
                 fmt.write_fmt(format_args!("Unexpected tags found either in the parse result or among the expected ones: uuid={} expected: {:?} got={:?}", pattern_uuid, expected, got))
             }
@@ -65,6 +77,9 @@ impl error::Error for Error {
             },
             &Error::TestMessageDoesntMatch{pattern_uuid: _, message: _} => {
                 "A test message cannot be parsed but its pattern is inserted"
+            },
+            &Error::MatchedToOtherPattern{expected_uuid: _, got_uuid: _, message: _} => {
+                "The test message matched to an other pattern"
             },
             &Error::UnexpectedTags{pattern_uuid: _, expected: _, got: _} => {
                 "Unexpected tags found either in the parse result or among the expected ones"
