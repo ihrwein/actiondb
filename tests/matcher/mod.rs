@@ -69,3 +69,11 @@ fn test_given_json_file_when_a_pattern_contains_cr_characters_then_we_handle_it_
     println!("matcher: {:?}", &matcher);
     let _ = matcher.ok().expect("We should be able to create a Matcher when a pattern has a CR characer in it");
 }
+
+#[test]
+fn test_given_json_file_when_we_check_the_test_messages_then_the_resulting_pattern_should_be_the_tested_one() {
+    let pattern_file_path = "tests/matcher/pattern_validation_should_not_be_local.json";
+    let matcher = Factory::from_json_file(pattern_file_path);
+    println!("matcher: {:?}", &matcher);
+    let _ = matcher.err().expect("The UUID of the resulting pattern should be the same as the freshly inserted one");
+}
