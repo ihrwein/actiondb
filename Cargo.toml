@@ -1,6 +1,6 @@
 [package]
 name = "actiondb"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Tibor Benke <tibor.benke@balabit.com>"]
 homepage = "https://github.com/ihrwein/actiondb"
 repository = "https://github.com/ihrwein/actiondb"
@@ -17,6 +17,6 @@ path = "src/bin/adbtool.rs"
 clap = "1.0"
 log = "0.3"
 uuid = "0.1"
-serde = "0.5"
-serde_json = "0.5"
+serde = "0.6"
+serde_json = "0.6"
 maplit = "0.1"

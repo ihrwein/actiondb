@@ -172,6 +172,9 @@ It support the `validate` and `parse` subcommands. For more information check
 it's `--help` option.
 
 ## Changelog
+### Actiondb 0.3.1
+* upgrade serde to 0.6
+
 ### Actiondb 0.3.0
 * Plain pattern file support is removed
 * CR characters can be used in patterns
