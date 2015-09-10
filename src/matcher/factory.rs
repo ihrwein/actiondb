@@ -33,7 +33,7 @@ impl Factory {
         }
     }
 
-    pub fn drain_into(source: &mut PatternSource) -> Result<Box<Matcher>, builder::BuildError> {
+    fn drain_into(source: &mut PatternSource) -> Result<Box<Matcher>, builder::BuildError> {
         let mut trie = ParserTrie::new();
         try!(builder::Builder::drain_into(source, &mut trie));
         Ok(Box::new(trie))
