@@ -12,13 +12,17 @@ pub struct Builder;
 impl Builder {
     pub fn drain_into(from: &mut PatternSource, matcher: &mut Matcher) -> Result<(), BuildError>{
         for pattern in from {
-            let mut pattern = try!(pattern);
-            let uuid = pattern.uuid().clone();
-            let test_messages = Builder::extract_test_messages(&mut pattern);
-            matcher.add_pattern(pattern);
-            try!(Builder::check_test_messages(matcher, &test_messages, &uuid));
+            let pattern = try!(pattern);
+            try!(Builder::check_pattern(pattern, matcher));
         }
         Ok(())
+    }
+
+    pub fn check_pattern(mut pattern: Pattern, matcher: &mut Matcher) -> Result<(), BuildError> {
+        let uuid = pattern.uuid().clone();
+        let test_messages = Builder::extract_test_messages(&mut pattern);
+        matcher.add_pattern(pattern);
+        Builder::check_test_messages(matcher, &test_messages, &uuid)
     }
 
     fn extract_test_messages(pattern: &mut Pattern) -> Vec<TestMessage> {
