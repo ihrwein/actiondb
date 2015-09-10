@@ -33,9 +33,14 @@ impl Factory {
         }
     }
 
+    pub fn new() -> Box<Matcher> {
+        let trie = ParserTrie::new();
+        Box::new(trie)
+    }
+
     fn drain_into(source: &mut PatternSource) -> Result<Box<Matcher>, builder::BuildError> {
-        let mut trie = ParserTrie::new();
-        try!(builder::Builder::drain_into(source, &mut trie));
-        Ok(Box::new(trie))
+        let mut matcher = Factory::new();
+        try!(builder::Builder::drain_into(source, &mut *matcher));
+        Ok(matcher)
     }
 }
