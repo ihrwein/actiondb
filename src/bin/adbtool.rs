@@ -8,7 +8,11 @@ mod parse;
 
 use clap::{Arg, App, SubCommand, ArgMatches};
 use actiondb::matcher::Factory;
-use log::{LogLevelFilter};
+use actiondb::matcher::Builder;
+use log::LogLevelFilter;
+use actiondb::matcher::pattern::file::SerializedPatternFile;
+use actiondb::matcher::trie::factory::TrieMatcherFactory;
+use actiondb::matcher::factory::MatcherFactory;
 use self::logger::StdoutLogger;
 
 const VERSION: &'static str = "0.2.1";
@@ -18,6 +22,7 @@ const APPNAME: &'static str = "adbtool";
 const PATTERN_FILE: &'static str = "pattern file";
 const VALIDATE: &'static str = "validate";
 const PARSE: &'static str = "parse";
+const IGNORE_ERRORS: &'static str = "ignore-errors";
 const INPUT_FILE: &'static str = "input file";
 const OUTPUT_FILE: &'static str = "output file";
 
@@ -33,7 +38,10 @@ fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, '
                       .arg(Arg::with_name(PATTERN_FILE)
                           .required(true)
                           .index(1)
-                          .help("The pattern file to be validated")))
+                          .help("The pattern file to be validated"))
+                      .arg(Arg::with_name(IGNORE_ERRORS)
+                          .short("i")
+                          .help("Don't stop at the first test message error")))
           .subcommand(SubCommand::with_name(PARSE)
                       .about("parses a file based on predefined patterns")
                       .version(VERSION)
@@ -54,9 +62,31 @@ fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, '
 
 fn handle_validate(matches: &ArgMatches) {
     let pattern_file = matches.value_of(PATTERN_FILE).unwrap();
-    if let Err(e) = Factory::from_file(pattern_file) {
-        error!("{}", e);
-        std::process::exit(1);
+    if matches.is_present(IGNORE_ERRORS) {
+        validate_patterns_independently(pattern_file);
+    } else {
+        if let Err(e) = Factory::from_file(pattern_file) {
+            error!("{}", e);
+            std::process::exit(1);
+        }
+    }
+}
+
+fn validate_patterns_independently(pattern_file: &str) {
+    let mut matcher = TrieMatcherFactory::new_matcher();
+    match SerializedPatternFile::open(pattern_file) {
+        Ok(file) => {
+            let SerializedPatternFile{patterns} = file;
+            for i in patterns {
+                if let Err(error) = Builder::check_pattern(i, &mut matcher) {
+                    error!("{}", error);
+                }
+            }
+        },
+        Err(error) => {
+            error!("{}", error);
+            std::process::exit(1);
+        }
     }
 }
 
