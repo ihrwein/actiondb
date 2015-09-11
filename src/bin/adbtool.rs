@@ -18,6 +18,7 @@ use self::logger::StdoutLogger;
 const VERSION: &'static str = "0.2.1";
 const AUTHOR: &'static str = "Tibor Benke <tibor.benke@balabit.com>";
 const APPNAME: &'static str = "adbtool";
+const DEBUG: &'static str = "debug";
 
 const PATTERN_FILE: &'static str = "pattern file";
 const VALIDATE: &'static str = "validate";
@@ -31,6 +32,9 @@ fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, '
           .version(VERSION)
           .author(AUTHOR)
           .about("Tool for parsing unstructured data")
+          .arg(Arg::with_name(DEBUG)
+              .short("d")
+              .help("Enable debug messages"))
           .subcommand(SubCommand::with_name(VALIDATE)
                       .about("validates pattern file")
                       .version(VERSION)
@@ -78,6 +82,7 @@ fn validate_patterns_independently(pattern_file: &str) {
         Ok(file) => {
             let SerializedPatternFile{patterns} = file;
             for i in patterns {
+                debug!("validating pattern: {}", i.uuid().to_hyphenated_string());
                 if let Err(error) = Builder::check_pattern(i, &mut matcher) {
                     error!("{}", error);
                 }
@@ -101,16 +106,25 @@ fn handle_parse(matches: &ArgMatches) {
     }
 }
 
-fn setup_stdout_logger() {
+fn setup_stdout_logger(log_level: LogLevelFilter) {
     let _ = log::set_logger(|max_log_level| {
-        max_log_level.set(LogLevelFilter::Info);
+        max_log_level.set(log_level);
         Box::new(StdoutLogger)
     });
 }
 
+fn choose_log_level<'n, 'a>(matches: &ArgMatches<'n ,'a>) -> LogLevelFilter {
+    if matches.is_present(DEBUG) {
+        LogLevelFilter::Debug
+    } else {
+        LogLevelFilter::Info
+    }
+}
+
 fn main() {
-    setup_stdout_logger();
     let matches = build_command_line_argument_parser().get_matches();
+    let log_level = choose_log_level(&matches);
+    setup_stdout_logger(log_level);
 
     if let Some(matches) = matches.subcommand_matches(VALIDATE) {
         handle_validate(&matches);
