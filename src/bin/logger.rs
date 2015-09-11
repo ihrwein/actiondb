@@ -6,7 +6,7 @@ pub struct StdoutLogger;
 
 impl log::Log for StdoutLogger {
     fn enabled(&self, metadata: &LogMetadata) -> bool {
-        metadata.level() <= LogLevel::Info
+        metadata.level() <= LogLevel::Trace
     }
 
     fn log(&self, record: &LogRecord) {
