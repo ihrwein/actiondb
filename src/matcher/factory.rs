@@ -1,6 +1,5 @@
 use super::trie::ParserTrie;
 use super::pattern::file;
-use super::pattern::source::PatternSource;
 use super::matcher::builder;
 use super::matcher::Matcher;
 
