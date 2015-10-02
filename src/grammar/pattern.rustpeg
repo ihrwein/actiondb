@@ -1,5 +1,4 @@
 use matcher::compiled_pattern::{CompiledPattern, TokenType};
-use matcher::trie::node::{Node};
 use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter, GreedyParser};
 use grammar;
 use utils;
