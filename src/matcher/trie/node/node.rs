@@ -5,26 +5,6 @@ use matcher::trie::node::ParserNode;
 use matcher::trie::{HasPattern, TrieOperations};
 use matcher::result::MatchResult;
 
-pub type CompiledPattern = Vec<TokenType>;
-
-#[derive(Debug)]
-pub enum TokenType {
-    Parser(Box<Parser>),
-    Literal(String)
-}
-
-impl Clone for TokenType {
-    fn clone(&self) -> TokenType {
-        match self {
-            &TokenType::Parser(ref parser) => {
-                TokenType::Parser(parser.boxed_clone())
-            },
-            &TokenType::Literal(ref literal) => {
-                TokenType::Literal(literal.clone())
-            }
-        }
-    }
-}
 
 #[derive(Debug, Clone)]
 pub struct Node {
@@ -263,7 +243,8 @@ impl TrieOperations for Node {
 mod test {
     use matcher::trie::{ParserTrie, TrieOperations};
     use parsers::{Parser, SetParser};
-    use matcher::trie::node::{CompiledPattern, Node, TokenType};
+    use matcher::trie::node::Node;
+    use matcher::compiled_pattern::{CompiledPattern, TokenType};
     use matcher::pattern::Pattern;
 
     #[test]

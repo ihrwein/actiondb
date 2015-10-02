@@ -1,4 +1,5 @@
-use matcher::trie::node::{Node, TokenType};
+use matcher::trie::node::Node;
+use matcher::compiled_pattern::TokenType;
 use matcher::trie::{HasPattern, TrieOperations};
 use matcher::result::MatchResult;
 use matcher::Pattern;
@@ -54,7 +55,7 @@ impl ParserTrie {
 
 #[cfg(test)]
 mod test {
-    use matcher::trie::node::{CompiledPattern, TokenType};
+    use matcher::compiled_pattern::{CompiledPattern, TokenType};
     use matcher::trie::ParserTrie;
     use parsers::{SetParser, IntParser, GreedyParser};
     use matcher::pattern::Pattern;

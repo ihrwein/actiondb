@@ -1,5 +1,5 @@
 use super::pattern_parser;
-use matcher::trie::node::TokenType;
+use matcher::compiled_pattern::TokenType;
 use parsers::{SetParser, Parser, ObjectSafeHash, IntParser, GreedyParser};
 
 fn assert_parser_name_equals(item: Option<&TokenType>, expected_name: Option<&str>) {

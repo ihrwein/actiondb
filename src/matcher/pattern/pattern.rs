@@ -1,7 +1,7 @@
 use uuid::Uuid;
 use serde_json;
 
-use matcher::trie::node::{CompiledPattern, TokenType};
+use matcher::compiled_pattern::{CompiledPattern, TokenType};
 use super::testmessage::TestMessage;
 
 use std::borrow::Borrow;
