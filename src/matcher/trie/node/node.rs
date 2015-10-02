@@ -244,7 +244,7 @@ mod test {
     use matcher::trie::{ParserTrie, TrieOperations};
     use parsers::{Parser, SetParser};
     use matcher::trie::node::Node;
-    use matcher::compiled_pattern::{CompiledPattern, TokenType};
+    use matcher::compiled_pattern::CompiledPatternBuilder;
     use matcher::pattern::Pattern;
 
     #[test]
@@ -314,15 +314,17 @@ mod test {
 
     fn create_parser_trie() -> ParserTrie {
         let mut root = ParserTrie::new();
-        let mut cp1 = CompiledPattern::new();
-        let mut cp2 = CompiledPattern::new();
-        let mut cp3 = CompiledPattern::new();
-        cp1.push(TokenType::Literal("app".to_string()));
-        cp1.push(TokenType::Parser(Box::new(SetParser::from_str("test", "01234"))));
-        cp1.push(TokenType::Literal("le".to_string()));
-        cp2.push(TokenType::Literal("appletree".to_string()));
-        cp3.push(TokenType::Literal("apple".to_string()));
-
+        let cp1 = CompiledPatternBuilder::new()
+                    .literal("app")
+                    .parser(Box::new(SetParser::from_str("test", "01234")))
+                    .literal("le")
+                    .build();
+        let cp2 = CompiledPatternBuilder::new()
+                    .literal("appletree")
+                    .build();
+        let cp3 = CompiledPatternBuilder::new()
+                    .literal("apple")
+                    .build();
         let mut pattern1 = Pattern::with_random_uuid();
         pattern1.set_pattern(cp1);
         let mut pattern2 = Pattern::with_random_uuid();
@@ -374,23 +376,24 @@ mod test {
 
     fn create_complex_parser_trie() -> ParserTrie {
         let mut root = ParserTrie::new();
-        let mut cp1 = CompiledPattern::new();
-        let mut cp2 = CompiledPattern::new();
-        let mut cp3 = CompiledPattern::new();
-        let mut cp4 = CompiledPattern::new();
-        cp1.push(TokenType::Literal("app".to_string()));
-        cp1.push(TokenType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
-        cp1.push(TokenType::Literal("letree".to_string()));
-        cp1.push(TokenType::Parser(Box::new(SetParser::from_str("end", "012"))));
-
-        cp2.push(TokenType::Literal("app".to_string()));
-        cp2.push(TokenType::Parser(Box::new(SetParser::from_str("middle", "01234"))));
-        cp2.push(TokenType::Literal("letree".to_string()));
-        cp2.push(TokenType::Parser(Box::new(SetParser::from_str("end", "0123"))));
-
-        cp3.push(TokenType::Literal("bamboo".to_string()));
-
-        cp4.push(TokenType::Literal("bamba".to_string()));
+        let cp1 = CompiledPatternBuilder::new()
+                    .literal("app")
+                    .parser(Box::new(SetParser::from_str("middle", "01234")))
+                    .literal("letree")
+                    .parser(Box::new(SetParser::from_str("end", "012")))
+                    .build();
+        let cp2 = CompiledPatternBuilder::new()
+                    .literal("app")
+                    .parser(Box::new(SetParser::from_str("middle", "01234")))
+                    .literal("letree")
+                    .parser(Box::new(SetParser::from_str("end", "0123")))
+                    .build();
+        let cp3 = CompiledPatternBuilder::new()
+                    .literal("bamboo")
+                    .build();
+        let cp4 = CompiledPatternBuilder::new()
+                    .literal("bamba")
+                    .build();
 
         let mut pattern1 = Pattern::with_random_uuid();
         pattern1.set_pattern(cp1);
