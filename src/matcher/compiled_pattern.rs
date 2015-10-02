@@ -20,3 +20,30 @@ impl Clone for TokenType {
         }
     }
 }
+
+pub struct CompiledPatternBuilder {
+    pattern: CompiledPattern
+}
+
+impl CompiledPatternBuilder {
+    pub fn new() -> CompiledPatternBuilder {
+        CompiledPatternBuilder {
+            pattern: Vec::new()
+        }
+    }
+
+    pub fn literal<S>(&mut self, literal: S) -> &mut CompiledPatternBuilder
+        where S: Into<String> {
+        self.pattern.push(TokenType::Literal(literal.into()));
+        self
+    }
+
+    pub fn parser(&mut self, parser: Box<Parser>) -> &mut CompiledPatternBuilder {
+        self.pattern.push(TokenType::Parser(parser));
+        self
+    }
+
+    pub fn build(&self) -> CompiledPattern {
+        self.pattern.clone()
+    }
+}
