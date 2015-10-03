@@ -23,7 +23,17 @@ pub trait Parser: Debug + ObjectSafeHash {
 }
 
 pub trait HasOptionalParameter {
-    fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool;
+    fn set_optional_params<'a>(&mut self, params: Option<Vec<OptionalParameter<'a>>>) -> bool {
+        if let Some(params) = params {
+            for i in params {
+                if !self.set_optional_param(i) {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+    fn set_optional_param<'a>(&mut self, param: OptionalParameter<'a>) -> bool;
 }
 
 #[derive(Debug)]
@@ -52,4 +62,10 @@ impl<'a, 'b> ParseResult<'a, 'b> {
     pub fn value(&self) -> &'b str {
         self.value
     }
+}
+
+pub trait ParserFactory: {
+    fn new_set<'a>(set: &str, name: Option<&str>, opt_params: Option<Vec<OptionalParameter<'a>>>) -> Box<Parser>;
+    fn new_int<'a>(name: Option<&str>, opt_params: Option<Vec<OptionalParameter<'a>>>) -> Box<Parser>;
+    fn new_greedy<'a>(name: Option<&str>, end_string: Option<&str>) -> Box<Parser>;
 }

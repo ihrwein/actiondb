@@ -60,8 +60,8 @@ impl ObjectSafeHash for IntParser {
 }
 
 impl HasOptionalParameter for IntParser {
-    fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool {
-        self.delegate.set_optional_params(params)
+    fn set_optional_param<'a>(&mut self, param: OptionalParameter<'a>) -> bool {
+        self.delegate.set_optional_param(param)
     }
 }
 

@@ -2,7 +2,6 @@ use super::Pattern;
 use super::testmessage::TestMessage;
 
 use serde::de::Deserialize;
-use grammar::pattern_parser;
 use serde;
 use uuid::Uuid;
 
@@ -115,7 +114,7 @@ impl serde::de::Visitor for PatternVisitor {
 
         let pattern = match pattern {
             Some(pattern) => {
-                match pattern_parser::pattern(&pattern) {
+                match ::grammar::parser::pattern(&pattern) {
                     Ok(pattern) => pattern,
                     Err(err) => {
                         error!("Invalid field 'pattern': pattern={:?} name={:?} uuid={:?} error={}", pattern, name, uuid, err);
