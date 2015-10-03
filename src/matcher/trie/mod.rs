@@ -1,5 +1,6 @@
 pub mod node;
 pub mod parser_factory;
+pub mod factory;
 mod trie;
 mod matcher;
 
