@@ -17,7 +17,7 @@ pub fn parse(pattern_file_path: &str, input_file_path: &str, output_file_path: &
     }
 }
 
-fn parse_file(input_file: &File, output_file: &mut File, matcher: &Box<Matcher>) {
+fn parse_file(input_file: &File, output_file: &mut File, matcher: &Matcher) {
     let reader = BufReader::new(input_file);
     let mut writer = BufWriter::new(output_file);
 
