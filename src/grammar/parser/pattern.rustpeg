@@ -3,6 +3,7 @@ use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParame
 use grammar;
 use utils;
 
+use parsers::ParserFactory;
 use std::str::FromStr;
 
 #[pub]
@@ -34,10 +35,7 @@ parser -> Box<Parser>
 
 parser_SET -> Box<Parser>
   = SET PARSER_PARAMS_BEGIN set:string opt_params:parser_SET_optional_params? PARSER_PARAMS_END name:parser_name? {
-    let mut parser = SetParser::new(set);
-    parser.set_optional_params(opt_params);
-    parser.set_name(name);
-    Box::new(parser)
+    F::new_set(set, name, opt_params)
   }
 
 parser_SET_optional_params -> Vec<OptionalParameter<'input>>
@@ -45,10 +43,7 @@ parser_SET_optional_params -> Vec<OptionalParameter<'input>>
 
 parser_INT -> Box<Parser>
   = INT opt_params:parser_INT_optional_params? name:parser_name? {
-    let mut parser = IntParser::new();
-    parser.set_optional_params(opt_params);
-    parser.set_name(name);
-    Box::new(parser)
+    F::new_int(name, opt_params)
   }
 
 parser_INT_optional_params -> Vec<OptionalParameter<'input>>
@@ -57,18 +52,12 @@ parser_INT_optional_params -> Vec<OptionalParameter<'input>>
 parser_GREEDY -> Vec<TokenType>
   = PARSER_BEGIN GREEDY name:parser_name? PARSER_END end_string:literal? {
     let mut tokens = Vec::new();
-    let mut parser = GreedyParser::new();
-    parser.set_name(name);
-
+    let parser = F::new_greedy(name, end_string);
+    tokens.push(TokenType::Parser(parser));
     let end_string = end_string.map(|string| string.to_string());
-    parser.set_end_string(end_string.clone());
-
-    tokens.push(TokenType::Parser(Box::new(parser)));
-
     if let Some(end_string) = end_string {
       tokens.push(TokenType::Literal(end_string));
     }
-
     tokens
   }
 
@@ -95,8 +84,8 @@ PARSER_BEGIN = "%{"
 PARSER_END = "}"
 PARSER_PARAMS_BEGIN = "("
 PARSER_PARAMS_END = ")"
-parser_name -> String
-  = ":" name:identifier { name.to_string() }
+parser_name -> &'input str
+  = ":" name:identifier { name }
 
 identifier -> &'input str
   = [a-zA-Z_.]([a-z-A-Z0-9_.]![-])* { match_str }
