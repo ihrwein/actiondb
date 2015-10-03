@@ -617,18 +617,16 @@ fn parse_parser_GREEDY<'input>(input: &'input str,
                                                                                     let mut parser =
                                                                                         GreedyParser::new();
                                                                                     parser.set_name(name);
-                                                                                    if let Some(end_string)
-                                                                                           =
-                                                                                           end_string
-                                                                                           {
-                                                                                        parser.set_end_string(end_string.to_string());
-                                                                                    }
+                                                                                    let end_string =
+                                                                                        end_string.map(|string|
+                                                                                                           string.to_string());
+                                                                                    parser.set_end_string(end_string.clone());
                                                                                     tokens.push(TokenType::Parser(Box::new(parser)));
                                                                                     if let Some(end_string)
                                                                                            =
                                                                                            end_string
                                                                                            {
-                                                                                        tokens.push(TokenType::Literal(end_string.to_string()));
+                                                                                        tokens.push(TokenType::Literal(end_string));
                                                                                     }
                                                                                     tokens
                                                                                 })
