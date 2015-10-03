@@ -39,3 +39,8 @@ impl Factory {
         Box::new(trie)
     }
 }
+
+pub trait MatcherFactory {
+    type Matcher: Matcher;
+    fn new_matcher() -> Self::Matcher;
+}
