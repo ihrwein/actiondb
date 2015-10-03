@@ -53,3 +53,9 @@ impl<'a, 'b> ParseResult<'a, 'b> {
         self.value
     }
 }
+
+pub trait ParserFactory: {
+    fn new_set<'a>(set: &str, name: Option<&str>, opt_params: Option<&Vec<OptionalParameter<'a>>>) -> Box<Parser>;
+    fn new_int<'a>(name: Option<&str>, opt_params: Option<&Vec<OptionalParameter<'a>>>) -> Box<Parser>;
+    fn new_greedy<'a>(name: Option<&str>, end_string: Option<&str>) -> Box<Parser>;
+}
