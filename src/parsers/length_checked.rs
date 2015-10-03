@@ -60,21 +60,22 @@ impl LengthCheckedParserBase {
 }
 
 impl HasOptionalParameter for LengthCheckedParserBase {
-    fn set_optional_params<'a>(&mut self, params: Option<Vec<OptionalParameter<'a>>>) -> bool {
-        if let Some(params) = params {
-            for i in params {
-                match i {
-                    OptionalParameter::Int(key, value) => {
-                        match key {
-                            "min_len" => self.set_min_length(value),
-                            "max_len" => self.set_max_length(value),
-                            _ => return false
-                        }
-                    }
+    fn set_optional_param<'a>(&mut self, param: OptionalParameter<'a>) -> bool {
+        match param {
+            OptionalParameter::Int(key, value) => {
+                match key {
+                    "min_len" => {
+                        self.set_min_length(value);
+                        true
+                    },
+                    "max_len" => {
+                        self.set_max_length(value);
+                        true
+                    },
+                    _ => false
                 }
             }
         }
-        true
     }
 }
 

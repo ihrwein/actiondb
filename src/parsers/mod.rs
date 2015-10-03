@@ -23,7 +23,17 @@ pub trait Parser: Debug + ObjectSafeHash {
 }
 
 pub trait HasOptionalParameter {
-    fn set_optional_params<'a>(&mut self, params: Option<Vec<OptionalParameter<'a>>>) -> bool;
+    fn set_optional_params<'a>(&mut self, params: Option<Vec<OptionalParameter<'a>>>) -> bool {
+        if let Some(params) = params {
+            for i in params {
+                if !self.set_optional_param(i) {
+                    return false;
+                }
+            }
+        }
+        true
+    }
+    fn set_optional_param<'a>(&mut self, param: OptionalParameter<'a>) -> bool;
 }
 
 #[derive(Debug)]
