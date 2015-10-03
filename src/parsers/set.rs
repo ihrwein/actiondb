@@ -93,7 +93,7 @@ impl ObjectSafeHash for SetParser {
 }
 
 impl HasOptionalParameter for SetParser {
-    fn set_optional_params<'a>(&mut self, params: &Vec<OptionalParameter<'a>>) -> bool {
+    fn set_optional_params<'a>(&mut self, params: Option<Vec<OptionalParameter<'a>>>) -> bool {
         self.base.set_optional_params(params)
     }
 }

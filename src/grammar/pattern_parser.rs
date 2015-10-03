@@ -288,7 +288,8 @@ fn parse_parser_SET<'input>(input: &'input str,
                                                         }
                                                     };
                                                 match seq_res {
-                                                    Matched(pos, po) => {
+                                                    Matched(pos, opt_params)
+                                                    => {
                                                         {
                                                             let seq_res =
                                                                 parse_PARSER_PARAMS_END(input,
@@ -331,8 +332,7 @@ fn parse_parser_SET<'input>(input: &'input str,
                                                                                             {
                                                                                                 let mut parser =
                                                                                                     SetParser::new(set);
-                                                                                                grammar::set_optional_params(&mut parser,
-                                                                                                                             po.as_ref());
+                                                                                                parser.set_optional_params(opt_params);
                                                                                                 parser.set_name(name);
                                                                                                 Box::new(parser)
                                                                                             })
@@ -445,7 +445,7 @@ fn parse_parser_INT<'input>(input: &'input str,
                                 Failed => { Matched(pos, None) }
                             };
                         match seq_res {
-                            Matched(pos, po) => {
+                            Matched(pos, opt_params) => {
                                 {
                                     let seq_res =
                                         match parse_parser_name(input, state,
@@ -464,8 +464,7 @@ fn parse_parser_INT<'input>(input: &'input str,
                                                         {
                                                             let mut parser =
                                                                 IntParser::new();
-                                                            grammar::set_optional_params(&mut parser,
-                                                                                         po.as_ref());
+                                                            parser.set_optional_params(opt_params);
                                                             parser.set_name(name);
                                                             Box::new(parser)
                                                         })

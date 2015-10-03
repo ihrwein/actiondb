@@ -11,20 +11,16 @@ use parsers::{
 pub struct TrieParserFactory;
 
 impl ParserFactory for TrieParserFactory {
-    fn new_set<'a>(set: &str, name: Option<&str>, opt_params: Option<&Vec<OptionalParameter<'a>>>) -> Box<Parser> {
+    fn new_set<'a>(set: &str, name: Option<&str>, opt_params: Option<Vec<OptionalParameter<'a>>>) -> Box<Parser> {
         let mut parser = SetParser::new(set);
-        if let Some(params) = opt_params {
-          parser.set_optional_params(params);
-        }
+        parser.set_optional_params(opt_params);
         let name = name.map(|name| name.to_string());
         parser.set_name(name);
         Box::new(parser)
     }
-    fn new_int<'a>(name: Option<&str>, opt_params: Option<&Vec<OptionalParameter<'a>>>) -> Box<Parser> {
+    fn new_int<'a>(name: Option<&str>, opt_params: Option<Vec<OptionalParameter<'a>>>) -> Box<Parser> {
         let mut parser = IntParser::new();
-        if let Some(params) = opt_params {
-          parser.set_optional_params(params);
-        }
+        parser.set_optional_params(opt_params);
         let name = name.map(|name| name.to_string());
         parser.set_name(name);
         Box::new(parser)
