@@ -72,12 +72,12 @@ impl Pattern {
         self.pattern = pattern;
     }
 
-    pub fn pop_first_token(&mut self) -> TokenType {
-        self.pattern.remove(0)
-    }
-
-    pub fn has_more_tokens(&self) -> bool {
-        !self.pattern.is_empty()
+    pub fn pop_first_token(&mut self) -> Option<TokenType> {
+        if self.pattern.is_empty() {
+            None
+        } else {
+            Some(self.pattern.remove(0))
+        }
     }
 
     pub fn pop_test_message(&mut self) -> Option<TestMessage> {

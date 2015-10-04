@@ -1,5 +1,6 @@
 use parsers::{Parser, ParseResult};
 use utils::{SortedVec, CommonPrefix};
+use matcher::pattern::Pattern;
 use matcher::trie::node::LiteralNode;
 use matcher::trie::node::ParserNode;
 use matcher::trie::{HasPattern, TrieOperations};
@@ -209,6 +210,11 @@ impl Node {
         let (node, pos) = branching_node.node_mut().unwrap().lookup_literal_mut(literal).ok().unwrap();
         node.literal_children.get_mut(pos).unwrap()
     }
+}
+
+impl HasPattern for Node {
+    fn set_pattern(&mut self, _: Pattern) {}
+    fn pattern(&self) -> Option<&Pattern> {None}
 }
 
 impl TrieOperations for Node {

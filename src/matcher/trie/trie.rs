@@ -9,46 +9,34 @@ pub struct ParserTrie {
     root: Node,
 }
 
-macro_rules! insert_recurse {
-    ($node:expr, $pattern:expr) => {
-        {
-            if !$pattern.has_more_tokens() {
-                $node.set_pattern($pattern);
-                $node
-            } else {
-                ParserTrie::insert_pattern($node, $pattern)
-            }
-        }
-    }
-}
-
 impl ParserTrie {
     pub fn new() -> ParserTrie {
         ParserTrie{ root: Node::new() }
     }
 
-    pub fn insert(&mut self, pattern: Pattern) -> &mut TrieOperations {
-        if !pattern.has_more_tokens() {
-            &mut self.root
-        } else {
-            ParserTrie::insert_pattern(&mut self.root, pattern)
-        }
+    pub fn insert(&mut self, pattern: Pattern) {
+        ParserTrie::insert_pattern(&mut self.root, pattern)
     }
 
     pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
         self.root.parse(text)
     }
 
-    fn insert_pattern<'a>(node: &'a mut TrieOperations, mut pattern: Pattern) -> &'a mut TrieOperations {
-        match pattern.pop_first_token() {
-            TokenType::Literal(literal) => {
-                let mut node = node.insert_literal(&literal);
-                insert_recurse!(node, pattern)
-            },
-            TokenType::Parser(parser) => {
-                let mut node = node.insert_parser(parser);
-                insert_recurse!(node, pattern)
+    fn insert_pattern<T>(node: &mut T, mut pattern: Pattern)
+        where T: TrieOperations + HasPattern {
+        if let Some(token) = pattern.pop_first_token() {
+            match token {
+                TokenType::Literal(literal) => {
+                    let mut node = node.insert_literal(&literal);
+                    ParserTrie::insert_pattern(node, pattern)
+                },
+                TokenType::Parser(parser) => {
+                    let mut node = node.insert_parser(parser);
+                    ParserTrie::insert_pattern(node, pattern)
+                }
             }
+        } else {
+            node.set_pattern(pattern);
         }
     }
 }
