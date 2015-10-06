@@ -13,8 +13,10 @@ my $ug = Data::UUID -> new();
 
 my ($opt, $usage) = describe_options(
     '%c %o <some-arg>',
-    [ 'actions|a', "toggle dump actions", { default => 0 } ],
-    [ 'patterns|p', "toggle dump patterns", { default => 1 } ],
+    [ 'actions|a!', "toggle dump actions", { default => 0 } ],
+    [ 'patterns|p!', "toggle dump patterns", { default => 1 } ],
+    [ 'examples|e!', "toggle dump examples", { default => 1 } ],
+    [ 'program|P!', "toggle prepend '\$PROGRAM: '", { default => 0 } ],
 );
 
 sub init {
@@ -103,7 +105,7 @@ sub example {
 		test_message => $test_message -> text,
 		program => $test_message -> {att} -> {program},
 		%test_value
-	};
+	} if $opt -> examples;
 }
 
 sub rule_tag {
@@ -204,9 +206,14 @@ if ($opt -> patterns) {
 		}
 		my $pattern_uuid = $uuid;
 		for my $pattern (@{$rule->{patterns}}) {
+			my $adbp;
+			if ($opt -> program) {
+				$adbp = "${program}: ";
+			}
+			$adbp .= _p2p($pattern);
 			push @adb_pattern, {
 				uuid => $pattern_uuid,
-				pattern => "${program}: " . _p2p($pattern),
+				pattern => $adbp,
 				name => $rule->{ruleset} . "_" . $p_id++,
 				test_messages => \@test_messages,
 				%extra_values,
@@ -225,8 +232,13 @@ if ($opt -> patterns) {
 sub _test_messages {
 	my @out;
 	for my $example (@{$_[0]}) {
+		my $adbtm;
+		if ($opt -> program) {
+			$adbtm = $example -> {program} . ": ";
+		}
+		$adbtm .= $example -> {test_message};
 		push @out, {
-			message => $example -> {program} . ": " . $example -> {test_message},
+			message => $adbtm,
 			values => $example -> {test_values}
 		};
 	}
@@ -310,6 +322,8 @@ sub _validate_pattern {
 			return
 		} elsif (/^ANYSTRING$/) {
 			return "%{GREEDY:$key}";
+		} elsif (/^SET$/) {
+			return "%{SET(\"$opt\"):$key}";
 		} elsif (/^(IPvANY|MACADDR|IPv4|LLADDR)/) {
 			warn "pdb(`$type`) will use adb('GREEDY') which may match your messages differently.\n";
 			return "%{GREEDY:$key}"
