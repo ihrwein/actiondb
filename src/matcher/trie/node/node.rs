@@ -461,4 +461,24 @@ mod test {
             assert_eq!(kvpairs.is_none(), true);
         }
     }
+
+    #[test]
+    fn test_given_node_when_the_message_is_too_short_we_do_not_try_to_unwrap_a_childs_pattern() {
+        let mut root = ParserTrie::new();
+        let cp1 = CompiledPatternBuilder::new()
+                    .literal("app")
+                    .parser(Box::new(SetParser::from_str("middle", "01234")))
+                    .literal("x")
+                    .parser(Box::new(SetParser::from_str("space", " ")))
+                    .build();
+
+        let mut pattern1 = Pattern::with_random_uuid();
+        pattern1.set_pattern(cp1);
+        root.insert(pattern1);
+
+        let kvpairs = root.parse("app12x");
+        assert_eq!(kvpairs.is_none(), true);
+        let kvpairs = root.parse("app12x ");
+        assert_eq!(kvpairs.is_some(), true);
+    }
 }
