@@ -135,9 +135,8 @@ impl Node {
         match self.lookup_literal(text) {
             Ok((node, pos)) => {
                 trace!("{:?}", node);
-                let pattern = node.literal_children.get(pos).unwrap().pattern().unwrap();
-                let result = MatchResult::new(pattern);
-                Some(result)
+                let child = node.literal_children.get(pos).expect("Failed to get a looked up child");
+                Node::create_match_result_if_child_is_leaf(child)
             },
             Err((node, remaining_len)) => {
                 let text = text.ltrunc(text.len() - remaining_len);
@@ -145,6 +144,16 @@ impl Node {
                 trace!("parse(): #parser_children = {}", node.parser_children.len());
                 node.parse_with_parsers(text)
             }
+        }
+    }
+
+    fn create_match_result_if_child_is_leaf<'a, 'b>(child: &'a LiteralNode) -> Option<MatchResult<'a, 'b>> {
+        if let Some(pattern) = child.pattern() {
+            let result = MatchResult::new(pattern);
+            Some(result)
+        } else {
+            info!("Early matching message: the message was too short to reach a leaf");
+            None
         }
     }
 
