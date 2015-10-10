@@ -11,7 +11,7 @@ pub struct LiteralNode {
     literal: String,
     has_value: bool,
     pattern: Option<Pattern>,
-    node: Option<Box<Node>>,
+    node: Option<Node>,
 }
 
 impl LiteralNode {
@@ -38,7 +38,7 @@ impl LiteralNode {
         self.has_value = has_value;
     }
 
-    pub fn set_node(&mut self, node: Option<Box<Node>>) {
+    pub fn set_node(&mut self, node: Option<Node>) {
         self.node = node;
     }
 
@@ -89,7 +89,7 @@ impl LiteralNode {
 
         let mut node_to_return = LiteralNode::from_str(common_prefix);
 
-        let mut new_node = Box::new(Node::new());
+        let mut new_node = Node::new();
         let mut left_node = LiteralNode::from_str(left_branch);
         left_node.set_has_value(true);
         let mut right_node = LiteralNode::from_str(right_branch);
@@ -119,7 +119,7 @@ impl LiteralNode {
 impl TrieOperations for LiteralNode {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         if self.is_leaf() {
-            self.node = Some(Box::new(Node::new()));
+            self.node = Some(Node::new());
         }
 
         self.node.as_mut().unwrap().insert_literal(literal)
@@ -127,7 +127,7 @@ impl TrieOperations for LiteralNode {
 
     fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode {
         if self.is_leaf() {
-            self.node = Some(Box::new(Node::new()));
+            self.node = Some(Node::new());
         }
 
         self.node.as_mut().unwrap().insert_parser(parser)

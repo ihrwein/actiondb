@@ -9,7 +9,7 @@ use utils::CommonPrefix;
 pub struct ParserNode {
     parser: Box<Parser>,
     pattern: Option<Pattern>,
-    node: Option<Box<Node>>,
+    node: Option<Node>,
 }
 
 impl ParserNode {
@@ -67,7 +67,7 @@ impl ParserNode {
 impl TrieOperations for ParserNode {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         if self.is_leaf() {
-            self.node = Some(Box::new(Node::new()));
+            self.node = Some(Node::new());
         }
 
         self.node.as_mut().unwrap().insert_literal(literal)
@@ -75,7 +75,7 @@ impl TrieOperations for ParserNode {
 
     fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode {
         if self.is_leaf() {
-            self.node = Some(Box::new(Node::new()));
+            self.node = Some(Node::new());
         }
 
         self.node.as_mut().unwrap().insert_parser(parser)
