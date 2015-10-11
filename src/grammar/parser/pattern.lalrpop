@@ -24,6 +24,49 @@ CommaSep<T>: Vec<T> = {
     }
 };
 
+pub Pattern: CompiledPattern = {
+  <pieces:Pattern_piece+> => {
+    let mut pieces = pieces;
+    utils::flatten_vec(pieces)
+  }
+};
+
+Pattern_piece: Vec<TokenType> = {
+  Parser_GREEDY,
+  Piece_literal,
+  Piece_parser
+};
+
+Piece_literal: Vec<TokenType> = {
+  Literal => {
+    let unescaped_literal = grammar::unescape_literal(<>);
+    vec![TokenType::Literal(unescaped_literal)]
+  }
+};
+
+Piece_parser: Vec<TokenType> = {
+  PARSER_BEGIN <parser:Parser> PARSER_END => {
+    vec![TokenType::Parser(parser)]
+  }
+};
+
+Parser: Box<Parser> = {
+  Parser_SET,
+  Parser_INT
+};
+
+Parser_SET: Box<Parser> = {
+  SET PARSER_PARAMS_BEGIN <set:String> <opt_params:Parser_SET_optional_params?> PARSER_PARAMS_END <name:Parser_name?> => {
+    F::new_set(set, name, opt_params)
+  }
+};
+
+SetParams = CommaSep<Parser_BASE_optional_param>;
+
+Parser_SET_optional_params: Vec<OptionalParameter<'input>> = {
+  Comma <params:SetParams> => { params }
+};
+
 Parser_INT: Box<Parser> = {
   INT <opt_params:Parser_INT_optional_params?> <name:Parser_name?> => {
     F::new_int(name, opt_params)
