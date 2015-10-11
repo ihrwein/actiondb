@@ -8,11 +8,6 @@ use std::str::FromStr;
 
 grammar<F> where F: ParserFactory;
 
-pub Term: i32 = {
-    <n:Int> => n,
-    "(" <t:Term> ")" => t,
-};
-
 CommaSep<T>: Vec<T> = {
     <v:(<T> ",")*> <e:T?> => match e {
         None => v,
@@ -113,19 +108,19 @@ Parser_name: &'input str = {
 };
 
 Identifier: &'input str = {
-  (r"[a-zA-Z_][a-zA-Z0-9_]*")+
+  r"[a-zA-Z_][a-zA-Z0-9_]*"
 };
 
 String: &'input str = {
-  r#"""# <s:All_chars_until_quotation_mark> r#"""# => { s }
+  r#"""# <s:r".*"> r#"""# => { s }
 };
 
 Literal: &'input str = {
-  (r"^[%]^[{]")+
+  r"([^%][^{])+"
 };
 
 All_chars_until_quotation_mark: &'input str = {
-  r#"^["]+"#
+  r#"[^"]+"#
 };
 
 Comma: &'input str = {
