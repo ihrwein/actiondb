@@ -1,0 +1,335 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use XML::Twig;
+use Digest::MD5; 
+use Getopt::Long::Descriptive;
+no warnings 'once';
+use JSON::MaybeXS;
+use Data::UUID;
+
+my $ug = Data::UUID -> new();
+
+my ($opt, $usage) = describe_options(
+    '%c %o <some-arg>',
+    [ 'actions|a!', "toggle dump actions", { default => 0 } ],
+    [ 'patterns|p!', "toggle dump patterns", { default => 1 } ],
+    [ 'examples|e!', "toggle dump examples", { default => 1 } ],
+    [ 'program|P!', "toggle prepend '\$PROGRAM: '", { default => 0 } ],
+);
+
+sub init {
+	my $twig = XML::Twig -> new(
+		Twig_handlers => {
+			ruleset => \&ruleset,
+			rule => \&rule,
+			description => \&ruleset_description,
+			'ruleset/pattern' => \&ruleset_pattern,
+			'ruleset/patterns/pattern' => \&ruleset_pattern,
+			'rule/pattern' => \&rule_pattern,
+			'rule/patterns/pattern' => \&rule_pattern,
+			'rule/example' => \&example,
+			'rule/examples/example' => \&example,
+			'action' => \&action,
+			'rule/tags/tag' => \&rule_tag,
+			'rule/tag' => \&rule_tag,
+			'rule/values/value' => \&rule_value,
+			'rule/value' => \&rule_value,
+		}
+	);
+}
+
+my %ruleset;
+sub ruleset {
+	my ($twig, $ruleset) = @_;
+	my $name = $ruleset -> {att} -> {name} || $ruleset -> {id};
+	$ruleset{$name}->{id} = $ruleset -> id;
+	$ruleset{$name}->{pubdate} = $ruleset -> parent -> {att} -> {pub_date};
+	$ruleset{$name}->{version} = $ruleset -> parent -> {att} -> {version};
+}
+
+sub ruleset_description {
+	my ($twig, $description) = @_;
+	my $ruleset_id = $_ -> parent('ruleset') -> {att} -> {name} || $_ -> parent('ruleset') -> id;
+	$description -> trim;
+	$ruleset{$ruleset_id}->{description} = $description -> text;
+}
+
+sub ruleset_pattern {
+	my ($twig, $pattern) = @_;
+	my $ruleset_id = $pattern -> parent('ruleset') -> {att} -> {name} || $pattern -> parent('ruleset') -> id;
+	if (! defined $ruleset{$ruleset_id}->{patterns}) {
+		$ruleset{$ruleset_id}->{patterns} = [];
+	}
+	push @{$ruleset{$ruleset_id}->{patterns}}, $pattern -> text;
+}
+
+my %rule;
+sub rule {
+	my ($twig, $rule) = @_;
+	my $ruleset_id = $rule -> parent('ruleset') -> {att} -> {name} || $rule -> parent('ruleset') -> id;
+	$rule{$rule->id}->{id} = $rule -> id;
+	$rule{$rule->id}->{ruleset} = $ruleset_id;
+	$rule{$rule->id}->{ruleclass} = $rule -> class;
+	map {
+		(my $k = $_) =~ s/-/_/;
+		$rule{$rule->id}->{$k} = $rule -> {att} -> {$_} if defined $rule -> {att} -> {$_};
+	} qw/provider context-scope context-id context-timeout/;
+}
+
+sub rule_pattern {
+	my ($twig, $pattern) = @_;
+	my $rule_id = $pattern -> parent('rule') -> id;
+	if (! defined $rule{$rule_id}->{patterns}) {
+		$rule{$rule_id}->{patterns} = [];
+	}
+	push @{$rule{$rule_id}->{patterns}}, $pattern -> text;
+}
+
+sub example {
+	my ($twig, $example) = @_;
+	my $rule_id = $example -> parent('rule') -> id;
+	if (! defined $rule{$rule_id}->{examples}) {
+		$rule{$rule_id}->{examples} = [];
+	}
+	my $test_message = $example -> last_child('test_message');
+	my $test_values = $example -> last_child('test_values');
+	my %test_value;
+	if (defined $test_values) {
+		while ($test_values = $test_values -> next_elt('test_value')) {
+			$test_value{test_values}->{ $test_values -> {att} -> {name} } = $test_values -> text;
+		}
+	}
+	push @{$rule{$rule_id}->{examples}}, {
+		test_message => $test_message -> text,
+		program => $test_message -> {att} -> {program},
+		%test_value
+	} if $opt -> examples;
+}
+
+sub rule_tag {
+	my ($twig, $tag) = @_;
+	my $rule_id = $tag -> parent('rule') -> id;
+	$rule{$rule_id}->{tags} = [] unless defined $rule{$rule_id}->{tags};
+	push @{$rule{$rule_id}->{tags}}, $tag -> text;
+}
+
+sub rule_value {
+	my ($twig,$value) = @_;
+	my $rule_id = $value -> parent('rule') -> id;
+	$rule{$rule_id}->{values}->{$value -> {att} -> {name}} = $value -> text;
+}
+
+my @action;
+sub action {
+	my ($twig, $action) = @_;
+	my $rule_id = $action -> parent('rule') -> id;
+	my $message = $action -> next_elt('message');
+	my $values = $message -> next_elt('values');
+	my $tags = $message -> next_elt('tags');
+	my (%value, %tag, %trigger, %condition, %inherit);
+	%inherit = defined ($message -> {att} -> {'inherit-properties'}) ? ( inherit_properties => $message -> {att} -> {'inherit-properties'} ) : ();
+	%trigger = ( trigger => $action -> {att} -> {trigger}) if (defined $action -> {att} -> {trigger});
+	%condition = ( condition => $action -> {att} -> {condition}) if (defined $action -> {att} -> {condition});
+	if (defined $values) {
+		while ($values = $values -> next_elt('value')) {
+			$value{values}->{$values -> {att} -> {name} } = $values -> text;
+		}
+	}
+	$tag{tags} = [];
+	if (defined $tags) {
+		while ($tags = $tags -> next_elt('tag')) {
+			push @{$tag{tags}}, $tags -> text;
+		}
+	}
+	push @action, {
+		rule => $rule_id,
+		%trigger,
+		%condition,
+		message => {
+			%inherit,
+			%value,
+			%tag,
+		}
+	};
+}
+
+my $infile = $ARGV[0];
+my $twig = init();
+
+$twig -> parsefile($infile);
+
+if ($opt -> actions) {
+	warn "Unsupported\n";
+	exit 2;
+}
+
+if ($opt -> patterns) {
+	my @adb_pattern;
+	my $p_id;
+	while (my ($uuid, $rule) = each %rule) {
+		my $ruleset = $rule -> {ruleset};
+		my @programs;
+		if (ref $ruleset{$ruleset}->{patterns} eq "ARRAY") {
+			@programs = @{$ruleset{$ruleset}->{patterns}}
+		} else {
+			@programs = ($ruleset{$ruleset}->{patterns})
+		}
+		if (@programs > 1) {
+			warn "rule `${uuid}` belongs to a ruleset with multiple patterns (or programs). You must manually check it\n";
+		}
+		my $program = $programs[0];
+		unless (defined $program) {
+			warn "rule `${uuid}` belongs to ruleset with no pattern/program. This is unsupported\n";
+			next;
+		}
+		my @test_messages = _test_messages($rule -> {examples});
+		my %extra_values;
+		my %extra_tags;
+		if ($rule -> {values}) {
+			while (my ($k,$v) = each %{$rule -> {values}}) {
+				for ($v) {
+					if (/\$\(/) {
+						warn "rule `${uuid}` contains key-value with macro: `${k}=${v}`. Unsupported\n"
+					} else {
+						$extra_values{values}->{$k} = $v;
+					}
+				}
+			}
+		}
+		if ($rule -> {tags}) {
+			%extra_tags = ( tags => $rule -> {tags})
+		}
+		if (@test_messages > 0 && @{$rule->{patterns}} > 1) {
+			warn "rule `${uuid}` has multiple patterns *and* test_messages. You must manually redistribute test_messages\n";
+		}
+		my $pattern_uuid = $uuid;
+		for my $pattern (@{$rule->{patterns}}) {
+			my $adbp;
+			if ($opt -> program) {
+				$adbp = "${program}: ";
+			}
+			$adbp .= _p2p($pattern);
+			push @adb_pattern, {
+				uuid => $pattern_uuid,
+				pattern => $adbp,
+				name => $rule->{ruleset} . "_" . $p_id++,
+				test_messages => \@test_messages,
+				%extra_values,
+				%extra_tags,
+			} if _p2p($pattern);
+			$pattern_uuid = $ug->create();
+			$pattern_uuid = $ug -> to_string($pattern_uuid);
+		}
+	}
+	#use DDP;p@adb_pattern;
+	my $endresult = { patterns => \@adb_pattern };
+	my $json = JSON::MaybeXS->new(utf8 => 1, pretty => 1);
+	print $json -> encode($endresult);
+}
+
+sub _test_messages {
+	my @out;
+	for my $example (@{$_[0]}) {
+		my $adbtm;
+		if ($opt -> program) {
+			$adbtm = $example -> {program} . ": ";
+		}
+		$adbtm .= $example -> {test_message};
+		push @out, {
+			message => $adbtm,
+			values => $example -> {test_values}
+		};
+	}
+	return @out
+}
+
+sub _p2p {
+	#my @pattern = split /(?<!@)(@)(?!@)/, $_[0];
+	my @pattern = split /(@)/, $_[0];
+	my @out;
+	my $is_pattern = 0;
+	for my $p (@pattern) {
+		if ($p eq '@') {
+			if ($is_pattern) {
+				$is_pattern = 0;
+				next
+			} else {
+				$is_pattern = 1;
+				next
+			}
+		} else {
+			if ($is_pattern) {
+				if (_validate_pattern($p)) {
+					push @out, _validate_pattern($p);
+				} else {
+					warn "unsupported `$p`\n";
+					return;
+				}
+			} else {
+				push @out, _unescape_pattern($p);
+				next
+			}
+		}
+	}
+	return join ("", @out)
+}
+
+sub _unescape_pattern {
+	(my $out = shift) =~ s/@@/@/g;
+	return $out;
+}
+
+sub _validate_pattern {
+	my ($type,$key,$opt) = split(/:/,$_[0]);
+	$key ||= "pdb2adb2ignore";
+	$type ||= "";
+	for ($type) {
+		if (/^$/) {
+			return "";
+		} elsif (/^ESTRING$/) {
+			# ugly hack to detect ESTRING:foo::
+			$opt = ":" if (substr($_[0],-2) eq "::");
+			return "%{GREEDY:$key}$opt";
+		} elsif (/QSTRING/) {
+			my $a = substr($opt,0,1);
+			my $b;
+			if (length($opt) > 1) {
+				$b = substr($opt,1,1);
+			} else {
+				$b = $a;
+			}
+			return "${a}%{GREEDY:$key}${b}";
+		} elsif (/^NUMBER$/) {
+			return "%{INT:$key}";
+		} elsif (/^HOSTNAME$/) {
+				my $adbset = "SET(\"AZERTYUIOPQSDFGHJKLMWXCVBNazertyuiopqsdfghjklmwxcvbn1234567890-.\")";
+				return "%{$adbset:$key}";
+		} elsif (/^FLOAT|DOUBLE$/) {
+				my $adbset = "SET(\"1234567890.\")";
+				warn "pdb(`$type`) partially supported by $adbset\n";
+				return "%{$adbset:$key}";
+		} elsif (/^STRING$/) {
+				if ($opt) {
+					my $adbset = "SET(\"AZERTYUIOPQSDFGHJKLMWXCVBNazertyuiopqsdfghjklmwxcvbn1234567890$opt\")";
+					warn "pdb(`$type`) with options `$opt` partially supported by $adbset\n";
+					return "%{$adbset:$key}";
+				}
+			return "%{SET(\"AZERTYUIOPQSDFGHJKLMWXCVBNazertyuiopqsdfghjklmwxcvbn1234567890\"):$key}";
+		} elsif (/^PCRE$/) {
+			warn "unsupported pattern parser `$type`\n";
+			return
+		} elsif (/^ANYSTRING$/) {
+			return "%{GREEDY:$key}";
+		} elsif (/^SET$/) {
+			return "%{SET(\"$opt\"):$key}";
+		} elsif (/^(IPvANY|MACADDR|IPv4|LLADDR)/) {
+			warn "pdb(`$type`) will use adb('GREEDY') which may match your messages differently.\n";
+			return "%{GREEDY:$key}"
+		} else {
+			warn "unsupported pattern parser `$type`\n";
+			return
+		}
+	}
+}
