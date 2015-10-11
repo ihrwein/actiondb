@@ -8,6 +8,10 @@ readme = "README.md"
 keywords = ["log", "parser"]
 description = "A safe and efficient unstructured text (log) parsing library."
 license = "LGPL-2.1"
+build = "build.rs"
+
+[build-dependencies]
+lalrpop = "0.6"
 
 [[bin]]
 name = "adbtool"
@@ -20,3 +24,4 @@ uuid = "0.1"
 serde = "0.6"
 serde_json = "0.6"
 maplit = "0.1"
+lalrpop-util = "0.6"
