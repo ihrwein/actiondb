@@ -1,0 +1,93 @@
+use matcher::compiled_pattern::{CompiledPattern, TokenType};
+use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter, GreedyParser};
+use grammar;
+use utils;
+
+use parsers::ParserFactory;
+use std::str::FromStr;
+
+grammar<F> where F: ParserFactory;
+
+pub Term: i32 = {
+    <n:Int> => n,
+    "(" <t:Term> ")" => t,
+};
+
+CommaSep<T>: Vec<T> = {
+    <v:(<T> ",")*> <e:T?> => match e {
+        None => v,
+        Some(e) => {
+            let mut v = v;
+            v.push(e);
+            v
+        }
+    }
+};
+
+Parser_INT: Box<Parser> = {
+  INT <opt_params:Parser_INT_optional_params?> <name:Parser_name?> => {
+    F::new_int(name, opt_params)
+  }
+};
+
+IntParams = CommaSep<Parser_BASE_optional_param>;
+
+Parser_INT_optional_params: Vec<OptionalParameter<'input>> = {
+  PARSER_PARAMS_BEGIN <params:IntParams> PARSER_PARAMS_END => { params }
+};
+
+Parser_GREEDY: Vec<TokenType> = {
+  PARSER_BEGIN GREEDY <name:Parser_name?> PARSER_END <end_string:Literal?> => {
+    let mut tokens = Vec::new();
+    let parser = F::new_greedy(name, end_string);
+    tokens.push(TokenType::Parser(parser));
+    let end_string = end_string.map(|string| string.to_string());
+    if let Some(end_string) = end_string {
+      tokens.push(TokenType::Literal(end_string));
+    }
+    tokens
+  }
+};
+
+Parser_BASE_optional_param: OptionalParameter<'input> = {
+  <name:MIN_LEN> "=" <value:Int> => { OptionalParameter::Int(name, value) },
+  <name:MAX_LEN> "=" <value:Int> => { OptionalParameter::Int(name, value) }
+};
+
+MIN_LEN = "min_len";
+MAX_LEN = "max_len";
+INT = "INT";
+SET = "SET";
+GREEDY = "GREEDY";
+
+PARSER_BEGIN = "%{";
+PARSER_END = "}";
+PARSER_PARAMS_BEGIN = "(";
+PARSER_PARAMS_END = ")";
+
+Parser_name: &'input str = {
+  ":" <name:Identifier> => { name }
+};
+
+Identifier: &'input str = {
+  (r"[a-zA-Z_][a-zA-Z0-9_]*")+
+};
+
+String: &'input str = {
+  r#"""# <s:All_chars_until_quotation_mark> r#"""# => { s }
+};
+
+Literal: &'input str = {
+  (r"^[%]^[{]")+
+};
+
+All_chars_until_quotation_mark: &'input str = {
+  r#"^["]+"#
+};
+
+Comma: &'input str = {
+  "," " "*
+};
+
+Int: usize =
+  r"[0-9]+" => usize::from_str(<>).unwrap();
