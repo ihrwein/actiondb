@@ -17,14 +17,20 @@ pub fn parse(pattern_file_path: &str, input_file_path: &str, output_file_path: &
     }
 }
 
-fn parse_file(input_file: &File, output_file: &mut File, matcher: &Matcher) {
+fn parse_file<M: Matcher>(input_file: &File, output_file: &mut File, matcher: &M) {
     let reader = BufReader::new(input_file);
     let mut writer = BufWriter::new(output_file);
+    let mut count: usize = 0;
 
     for line in reader.lines() {
         if let Ok(l) = line {
             let parse_result = matcher.parse(&l);
             let _ = write!(&mut writer, "{:?}\n", parse_result);
+            count += 1;
+        } else {
+            break;
         }
     }
+
+    info!("Total number of lines: {}", count);
 }
