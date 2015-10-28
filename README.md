@@ -172,6 +172,23 @@ It support the `validate` and `parse` subcommands. For more information check
 it's `--help` option.
 
 ## Changelog
+### Actiondb 0.4.0
+* include pattern UUIDs in error messages
+* check the pattern's uuid when testing its test messages
+* make grammar use the ParserFactory to create parsers
+* add MatcherFactory trait
+* do not call pattern().unwrap() on an internal LiteralNode (too short match)
+* add `-i` parameter to `adbtool validate` so all error messages will be
+  printed out, not just the first one
+* add `-d` parameter to `adbtool` to enable debug logs
+* store `Node`s directly in `ParserNode` and `LiteralNode`
+* add `pdb2adb` script to convert `PatternDB` patterns to `ActionDB` format
+* add `MatcherSuite` trait
+* count the parsed lines in `adbtool`
+* other smaller refactors and improvements
+
+Contributors: faxm0dem, ihrwein, lbudai
+
 ### Actiondb 0.3.1
 * upgrade serde to 0.6
 
