@@ -171,42 +171,4 @@ Extracted key-value pairs:
 It support the `validate` and `parse` subcommands. For more information check
 it's `--help` option.
 
-## Changelog
-### Actiondb 0.3.1
-* upgrade serde to 0.6
-
-### Actiondb 0.3.0
-* Plain pattern file support is removed
-* CR characters can be used in patterns
-* improved error messages
-* upgrade to `serde 0.5`
-* parsed messages can be tagged
-* parsed messages can have additional key-value pairs
-* the tests checks only the expected tags and values
-* parser names are optional(like `%{GREEDY}`)
-
-This release would not be possible without the help of Fabien Wernli. Thanks, Fabien!
-
-### Actiondb 0.2.0
-User visible changes:
-
-* support JSON pattern files
-* nicer and more precise error messages
-
-Internal changes:
-* `Matcher` becomes a trait and `ParserTrie` implements it
-* the pattern reading and trie building code is extracted into a `Builder` struct
-* `Builder` is able to populate any `Matcher` instance from any type which implements the `PatternSource` trait
- * `BuildResult = Result<Pattern, BuildError>`
- * `BuildError` contains all possible `Error` types (IO, pattern parse errors, etc.)
- * `PatternSource` is automatically implemented for every type which implements `Iterator<Item=BuildResult>`
- * this makes possible to generalize the `Matcher` building logic:
-  * `BuildResult`s are being read from a `PatternSource` and if they are `Ok()` then they are added to the `Matcher`
-  * in case of an `Err()` value the building process stops and the error is returned
-* `Factory` is introduced to create `Matcher` instances from files (JSON)
- * `Factory::form_file()` is file extension agnostic and creates a `Matcher` instance from the given file
-* the big modules are split into smaller submodules
-* allow `.` character in `Parser` names
-* the `JSON` files can contain test messages. They are tested when their pattern is added to the `Matcher`.
-* `Coveralls.io` checks every modifications
-* new unit tests are added
+## [Changelog](CHANGELOG.md)
