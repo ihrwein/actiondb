@@ -16,8 +16,13 @@ impl SerializedPatternFile {
         let mut file = try!(fs::File::open(path));
 
         try!(file.read_to_string(&mut buffer));
-        serde_json::from_str::<SerializedPatternFile>(&buffer)
-            .map_err(|error| Error::from(DeserError::from(error)))
+        let result = try!(SerializedPatternFile::deser(&buffer));
+        Ok(result)
+    }
+
+    fn deser(buffer: &str) -> Result<SerializedPatternFile, DeserError> {
+        let result = try!(serde_json::from_str::<SerializedPatternFile>(&buffer));
+        Ok(result)
     }
 
     pub fn patterns(&self) -> &Vec<Pattern> {
