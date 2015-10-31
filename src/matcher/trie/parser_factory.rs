@@ -1,6 +1,5 @@
 use parsers::{
     GreedyParser,
-    HasOptionalParameter,
     IntParser,
     OptionalParameter,
     Parser,
@@ -8,19 +7,47 @@ use parsers::{
     SetParser,
 };
 
+macro_rules! set_optinal_param {
+    ($parser:expr, $param:expr) => {
+        match $param {
+            OptionalParameter::Int(key, value) => {
+                match key {
+                    "min_len" => {
+                        $parser.set_min_length(value);
+                    },
+                    "max_len" => {
+                        $parser.set_max_length(value);
+                    },
+                    _ => ()
+                }
+            }
+        }
+    }
+}
+
+macro_rules! set_optional_params {
+    ($parser:expr, $opt_params:expr) => {
+        if let Some(opt_params) = $opt_params {
+            for i in opt_params.into_iter() {
+                set_optinal_param!($parser, i);
+            }
+        }
+    }
+}
+
 pub struct TrieParserFactory;
 
 impl ParserFactory for TrieParserFactory {
     fn new_set<'a>(set: &str, name: Option<&str>, opt_params: Option<Vec<OptionalParameter<'a>>>) -> Box<Parser> {
         let mut parser = SetParser::new(set);
-        parser.set_optional_params(opt_params);
+        set_optional_params!(&mut parser, opt_params);
         let name = name.map(|name| name.to_string());
         parser.set_name(name);
         Box::new(parser)
     }
     fn new_int<'a>(name: Option<&str>, opt_params: Option<Vec<OptionalParameter<'a>>>) -> Box<Parser> {
         let mut parser = IntParser::new();
-        parser.set_optional_params(opt_params);
+        set_optional_params!(&mut parser, opt_params);
         let name = name.map(|name| name.to_string());
         parser.set_name(name);
         Box::new(parser)
@@ -29,7 +56,6 @@ impl ParserFactory for TrieParserFactory {
         let mut parser = GreedyParser::new();
         let end_string = end_string.map(|string| string.to_string());
         parser.set_end_string(end_string);
-
         let name = name.map(|name| name.to_string());
         parser.set_name(name);
         Box::new(parser)

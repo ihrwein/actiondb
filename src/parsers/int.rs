@@ -1,6 +1,6 @@
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, SetParser, HasOptionalParameter, OptionalParameter, ParseResult};
+use parsers::{Parser, ObjectSafeHash, SetParser, ParseResult};
 
 #[derive(Clone, Debug, Hash)]
 pub struct IntParser {
@@ -56,12 +56,6 @@ impl ObjectSafeHash for IntParser {
         "parser:int".hash(&mut hasher);
         self.hash(&mut hasher);
         hasher.finish()
-    }
-}
-
-impl HasOptionalParameter for IntParser {
-    fn set_optional_param<'a>(&mut self, param: OptionalParameter<'a>) -> bool {
-        self.delegate.set_optional_param(param)
     }
 }
 

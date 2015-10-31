@@ -2,7 +2,7 @@
 #![allow(non_snake_case, unused)]
 use matcher::compiled_pattern::{CompiledPattern, TokenType};
 use parsers::{SetParser, IntParser, Parser, OptionalParameter,
-              HasOptionalParameter, GreedyParser};
+              GreedyParser};
 use grammar;
 use utils;
 use parsers::ParserFactory;

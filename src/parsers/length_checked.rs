@@ -1,4 +1,4 @@
-use parsers::{HasOptionalParameter, OptionalParameter, ParserBase};
+use parsers::ParserBase;
 
 #[derive(Clone, Hash, Debug)]
 pub struct LengthCheckedParserBase {
@@ -55,26 +55,6 @@ impl LengthCheckedParserBase {
         match self.max_length {
             Some(x) => match_length <= x,
             None => true
-        }
-    }
-}
-
-impl HasOptionalParameter for LengthCheckedParserBase {
-    fn set_optional_param<'a>(&mut self, param: OptionalParameter<'a>) -> bool {
-        match param {
-            OptionalParameter::Int(key, value) => {
-                match key {
-                    "min_len" => {
-                        self.set_min_length(value);
-                        true
-                    },
-                    "max_len" => {
-                        self.set_max_length(value);
-                        true
-                    },
-                    _ => false
-                }
-            }
         }
     }
 }

@@ -22,20 +22,6 @@ pub trait Parser: Debug + ObjectSafeHash {
     fn boxed_clone(&self) -> Box<Parser>;
 }
 
-pub trait HasOptionalParameter {
-    fn set_optional_params<'a>(&mut self, params: Option<Vec<OptionalParameter<'a>>>) -> bool {
-        if let Some(params) = params {
-            for i in params {
-                if !self.set_optional_param(i) {
-                    return false;
-                }
-            }
-        }
-        true
-    }
-    fn set_optional_param<'a>(&mut self, param: OptionalParameter<'a>) -> bool;
-}
-
 #[derive(Debug)]
 pub enum OptionalParameter<'a> {
     Int(&'a str, usize),
