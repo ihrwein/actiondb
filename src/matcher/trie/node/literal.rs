@@ -45,21 +45,11 @@ impl LiteralNode {
     }
 
     pub fn node_mut(&mut self) -> Option<&mut Node> {
-        match self.node {
-            Some(ref mut boxed_node) => {
-                Some(boxed_node)
-            }
-            None => None,
-        }
+        self.node.as_mut()
     }
 
     pub fn node(&self) -> Option<&Node> {
-        match self.node {
-            Some(ref boxed_node) => {
-                Some(boxed_node)
-            }
-            None => None,
-        }
+        self.node.as_ref()
     }
 
     pub fn cmp_str(&self, other: &str) -> Ordering {
