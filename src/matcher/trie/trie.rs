@@ -1,6 +1,6 @@
 use matcher::trie::node::Node;
 use matcher::compiled_pattern::TokenType;
-use matcher::trie::{HasPattern, TrieOperations};
+use matcher::trie::TrieOperations;
 use matcher::result::MatchResult;
 use matcher::Pattern;
 
@@ -23,7 +23,7 @@ impl ParserTrie {
     }
 
     fn insert_pattern<T>(node: &mut T, mut pattern: Pattern)
-        where T: TrieOperations + HasPattern
+        where T: TrieOperations
     {
         if let Some(token) = pattern.pop_first_token() {
             match token {

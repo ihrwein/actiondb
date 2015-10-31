@@ -1,5 +1,5 @@
 use matcher::trie::node::{Node, LiteralNode};
-use matcher::trie::{HasPattern, TrieOperations};
+use matcher::trie::TrieOperations;
 use matcher::result::MatchResult;
 use matcher::Pattern;
 use parsers::{Parser, ParseResult};
@@ -80,9 +80,7 @@ impl TrieOperations for ParserNode {
 
         self.node.as_mut().unwrap().insert_parser(parser)
     }
-}
 
-impl HasPattern for ParserNode {
     fn set_pattern(&mut self, pattern: Pattern) {
         self.pattern = Some(pattern);
     }

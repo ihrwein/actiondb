@@ -2,7 +2,7 @@ use std::cmp::{Ord, Ordering};
 use utils::common_prefix::CommonPrefix;
 
 use matcher::trie::node::{Node, ParserNode};
-use matcher::trie::{HasPattern, TrieOperations};
+use matcher::trie::TrieOperations;
 use matcher::Pattern;
 use parsers::Parser;
 
@@ -122,9 +122,7 @@ impl TrieOperations for LiteralNode {
 
         self.node.as_mut().unwrap().insert_parser(parser)
     }
-}
 
-impl HasPattern for LiteralNode {
     fn set_pattern(&mut self, pattern: Pattern) {
         self.pattern = Some(pattern);
     }
@@ -133,7 +131,6 @@ impl HasPattern for LiteralNode {
         self.pattern.as_ref()
     }
 }
-
 
 impl Eq for LiteralNode {}
 
