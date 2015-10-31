@@ -19,14 +19,7 @@ pub struct Pattern {
 
 impl Pattern {
     pub fn with_uuid(uuid: Uuid) -> Pattern {
-        Pattern {
-            uuid: uuid,
-            name: None,
-            pattern: Vec::new(),
-            values: None,
-            tags: None,
-            test_messages: None,
-        }
+        Pattern::new(None, uuid, Vec::new(), None, None, None)
     }
 
     pub fn new(name: Option<String>,
