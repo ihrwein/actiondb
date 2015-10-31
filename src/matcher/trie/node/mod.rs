@@ -3,7 +3,7 @@ mod parser;
 mod node;
 
 pub use self::node::Node;
-pub use self::literal::{LiteralNode};
+pub use self::literal::LiteralNode;
 pub use self::parser::ParserNode;
 
 #[cfg(test)]

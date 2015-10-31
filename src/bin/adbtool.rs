@@ -29,39 +29,39 @@ const OUTPUT_FILE: &'static str = "output file";
 
 fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, 'c, 'd, 'e, 'f> {
     App::new(APPNAME)
-          .version(VERSION)
-          .author(AUTHOR)
-          .about("Tool for parsing unstructured data")
-          .arg(Arg::with_name(DEBUG)
-              .short("d")
-              .help("Enable debug messages"))
-          .subcommand(SubCommand::with_name(VALIDATE)
-                      .about("validates pattern file")
-                      .version(VERSION)
-                      .author(AUTHOR)
-                      .arg(Arg::with_name(PATTERN_FILE)
-                          .required(true)
-                          .index(1)
-                          .help("The pattern file to be validated"))
-                      .arg(Arg::with_name(IGNORE_ERRORS)
-                          .short("i")
-                          .help("Don't stop at the first test message error")))
-          .subcommand(SubCommand::with_name(PARSE)
-                      .about("parses a file based on predefined patterns")
-                      .version(VERSION)
-                      .author(AUTHOR)
-                      .arg(Arg::with_name(PATTERN_FILE)
-                          .required(true)
-                          .index(1)
-                          .help("The pattern file which contains predefined patterns"))
-                      .arg(Arg::with_name(INPUT_FILE)
-                          .required(true)
-                          .index(2)
-                          .help("The input file to be parsed"))
-                      .arg(Arg::with_name(OUTPUT_FILE)
-                          .required(true)
-                          .index(3)
-                          .help("The output file where the results are written")))
+        .version(VERSION)
+        .author(AUTHOR)
+        .about("Tool for parsing unstructured data")
+        .arg(Arg::with_name(DEBUG)
+                 .short("d")
+                 .help("Enable debug messages"))
+        .subcommand(SubCommand::with_name(VALIDATE)
+                        .about("validates pattern file")
+                        .version(VERSION)
+                        .author(AUTHOR)
+                        .arg(Arg::with_name(PATTERN_FILE)
+                                 .required(true)
+                                 .index(1)
+                                 .help("The pattern file to be validated"))
+                        .arg(Arg::with_name(IGNORE_ERRORS)
+                                 .short("i")
+                                 .help("Don't stop at the first test message error")))
+        .subcommand(SubCommand::with_name(PARSE)
+                        .about("parses a file based on predefined patterns")
+                        .version(VERSION)
+                        .author(AUTHOR)
+                        .arg(Arg::with_name(PATTERN_FILE)
+                                 .required(true)
+                                 .index(1)
+                                 .help("The pattern file which contains predefined patterns"))
+                        .arg(Arg::with_name(INPUT_FILE)
+                                 .required(true)
+                                 .index(2)
+                                 .help("The input file to be parsed"))
+                        .arg(Arg::with_name(OUTPUT_FILE)
+                                 .required(true)
+                                 .index(3)
+                                 .help("The output file where the results are written")))
 }
 
 fn handle_validate(matches: &ArgMatches) {
@@ -87,7 +87,7 @@ fn validate_patterns_independently(pattern_file: &str) {
                     error!("{}", error);
                 }
             }
-        },
+        }
         Err(error) => {
             error!("{}", error);
             std::process::exit(1);
@@ -113,7 +113,7 @@ fn setup_stdout_logger(log_level: LogLevelFilter) {
     });
 }
 
-fn choose_log_level<'n, 'a>(matches: &ArgMatches<'n ,'a>) -> LogLevelFilter {
+fn choose_log_level<'n, 'a>(matches: &ArgMatches<'n, 'a>) -> LogLevelFilter {
     if matches.is_present(DEBUG) {
         LogLevelFilter::Debug
     } else {

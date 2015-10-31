@@ -22,10 +22,14 @@ fn test_given_json_test_message_when_it_is_deserialized_then_we_get_the_right_in
     let expexted_tags = &["tag1".to_string(), "tag2".to_string()];
     println!("{:?}", result);
     let msg = result.ok().expect("Failed to deserialize a valid TestMessage from JSON");
-    assert_eq!("lame-servers: info: unexpected RCODE (REFUSED) resolving 'ns1.example.org/AAAA/IN': 192.0.2.1#53", msg.message());
+    assert_eq!("lame-servers: info: unexpected RCODE (REFUSED) resolving \
+                'ns1.example.org/AAAA/IN': 192.0.2.1#53",
+               msg.message());
     assert_eq!(6, msg.values().len());
-    assert_eq!(msg.tags().expect("Deserialized TestMessage doesn't have the expected tags"), expexted_tags);
-    assert_eq!(Some("AAAA"), msg.values().get("dnsqry.type").map(|x| x.borrow()));
+    assert_eq!(msg.tags().expect("Deserialized TestMessage doesn't have the expected tags"),
+               expexted_tags);
+    assert_eq!(Some("AAAA"),
+               msg.values().get("dnsqry.type").map(|x| x.borrow()));
 }
 
 #[test]
@@ -39,11 +43,14 @@ fn test_given_json_test_message_when_it_does_not_have_a_message_field_then_error
 "#;
     let result = serde_json::from_str::<TestMessage>(buffer);
     println!("{:?}", result);
-    let _ = result.err().expect("Failed to return error when a serialized TestMessage doesn't have a message field");
+    let _ = result.err()
+                  .expect("Failed to return error when a serialized TestMessage doesn't have a \
+                           message field");
 }
 
 #[test]
-fn test_given_json_test_message_when_it_does_not_have_the_optional_fields_then_it_can_be_loaded_successfully() {
+fn test_given_json_test_message_when_it_does_not_have_the_optional_fields_then_it_can_be_loaded_successfully
+    () {
     let buffer = r#"
 {
 "message": "lame-servers: info: unexpected RCODE (REFUSED) resolving 'ns1.example.org/AAAA/IN': 192.0.2.1#53"
@@ -51,13 +58,18 @@ fn test_given_json_test_message_when_it_does_not_have_the_optional_fields_then_i
 "#;
     let result = serde_json::from_str::<TestMessage>(buffer);
     println!("{:?}", result);
-    let msg = result.ok().expect("Failed to deserialize a valid TestMessage from JSON when it doesn't contain values");
-    assert_eq!("lame-servers: info: unexpected RCODE (REFUSED) resolving 'ns1.example.org/AAAA/IN': 192.0.2.1#53", msg.message());
+    let msg = result.ok()
+                    .expect("Failed to deserialize a valid TestMessage from JSON when it doesn't \
+                             contain values");
+    assert_eq!("lame-servers: info: unexpected RCODE (REFUSED) resolving \
+                'ns1.example.org/AAAA/IN': 192.0.2.1#53",
+               msg.message());
     assert_eq!(0, msg.values().len());
 }
 
 #[test]
-fn test_given_json_test_message_when_it_contains_not_just_the_valid_fields_then_we_return_an_error() {
+fn test_given_json_test_message_when_it_contains_not_just_the_valid_fields_then_we_return_an_error
+    () {
     let buffer = r#"
 {
 "message": "lame-servers: info: unexpected RCODE (REFUSED) resolving 'ns1.example.org/AAAA/IN': 192.0.2.1#53",
@@ -66,5 +78,6 @@ fn test_given_json_test_message_when_it_contains_not_just_the_valid_fields_then_
 "#;
     let result = serde_json::from_str::<TestMessage>(buffer);
     println!("{:?}", result);
-    let _ = result.err().expect("Failed to return an error when a serialized TestMessage contains non-valid fields");
+    let _ = result.err().expect("Failed to return an error when a serialized TestMessage \
+                                 contains non-valid fields");
 }

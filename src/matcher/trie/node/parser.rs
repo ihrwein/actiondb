@@ -14,9 +14,11 @@ pub struct ParserNode {
 
 impl ParserNode {
     pub fn new(parser: Box<Parser>) -> ParserNode {
-        ParserNode{ parser: parser,
-                    pattern: None,
-                    node: None}
+        ParserNode {
+            parser: parser,
+            pattern: None,
+            node: None,
+        }
     }
 
     pub fn parser(&self) -> &Parser {
@@ -31,8 +33,8 @@ impl ParserNode {
         match self.node {
             Some(ref boxed_node) => {
                 Some(boxed_node)
-            },
-            None => None
+            }
+            None => None,
         }
     }
 
@@ -44,16 +46,19 @@ impl ParserNode {
             return match self.node() {
                 Some(node) => {
                     node.parse_then_push_kvpair(text, parsed_kwpair)
-                },
+                }
                 None => {
                     self.push_last_kvpair(text, parsed_kwpair)
                 }
-            }
+            };
         }
         None
     }
 
-    fn push_last_kvpair<'a, 'b>(&'a self, text: &'b str, kvpair: ParseResult<'a, 'b>) -> Option<MatchResult<'a, 'b>> {
+    fn push_last_kvpair<'a, 'b>(&'a self,
+                                text: &'b str,
+                                kvpair: ParseResult<'a, 'b>)
+                                -> Option<MatchResult<'a, 'b>> {
         if text.is_empty() {
             let mut result = MatchResult::new(self.pattern().unwrap());
             result.insert(kvpair);
@@ -94,10 +99,10 @@ impl HasPattern for ParserNode {
 
 impl Clone for ParserNode {
     fn clone(&self) -> ParserNode {
-        ParserNode{
+        ParserNode {
             parser: self.parser.boxed_clone(),
             pattern: self.pattern.clone(),
-            node: self.node.clone()
+            node: self.node.clone(),
         }
     }
 }

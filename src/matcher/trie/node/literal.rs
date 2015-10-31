@@ -16,10 +16,12 @@ pub struct LiteralNode {
 
 impl LiteralNode {
     pub fn new(literal: String) -> LiteralNode {
-        LiteralNode{ literal: literal,
-                     has_value: false,
-                     pattern: None,
-                     node: None}
+        LiteralNode {
+            literal: literal,
+            has_value: false,
+            pattern: None,
+            node: None,
+        }
     }
 
     pub fn from_str(literal: &str) -> LiteralNode {
@@ -46,8 +48,8 @@ impl LiteralNode {
         match self.node {
             Some(ref mut boxed_node) => {
                 Some(boxed_node)
-            },
-            None => None
+            }
+            None => None,
         }
     }
 
@@ -55,8 +57,8 @@ impl LiteralNode {
         match self.node {
             Some(ref boxed_node) => {
                 Some(boxed_node)
-            },
-            None => None
+            }
+            None => None,
         }
     }
 
@@ -72,9 +74,7 @@ impl LiteralNode {
         }
     }
 
-    pub fn split(self,
-                 common_prefix_len: usize,
-                 literal: &str) -> LiteralNode {
+    pub fn split(self, common_prefix_len: usize, literal: &str) -> LiteralNode {
         let LiteralNode{ literal: self_literal,
                          has_value: self_has_value,
                          pattern: self_pattern,
@@ -111,7 +111,7 @@ impl LiteralNode {
         self.node.is_none()
     }
 
-    fn compare_first_chars(&self, other : &LiteralNode) -> Ordering {
+    fn compare_first_chars(&self, other: &LiteralNode) -> Ordering {
         self.cmp_str(other.literal())
     }
 }
@@ -182,7 +182,8 @@ mod test {
     }
 
     #[test]
-    fn given_literal_node_when_it_is_compared_to_an_other_literal_node_then_only_their_first_chars_are_checked() {
+    fn given_literal_node_when_it_is_compared_to_an_other_literal_node_then_only_their_first_chars_are_checked
+        () {
         let alpha = LiteralNode::new("alpha".to_string());
         let beta = LiteralNode::new("beta".to_string());
         let aleph = LiteralNode::from_str("aleph");

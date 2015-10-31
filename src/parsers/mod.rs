@@ -30,14 +30,14 @@ pub enum OptionalParameter<'a> {
 #[derive(Debug)]
 pub struct ParseResult<'a, 'b> {
     parser: &'a Parser,
-    value: &'b str
+    value: &'b str,
 }
 
 impl<'a, 'b> ParseResult<'a, 'b> {
     pub fn new(parser: &'a Parser, value: &'b str) -> ParseResult<'a, 'b> {
         ParseResult {
             parser: parser,
-            value: value
+            value: value,
         }
     }
 
@@ -51,7 +51,12 @@ impl<'a, 'b> ParseResult<'a, 'b> {
 }
 
 pub trait ParserFactory: {
-    fn new_set<'a>(set: &str, name: Option<&str>, opt_params: Option<Vec<OptionalParameter<'a>>>) -> Box<Parser>;
-    fn new_int<'a>(name: Option<&str>, opt_params: Option<Vec<OptionalParameter<'a>>>) -> Box<Parser>;
+    fn new_set<'a>(set: &str,
+                   name: Option<&str>,
+                   opt_params: Option<Vec<OptionalParameter<'a>>>)
+                   -> Box<Parser>;
+    fn new_int<'a>(name: Option<&str>,
+                   opt_params: Option<Vec<OptionalParameter<'a>>>)
+                   -> Box<Parser>;
     fn new_greedy<'a>(name: Option<&str>, end_string: Option<&str>) -> Box<Parser>;
 }

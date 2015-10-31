@@ -11,7 +11,7 @@ pub struct ParserTrie {
 
 impl ParserTrie {
     pub fn new() -> ParserTrie {
-        ParserTrie{ root: Node::new() }
+        ParserTrie { root: Node::new() }
     }
 
     pub fn insert(&mut self, pattern: Pattern) {
@@ -23,13 +23,14 @@ impl ParserTrie {
     }
 
     fn insert_pattern<T>(node: &mut T, mut pattern: Pattern)
-        where T: TrieOperations + HasPattern {
+        where T: TrieOperations + HasPattern
+    {
         if let Some(token) = pattern.pop_first_token() {
             match token {
                 TokenType::Literal(literal) => {
                     let mut node = node.insert_literal(&literal);
                     ParserTrie::insert_pattern(node, pattern)
-                },
+                }
                 TokenType::Parser(parser) => {
                     let mut node = node.insert_parser(parser);
                     ParserTrie::insert_pattern(node, pattern)
@@ -52,10 +53,10 @@ mod test {
     fn test_given_patterns_when_inserted_into_the_prefix_tree_then_the_proper_tree_is_built() {
         let mut trie = ParserTrie::new();
         let cp1 = CompiledPatternBuilder::new()
-                    .literal("app")
-                    .parser(Box::new(SetParser::from_str("test", "01234")))
-                    .literal("le")
-                    .build();
+                      .literal("app")
+                      .parser(Box::new(SetParser::from_str("test", "01234")))
+                      .literal("le")
+                      .build();
         {
             let mut pattern = Pattern::with_random_uuid();
             pattern.set_pattern(cp1);
@@ -65,21 +66,22 @@ mod test {
         {
             let mut pattern = Pattern::with_random_uuid();
             let cp2 = CompiledPatternBuilder::new()
-                        .literal("appletree")
-                        .build();
+                          .literal("appletree")
+                          .build();
             pattern.set_pattern(cp2);
             trie.insert(pattern);
         }
     }
 
     #[test]
-    fn test_given_pattern_when_inserted_into_the_parser_tree_then_the_pattern_is_stored_in_the_leaf() {
+    fn test_given_pattern_when_inserted_into_the_parser_tree_then_the_pattern_is_stored_in_the_leaf
+        () {
         let mut trie = ParserTrie::new();
         let cp1 = CompiledPatternBuilder::new()
-                    .literal("app")
-                    .parser(Box::new(SetParser::from_str("test", "01234")))
-                    .literal("le")
-                    .build();
+                      .literal("app")
+                      .parser(Box::new(SetParser::from_str("test", "01234")))
+                      .literal("le")
+                      .build();
         let mut pattern = Pattern::with_random_uuid();
         pattern.set_pattern(cp1);
 
@@ -90,21 +92,22 @@ mod test {
             Some(res) => {
                 println!("{:?}", res);
                 assert_eq!(res.values(), &btreemap!["test" => "23"]);
-            },
-            None => unreachable!()
+            }
+            None => unreachable!(),
         }
     }
 
     #[test]
-    fn test_given_pattern_with_two_neighbouring_parser_when_the_pattern_is_inserted_into_the_trie_then_everything_is_ok() {
+    fn test_given_pattern_with_two_neighbouring_parser_when_the_pattern_is_inserted_into_the_trie_then_everything_is_ok
+        () {
         let mut trie = ParserTrie::new();
         let expected = btreemap!["test" => "ccc", "test2" => "12", "test3" => "le"];
         let cp1 = CompiledPatternBuilder::new()
-                    .literal("app")
-                    .parser(Box::new(SetParser::from_str("test", "abcd")))
-                    .parser(Box::new(IntParser::from_str("test2")))
-                    .parser(Box::new(GreedyParser::with_name("test3".to_string())))
-                    .build();
+                      .literal("app")
+                      .parser(Box::new(SetParser::from_str("test", "abcd")))
+                      .parser(Box::new(IntParser::from_str("test2")))
+                      .parser(Box::new(GreedyParser::with_name("test3".to_string())))
+                      .build();
         let mut pattern = Pattern::with_random_uuid();
         pattern.set_pattern(cp1);
 
@@ -116,8 +119,8 @@ mod test {
                 let got = res.values().clone();
                 println!("{:?}", res);
                 assert_eq!(expected, got);
-            },
-            None => unreachable!()
+            }
+            None => unreachable!(),
         }
     }
 }

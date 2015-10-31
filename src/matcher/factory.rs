@@ -24,7 +24,8 @@ pub struct GenericFactory;
 
 impl GenericFactory {
     pub fn from_json_file<F>(pattern_file_path: &str) -> Result<F::Matcher, builder::BuildError>
-        where F: MatcherFactory {
+        where F: MatcherFactory
+    {
         let mut matcher = F::new_matcher();
         let file = try!(file::SerializedPatternFile::open(pattern_file_path));
         try!(builder::Builder::drain_into(&mut file.into_iter(), &mut matcher));
@@ -32,21 +33,25 @@ impl GenericFactory {
     }
 
     pub fn from_file<F>(pattern_file_path: &str) -> Result<F::Matcher, builder::BuildError>
-        where F: MatcherFactory {
+        where F: MatcherFactory
+    {
         let path = path::Path::new(pattern_file_path);
         match path.extension() {
             Some(extension) => {
                 GenericFactory::from_file_based_on_extension::<F>(extension, pattern_file_path)
-            },
-            None => Err(builder::BuildError::UnsupportedFileExtension)
+            }
+            None => Err(builder::BuildError::UnsupportedFileExtension),
         }
     }
 
-    fn from_file_based_on_extension<F>(extension: &ffi::OsStr, pattern_file_path: &str) -> Result<F::Matcher, builder::BuildError>
-        where F: MatcherFactory {
+    fn from_file_based_on_extension<F>(extension: &ffi::OsStr,
+                                       pattern_file_path: &str)
+                                       -> Result<F::Matcher, builder::BuildError>
+        where F: MatcherFactory
+    {
         match try!(extension.to_str().ok_or(builder::BuildError::NotUtf8FileName)) {
             "json" => GenericFactory::from_json_file::<F>(pattern_file_path),
-            _ => Err(builder::BuildError::UnsupportedFileExtension)
+            _ => Err(builder::BuildError::UnsupportedFileExtension),
         }
     }
 }

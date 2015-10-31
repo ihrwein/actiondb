@@ -4,7 +4,7 @@ use parsers::{Parser, ObjectSafeHash, SetParser, ParseResult};
 
 #[derive(Clone, Debug, Hash)]
 pub struct IntParser {
-    delegate: SetParser
+    delegate: SetParser,
 }
 
 impl IntParser {
@@ -14,13 +14,11 @@ impl IntParser {
 
     pub fn with_name(name: String) -> IntParser {
         let delegate = SetParser::with_name(name, "0123456789");
-        IntParser{ delegate: delegate }
+        IntParser { delegate: delegate }
     }
 
     pub fn new() -> IntParser {
-        IntParser {
-            delegate: SetParser::new("0123456789")
-        }
+        IntParser { delegate: SetParser::new("0123456789") }
     }
 
     pub fn set_min_length(&mut self, length: usize) {
@@ -80,7 +78,8 @@ mod test {
     }
 
     #[test]
-    fn test_given_matching_string_which_is_longer_than_the_max_match_length_when_it_is_parsed_then_it_does_not_match() {
+    fn test_given_matching_string_which_is_longer_than_the_max_match_length_when_it_is_parsed_then_it_does_not_match
+        () {
         let parser_name = "test_int_parser";
         let mut parser = IntParser::from_str(parser_name);
         parser.set_max_length(3);

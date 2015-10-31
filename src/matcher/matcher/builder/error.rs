@@ -9,7 +9,7 @@ pub enum BuildError {
     FromSerialized(serialized::Error),
     TestMessage(testmessage::Error),
     UnsupportedFileExtension,
-    NotUtf8FileName
+    NotUtf8FileName,
 }
 
 impl From<serialized::Error> for BuildError {
@@ -29,8 +29,10 @@ impl fmt::Display for BuildError {
         match self {
             &BuildError::FromSerialized(ref error) => error.fmt(formatter),
             &BuildError::TestMessage(ref error) => error.fmt(formatter),
-            &BuildError::UnsupportedFileExtension => formatter.write_fmt(format_args!("The given file extension is not suppoted")),
-            &BuildError::NotUtf8FileName => formatter.write_str("The given filename contains non Utf-8 characters"),
+            &BuildError::UnsupportedFileExtension =>
+                formatter.write_fmt(format_args!("The given file extension is not suppoted")),
+            &BuildError::NotUtf8FileName =>
+                formatter.write_str("The given filename contains non Utf-8 characters"),
         }
     }
 }
@@ -41,7 +43,7 @@ impl error::Error for BuildError {
             &BuildError::FromSerialized(ref error) => error.description(),
             &BuildError::TestMessage(ref error) => error.description(),
             &BuildError::UnsupportedFileExtension => "The given file extension is not supported",
-            &BuildError::NotUtf8FileName => "The given filename contains non Utf-8 characters"
+            &BuildError::NotUtf8FileName => "The given filename contains non Utf-8 characters",
         }
     }
 
@@ -50,7 +52,7 @@ impl error::Error for BuildError {
             &BuildError::FromSerialized(ref error) => error.cause(),
             &BuildError::TestMessage(ref error) => error.cause(),
             &BuildError::UnsupportedFileExtension => None,
-            &BuildError::NotUtf8FileName => None
+            &BuildError::NotUtf8FileName => None,
         }
     }
 }

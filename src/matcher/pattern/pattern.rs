@@ -14,29 +14,35 @@ pub struct Pattern {
     pattern: CompiledPattern,
     values: Option<BTreeMap<String, String>>,
     tags: Option<Vec<String>>,
-    test_messages: Option<Vec<TestMessage>>
+    test_messages: Option<Vec<TestMessage>>,
 }
 
 impl Pattern {
     pub fn with_uuid(uuid: Uuid) -> Pattern {
-        Pattern{
+        Pattern {
             uuid: uuid,
             name: None,
             pattern: Vec::new(),
             values: None,
             tags: None,
-            test_messages: None
+            test_messages: None,
         }
     }
 
-    pub fn new(name: Option<String>, uuid: Uuid, pattern: CompiledPattern, test_messages: Option<Vec<TestMessage>>, values: Option<BTreeMap<String, String>>, tags: Option<Vec<String>>) -> Pattern {
-        Pattern{
+    pub fn new(name: Option<String>,
+               uuid: Uuid,
+               pattern: CompiledPattern,
+               test_messages: Option<Vec<TestMessage>>,
+               values: Option<BTreeMap<String, String>>,
+               tags: Option<Vec<String>>)
+               -> Pattern {
+        Pattern {
             uuid: uuid,
             name: name,
             pattern: pattern,
             values: values,
             tags: tags,
-            test_messages: test_messages
+            test_messages: test_messages,
         }
     }
 

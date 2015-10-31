@@ -7,19 +7,21 @@ use parsers::{Parser, ObjectSafeHash, LengthCheckedParserBase, ParseResult};
 #[derive(Clone, Debug, Hash)]
 pub struct SetParser {
     character_set: BTreeSet<u8>,
-    base: LengthCheckedParserBase
+    base: LengthCheckedParserBase,
 }
 
 impl SetParser {
     pub fn with_name(name: String, set: &str) -> SetParser {
-        SetParser{ character_set: SetParser::create_set_from_str(set),
-                   base: LengthCheckedParserBase::with_name(name)}
+        SetParser {
+            character_set: SetParser::create_set_from_str(set),
+            base: LengthCheckedParserBase::with_name(name),
+        }
     }
 
     pub fn new(set: &str) -> SetParser {
         SetParser {
             character_set: SetParser::create_set_from_str(set),
-            base: LengthCheckedParserBase::new()
+            base: LengthCheckedParserBase::new(),
         }
     }
 
@@ -132,7 +134,8 @@ mod test {
     }
 
     #[test]
-    fn test_given_minimum_and_maximum_match_length_when_a_proper_length_match_occures_it_counts_as_a_match() {
+    fn test_given_minimum_and_maximum_match_length_when_a_proper_length_match_occures_it_counts_as_a_match
+        () {
         let mut p = SetParser::from_str("testname", "0123");
         p.set_min_length(3);
         p.set_max_length(7);
@@ -144,7 +147,8 @@ mod test {
     use parsers::ObjectSafeHash;
 
     #[test]
-    fn test_given_set_parser_and_when_differently_parametrized_instances_are_hashed_then_the_hashes_are_different() {
+    fn test_given_set_parser_and_when_differently_parametrized_instances_are_hashed_then_the_hashes_are_different
+        () {
         let p1 = SetParser::from_str("test", "0123");
         let p2 = SetParser::from_str("test", "01234");
         assert_eq!(p1.hash_os() == p2.hash_os(), false);
