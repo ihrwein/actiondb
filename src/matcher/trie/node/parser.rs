@@ -30,12 +30,7 @@ impl ParserNode {
     }
 
     pub fn node(&self) -> Option<&Node> {
-        match self.node {
-            Some(ref boxed_node) => {
-                Some(boxed_node)
-            }
-            None => None,
-        }
+        self.node.as_ref()
     }
 
     pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
