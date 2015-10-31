@@ -65,22 +65,22 @@ mod deser {
 
     impl fmt::Display for DeserError {
         fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-            match self {
-                &DeserError::JSON(ref error) => error.fmt(formatter),
+            match *self {
+                DeserError::JSON(ref error) => error.fmt(formatter),
             }
         }
     }
 
     impl error::Error for DeserError {
         fn description(&self) -> &str {
-            match self {
-                &DeserError::JSON(ref error) => error.description(),
+            match *self {
+                DeserError::JSON(ref error) => error.description(),
             }
         }
 
         fn cause(&self) -> Option<&error::Error> {
-            match self {
-                &DeserError::JSON(ref error) => error.cause(),
+            match *self {
+                DeserError::JSON(ref error) => error.cause(),
             }
         }
     }
