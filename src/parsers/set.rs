@@ -2,7 +2,7 @@ use std::collections::BTreeSet;
 use std::iter::FromIterator;
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, LengthCheckedParserBase, HasOptionalParameter, ParseResult, OptionalParameter};
+use parsers::{Parser, ObjectSafeHash, LengthCheckedParserBase, ParseResult};
 
 #[derive(Clone, Debug, Hash)]
 pub struct SetParser {
@@ -89,12 +89,6 @@ impl ObjectSafeHash for SetParser {
         "parser:set".hash(&mut hasher);
         self.hash(&mut hasher);
         hasher.finish()
-    }
-}
-
-impl HasOptionalParameter for SetParser {
-    fn set_optional_param<'a>(&mut self, param: OptionalParameter<'a>) -> bool {
-        self.base.set_optional_param(param)
     }
 }
 

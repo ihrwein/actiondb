@@ -1,5 +1,5 @@
 use matcher::compiled_pattern::{CompiledPattern, TokenType};
-use parsers::{SetParser, IntParser, Parser, OptionalParameter, HasOptionalParameter, GreedyParser};
+use parsers::{SetParser, IntParser, Parser, OptionalParameter, GreedyParser};
 use grammar;
 use utils;
 
