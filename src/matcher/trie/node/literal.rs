@@ -2,7 +2,7 @@ use std::cmp::{Ord, Ordering};
 use utils::common_prefix::CommonPrefix;
 
 use matcher::trie::node::{Node, ParserNode};
-use matcher::trie::{HasPattern, TrieOperations};
+use matcher::trie::TrieElement;
 use matcher::Pattern;
 use parsers::Parser;
 
@@ -45,21 +45,11 @@ impl LiteralNode {
     }
 
     pub fn node_mut(&mut self) -> Option<&mut Node> {
-        match self.node {
-            Some(ref mut boxed_node) => {
-                Some(boxed_node)
-            }
-            None => None,
-        }
+        self.node.as_mut()
     }
 
     pub fn node(&self) -> Option<&Node> {
-        match self.node {
-            Some(ref boxed_node) => {
-                Some(boxed_node)
-            }
-            None => None,
-        }
+        self.node.as_ref()
     }
 
     pub fn cmp_str(&self, other: &str) -> Ordering {
@@ -116,7 +106,7 @@ impl LiteralNode {
     }
 }
 
-impl TrieOperations for LiteralNode {
+impl TrieElement for LiteralNode {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         if self.is_leaf() {
             self.node = Some(Node::new());
@@ -132,9 +122,7 @@ impl TrieOperations for LiteralNode {
 
         self.node.as_mut().unwrap().insert_parser(parser)
     }
-}
 
-impl HasPattern for LiteralNode {
     fn set_pattern(&mut self, pattern: Pattern) {
         self.pattern = Some(pattern);
     }
@@ -143,7 +131,6 @@ impl HasPattern for LiteralNode {
         self.pattern.as_ref()
     }
 }
-
 
 impl Eq for LiteralNode {}
 

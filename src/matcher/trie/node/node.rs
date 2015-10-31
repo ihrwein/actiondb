@@ -3,7 +3,7 @@ use utils::{SortedVec, CommonPrefix};
 use matcher::pattern::Pattern;
 use matcher::trie::node::LiteralNode;
 use matcher::trie::node::ParserNode;
-use matcher::trie::{HasPattern, TrieOperations};
+use matcher::trie::TrieElement;
 use matcher::result::MatchResult;
 
 
@@ -257,15 +257,7 @@ impl Node {
     }
 }
 
-impl HasPattern for Node {
-    fn set_pattern(&mut self, _: Pattern) {
-    }
-    fn pattern(&self) -> Option<&Pattern> {
-        None
-    }
-}
-
-impl TrieOperations for Node {
+impl TrieElement for Node {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         trace!("inserting literal: '{}'", literal);
 
@@ -291,11 +283,18 @@ impl TrieOperations for Node {
             self.parser_children.last_mut().unwrap()
         }
     }
+
+    fn set_pattern(&mut self, _: Pattern) {
+    }
+
+    fn pattern(&self) -> Option<&Pattern> {
+        None
+    }
 }
 
 #[cfg(test)]
 mod test {
-    use matcher::trie::{ParserTrie, TrieOperations};
+    use matcher::trie::{TrieMatcher, TrieElement};
     use parsers::{Parser, SetParser};
     use matcher::trie::node::Node;
     use matcher::compiled_pattern::CompiledPatternBuilder;
@@ -371,8 +370,8 @@ mod test {
         assert_eq!(node.parser_children.len(), 2);
     }
 
-    fn create_parser_trie() -> ParserTrie {
-        let mut root = ParserTrie::new();
+    fn create_parser_trie() -> TrieMatcher {
+        let mut root = TrieMatcher::new();
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "01234")))
@@ -435,8 +434,8 @@ mod test {
         }
     }
 
-    fn create_complex_parser_trie() -> ParserTrie {
-        let mut root = ParserTrie::new();
+    fn create_complex_parser_trie() -> TrieMatcher {
+        let mut root = TrieMatcher::new();
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("middle", "01234")))
@@ -523,7 +522,7 @@ mod test {
 
     #[test]
     fn test_given_node_when_the_message_is_too_short_we_do_not_try_to_unwrap_a_childs_pattern() {
-        let mut root = ParserTrie::new();
+        let mut root = TrieMatcher::new();
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("middle", "01234")))

@@ -1,5 +1,5 @@
 use matcher::trie::node::{Node, LiteralNode};
-use matcher::trie::{HasPattern, TrieOperations};
+use matcher::trie::TrieElement;
 use matcher::result::MatchResult;
 use matcher::Pattern;
 use parsers::{Parser, ParseResult};
@@ -30,12 +30,7 @@ impl ParserNode {
     }
 
     pub fn node(&self) -> Option<&Node> {
-        match self.node {
-            Some(ref boxed_node) => {
-                Some(boxed_node)
-            }
-            None => None,
-        }
+        self.node.as_ref()
     }
 
     pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
@@ -69,7 +64,7 @@ impl ParserNode {
     }
 }
 
-impl TrieOperations for ParserNode {
+impl TrieElement for ParserNode {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         if self.is_leaf() {
             self.node = Some(Node::new());
@@ -85,9 +80,7 @@ impl TrieOperations for ParserNode {
 
         self.node.as_mut().unwrap().insert_parser(parser)
     }
-}
 
-impl HasPattern for ParserNode {
     fn set_pattern(&mut self, pattern: Pattern) {
         self.pattern = Some(pattern);
     }

@@ -10,7 +10,7 @@ use clap::{Arg, App, SubCommand, ArgMatches};
 use actiondb::matcher::Factory;
 use actiondb::matcher::Builder;
 use log::LogLevelFilter;
-use actiondb::matcher::pattern::file::SerializedPatternFile;
+use actiondb::matcher::pattern::file::PatternFile;
 use actiondb::matcher::trie::factory::TrieMatcherFactory;
 use actiondb::matcher::factory::MatcherFactory;
 use self::logger::StdoutLogger;
@@ -78,9 +78,9 @@ fn handle_validate(matches: &ArgMatches) {
 
 fn validate_patterns_independently(pattern_file: &str) {
     let mut matcher = TrieMatcherFactory::new_matcher();
-    match SerializedPatternFile::open(pattern_file) {
+    match PatternFile::open(pattern_file) {
         Ok(file) => {
-            let SerializedPatternFile{patterns} = file;
+            let PatternFile{patterns} = file;
             for i in patterns {
                 debug!("validating pattern: {}", i.uuid().to_hyphenated_string());
                 if let Err(error) = Builder::check_pattern(i, &mut matcher) {

@@ -43,8 +43,7 @@ impl serde::Deserialize for Field {
                     "values" => Ok(Field::VALUES),
                     "tags" => Ok(Field::TAGS),
                     "test_messages" => Ok(Field::TESTMESSAGES),
-                    name @_ =>
-                        Err(serde::de::Error::syntax(&format!("Unexpected field: {}", name))),
+                    _ => Err(serde::de::Error::syntax(&format!("Unexpected field: {}", value))),
                 }
             }
         }

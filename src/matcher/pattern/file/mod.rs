@@ -1,3 +1,7 @@
-pub use self::serialized::SerializedPatternFile;
+pub use self::error::{DeserError, Error};
+pub use self::file::PatternFile;
 
-pub mod serialized;
+mod deser;
+mod error;
+mod file;
+mod iter;

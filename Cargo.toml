@@ -1,6 +1,6 @@
 [package]
 name = "actiondb"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["Tibor Benke <tibor.benke@balabit.com>"]
 homepage = "https://github.com/ihrwein/actiondb"
 repository = "https://github.com/ihrwein/actiondb"

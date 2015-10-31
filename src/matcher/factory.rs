@@ -1,4 +1,4 @@
-use super::trie::ParserTrie;
+use super::trie::TrieMatcher;
 use super::pattern::file;
 use super::matcher::builder;
 use super::matcher::Matcher;
@@ -11,11 +11,11 @@ use std::ffi;
 pub struct Factory;
 
 impl Factory {
-    pub fn from_json_file(pattern_file_path: &str) -> Result<ParserTrie, builder::BuildError> {
+    pub fn from_json_file(pattern_file_path: &str) -> Result<TrieMatcher, builder::BuildError> {
         GenericFactory::from_json_file::<TrieMatcherFactory>(pattern_file_path)
     }
 
-    pub fn from_file(pattern_file_path: &str) -> Result<ParserTrie, builder::BuildError> {
+    pub fn from_file(pattern_file_path: &str) -> Result<TrieMatcher, builder::BuildError> {
         GenericFactory::from_file::<TrieMatcherFactory>(pattern_file_path)
     }
 }
@@ -27,7 +27,7 @@ impl GenericFactory {
         where F: MatcherFactory
     {
         let mut matcher = F::new_matcher();
-        let file = try!(file::SerializedPatternFile::open(pattern_file_path));
+        let file = try!(file::PatternFile::open(pattern_file_path));
         try!(builder::Builder::drain_into(&mut file.into_iter(), &mut matcher));
         Ok(matcher)
     }
