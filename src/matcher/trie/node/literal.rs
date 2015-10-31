@@ -2,7 +2,7 @@ use std::cmp::{Ord, Ordering};
 use utils::common_prefix::CommonPrefix;
 
 use matcher::trie::node::{Node, ParserNode};
-use matcher::trie::TrieOperations;
+use matcher::trie::TrieElement;
 use matcher::Pattern;
 use parsers::Parser;
 
@@ -106,7 +106,7 @@ impl LiteralNode {
     }
 }
 
-impl TrieOperations for LiteralNode {
+impl TrieElement for LiteralNode {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         if self.is_leaf() {
             self.node = Some(Node::new());

@@ -1,5 +1,5 @@
 use matcher::trie::node::{Node, LiteralNode};
-use matcher::trie::TrieOperations;
+use matcher::trie::TrieElement;
 use matcher::result::MatchResult;
 use matcher::Pattern;
 use parsers::{Parser, ParseResult};
@@ -64,7 +64,7 @@ impl ParserNode {
     }
 }
 
-impl TrieOperations for ParserNode {
+impl TrieElement for ParserNode {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         if self.is_leaf() {
             self.node = Some(Node::new());

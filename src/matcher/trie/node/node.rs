@@ -3,7 +3,7 @@ use utils::{SortedVec, CommonPrefix};
 use matcher::pattern::Pattern;
 use matcher::trie::node::LiteralNode;
 use matcher::trie::node::ParserNode;
-use matcher::trie::TrieOperations;
+use matcher::trie::TrieElement;
 use matcher::result::MatchResult;
 
 
@@ -257,7 +257,7 @@ impl Node {
     }
 }
 
-impl TrieOperations for Node {
+impl TrieElement for Node {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         trace!("inserting literal: '{}'", literal);
 
@@ -294,7 +294,7 @@ impl TrieOperations for Node {
 
 #[cfg(test)]
 mod test {
-    use matcher::trie::{ParserTrie, TrieOperations};
+    use matcher::trie::{ParserTrie, TrieElement};
     use parsers::{Parser, SetParser};
     use matcher::trie::node::Node;
     use matcher::compiled_pattern::CompiledPatternBuilder;

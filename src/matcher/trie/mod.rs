@@ -11,7 +11,7 @@ pub use self::trie::ParserTrie;
 pub use self::suite::TrieMatcherSuite;
 use matcher::Pattern;
 
-pub trait TrieOperations {
+pub trait TrieElement {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode;
     fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode;
     fn set_pattern(&mut self, pattern: Pattern);
