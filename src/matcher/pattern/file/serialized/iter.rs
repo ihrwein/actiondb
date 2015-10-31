@@ -1,10 +1,10 @@
-use super::SerializedPatternFile;
+use super::PatternFile;
 use matcher::pattern::Pattern;
 use matcher::pattern::source::BuildResult;
 
 use std::iter;
 
-impl iter::IntoIterator for SerializedPatternFile {
+impl iter::IntoIterator for PatternFile {
     type Item = BuildResult;
     type IntoIter = IntoIter;
 

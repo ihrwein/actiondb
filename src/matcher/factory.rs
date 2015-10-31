@@ -27,7 +27,7 @@ impl GenericFactory {
         where F: MatcherFactory
     {
         let mut matcher = F::new_matcher();
-        let file = try!(file::SerializedPatternFile::open(pattern_file_path));
+        let file = try!(file::PatternFile::open(pattern_file_path));
         try!(builder::Builder::drain_into(&mut file.into_iter(), &mut matcher));
         Ok(matcher)
     }

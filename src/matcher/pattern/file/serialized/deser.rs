@@ -1,10 +1,10 @@
 use serde;
 
-use super::SerializedPatternFile;
+use super::PatternFile;
 use matcher::pattern::Pattern;
 
-impl serde::Deserialize for SerializedPatternFile {
-    fn deserialize<D>(deserializer: &mut D) -> Result<SerializedPatternFile, D::Error>
+impl serde::Deserialize for PatternFile {
+    fn deserialize<D>(deserializer: &mut D) -> Result<PatternFile, D::Error>
         where D: serde::de::Deserializer
     {
         deserializer.visit_struct("File", &[], FileVisitor)
@@ -42,9 +42,9 @@ impl serde::Deserialize for Field {
 struct FileVisitor;
 
 impl serde::de::Visitor for FileVisitor {
-    type Value = SerializedPatternFile;
+    type Value = PatternFile;
 
-    fn visit_map<V>(&mut self, mut visitor: V) -> Result<SerializedPatternFile, V::Error>
+    fn visit_map<V>(&mut self, mut visitor: V) -> Result<PatternFile, V::Error>
         where V: serde::de::MapVisitor
     {
         let mut patterns: Option<Vec<Pattern>> = None;
@@ -67,6 +67,6 @@ impl serde::de::Visitor for FileVisitor {
 
         try!(visitor.end());
 
-        Ok(SerializedPatternFile { patterns: patterns_final })
+        Ok(PatternFile { patterns: patterns_final })
     }
 }
