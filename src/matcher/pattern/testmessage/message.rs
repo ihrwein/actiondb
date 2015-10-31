@@ -57,12 +57,12 @@ impl TestMessage {
         if let Some(got_value) = values.get(key) {
             let got_value: &str = got_value;
             if value != got_value {
-                return Err(Error::value_not_match(result.pattern().uuid(), key, value, got_value));
+                Err(Error::value_not_match(result.pattern().uuid(), key, value, got_value))
             } else {
                 Ok(())
             }
         } else {
-            return Err(Error::key_not_found(result.pattern().uuid(), key));
+            Err(Error::key_not_found(result.pattern().uuid(), key))
         }
     }
 
