@@ -1,9 +1,9 @@
 use matcher::Matcher;
-use super::ParserTrie;
+use super::TrieMatcher;
 use matcher::result::MatchResult;
 use matcher::pattern::Pattern;
 
-impl Matcher for ParserTrie {
+impl Matcher for TrieMatcher {
     fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
         self.parse(text)
     }

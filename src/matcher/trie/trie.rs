@@ -5,17 +5,17 @@ use matcher::result::MatchResult;
 use matcher::Pattern;
 
 #[derive(Debug, Clone)]
-pub struct ParserTrie {
+pub struct TrieMatcher {
     root: Node,
 }
 
-impl ParserTrie {
-    pub fn new() -> ParserTrie {
-        ParserTrie { root: Node::new() }
+impl TrieMatcher {
+    pub fn new() -> TrieMatcher {
+        TrieMatcher { root: Node::new() }
     }
 
     pub fn insert(&mut self, pattern: Pattern) {
-        ParserTrie::insert_pattern(&mut self.root, pattern)
+        TrieMatcher::insert_pattern(&mut self.root, pattern)
     }
 
     pub fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
@@ -29,11 +29,11 @@ impl ParserTrie {
             match token {
                 TokenType::Literal(literal) => {
                     let mut node = node.insert_literal(&literal);
-                    ParserTrie::insert_pattern(node, pattern)
+                    TrieMatcher::insert_pattern(node, pattern)
                 }
                 TokenType::Parser(parser) => {
                     let mut node = node.insert_parser(parser);
-                    ParserTrie::insert_pattern(node, pattern)
+                    TrieMatcher::insert_pattern(node, pattern)
                 }
             }
         } else {
@@ -45,13 +45,13 @@ impl ParserTrie {
 #[cfg(test)]
 mod test {
     use matcher::compiled_pattern::CompiledPatternBuilder;
-    use matcher::trie::ParserTrie;
+    use matcher::trie::TrieMatcher;
     use parsers::{SetParser, IntParser, GreedyParser};
     use matcher::pattern::Pattern;
 
     #[test]
     fn test_given_patterns_when_inserted_into_the_prefix_tree_then_the_proper_tree_is_built() {
-        let mut trie = ParserTrie::new();
+        let mut trie = TrieMatcher::new();
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "01234")))
@@ -76,7 +76,7 @@ mod test {
     #[test]
     fn test_given_pattern_when_inserted_into_the_parser_tree_then_the_pattern_is_stored_in_the_leaf
         () {
-        let mut trie = ParserTrie::new();
+        let mut trie = TrieMatcher::new();
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "01234")))
@@ -100,7 +100,7 @@ mod test {
     #[test]
     fn test_given_pattern_with_two_neighbouring_parser_when_the_pattern_is_inserted_into_the_trie_then_everything_is_ok
         () {
-        let mut trie = ParserTrie::new();
+        let mut trie = TrieMatcher::new();
         let expected = btreemap!["test" => "ccc", "test2" => "12", "test3" => "le"];
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")

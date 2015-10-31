@@ -1,12 +1,12 @@
 use matcher::factory::MatcherFactory;
-use matcher::trie::ParserTrie;
+use matcher::trie::TrieMatcher;
 
 pub struct TrieMatcherFactory;
 
 impl MatcherFactory for TrieMatcherFactory {
-    type Matcher = ParserTrie;
+    type Matcher = TrieMatcher;
 
     fn new_matcher() -> Self::Matcher {
-        ParserTrie::new()
+        TrieMatcher::new()
     }
 }

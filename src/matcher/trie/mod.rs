@@ -7,7 +7,7 @@ mod matcher;
 
 use self::node::{LiteralNode, ParserNode};
 use parsers::Parser;
-pub use self::trie::ParserTrie;
+pub use self::trie::TrieMatcher;
 pub use self::suite::TrieMatcherSuite;
 use matcher::Pattern;
 
