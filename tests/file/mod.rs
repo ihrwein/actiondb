@@ -22,7 +22,7 @@ fn test_given_an_invalid_json_pattern_file_when_it_is_deserialized_then_we_get_d
     println!("dir: {:?}", env::current_dir());
     let file_name = format!("{}/ssh_wrong.json", DIR_PREFIX);
     match PatternFile::open(&file_name) {
-        Err(file::serialized::Error::Deser(err)) => {
+        Err(file::Error::Deser(err)) => {
             println!("{:?}", err);
         }
         Ok(_) | Err(_) => unreachable!(),
@@ -34,7 +34,7 @@ fn test_given_a_non_existing_pattern_file_when_it_is_deserialized_then_we_get_io
     println!("dir: {:?}", env::current_dir());
     let file_name = format!("{}/ssh_non_existing.json", DIR_PREFIX);
     match PatternFile::open(&file_name) {
-        Err(file::serialized::Error::IO(err)) => {
+        Err(file::Error::IO(err)) => {
             println!("{:?}", err);
         }
         Ok(_) | Err(_) => unreachable!(),

@@ -1,4 +1,4 @@
-use matcher::pattern::file::serialized;
+use matcher::pattern::file;
 use matcher::pattern::testmessage;
 
 use std::fmt;
@@ -6,14 +6,14 @@ use std::error;
 
 #[derive(Debug)]
 pub enum BuildError {
-    FromSerialized(serialized::Error),
+    FromSerialized(file::Error),
     TestMessage(testmessage::Error),
     UnsupportedFileExtension,
     NotUtf8FileName,
 }
 
-impl From<serialized::Error> for BuildError {
-    fn from(error: serialized::Error) -> BuildError {
+impl From<file::Error> for BuildError {
+    fn from(error: file::Error) -> BuildError {
         BuildError::FromSerialized(error)
     }
 }

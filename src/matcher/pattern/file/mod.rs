@@ -1,3 +1,4 @@
 pub use self::serialized::PatternFile;
+pub use self::serialized::Error;
 
-pub mod serialized;
+mod serialized;
