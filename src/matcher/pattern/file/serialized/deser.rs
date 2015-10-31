@@ -29,8 +29,8 @@ impl serde::Deserialize for Field {
             {
                 match value {
                     "patterns" => Ok(Field::PATTERNS),
-                    name @ _ =>
-                        Err(serde::de::Error::syntax(&format!("Unexpected field: {}", name))),
+                    _ =>
+                        Err(serde::de::Error::syntax(&format!("Unexpected field: {}", value))),
                 }
             }
         }
