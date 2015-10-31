@@ -2,7 +2,7 @@ use std::borrow::Borrow;
 
 #[derive(Clone, Hash, Debug)]
 pub struct ParserBase {
-    name: Option<String>
+    name: Option<String>,
 }
 
 impl ParserBase {
@@ -11,9 +11,7 @@ impl ParserBase {
     }
 
     pub fn new() -> ParserBase {
-        ParserBase {
-            name: None
-        }
+        ParserBase { name: None }
     }
 
     pub fn name(&self) -> Option<&str> {

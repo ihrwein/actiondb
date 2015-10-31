@@ -9,12 +9,12 @@ impl iter::IntoIterator for SerializedPatternFile {
     type IntoIter = IntoIter;
 
     fn into_iter(self) -> Self::IntoIter {
-        IntoIter{patterns: self.patterns}
+        IntoIter { patterns: self.patterns }
     }
 }
 
 pub struct IntoIter {
-    patterns: Vec<Pattern>
+    patterns: Vec<Pattern>,
 }
 
 impl Iterator for IntoIter {
@@ -23,7 +23,7 @@ impl Iterator for IntoIter {
     fn next(&mut self) -> Option<Self::Item> {
         match self.patterns.pop() {
             Some(pattern) => Some(Ok(pattern)),
-            None => None
+            None => None,
         }
     }
 }

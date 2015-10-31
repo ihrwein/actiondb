@@ -6,14 +6,14 @@ use matcher::Pattern;
 #[derive(Debug)]
 pub struct MatchResult<'a, 'b> {
     pattern: &'a Pattern,
-    values: BTreeMap<&'a str, &'b str>
+    values: BTreeMap<&'a str, &'b str>,
 }
 
 impl <'a, 'b> MatchResult<'a, 'b> {
     pub fn new(pattern: &'a Pattern) -> MatchResult<'a, 'b> {
-        MatchResult{
+        MatchResult {
             pattern: pattern,
-            values: BTreeMap::new()
+            values: BTreeMap::new(),
         }
     }
 
@@ -39,7 +39,8 @@ mod test {
     use matcher::Pattern;
 
     #[test]
-    fn test_given_match_result_when_a_parse_result_is_inserted_then_we_use_only_the_ones_where_the_parser_has_a_name() {
+    fn test_given_match_result_when_a_parse_result_is_inserted_then_we_use_only_the_ones_where_the_parser_has_a_name
+        () {
         let parser_wo_name = IntParser::new();
         let parser_with_name = IntParser::with_name("name".to_string());
         let expected_values = btreemap!{"name" => "c"};

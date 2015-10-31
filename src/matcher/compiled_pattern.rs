@@ -5,7 +5,7 @@ pub type CompiledPattern = Vec<TokenType>;
 #[derive(Debug)]
 pub enum TokenType {
     Parser(Box<Parser>),
-    Literal(String)
+    Literal(String),
 }
 
 impl Clone for TokenType {
@@ -13,7 +13,7 @@ impl Clone for TokenType {
         match self {
             &TokenType::Parser(ref parser) => {
                 TokenType::Parser(parser.boxed_clone())
-            },
+            }
             &TokenType::Literal(ref literal) => {
                 TokenType::Literal(literal.clone())
             }
@@ -22,18 +22,17 @@ impl Clone for TokenType {
 }
 
 pub struct CompiledPatternBuilder {
-    pattern: CompiledPattern
+    pattern: CompiledPattern,
 }
 
 impl CompiledPatternBuilder {
     pub fn new() -> CompiledPatternBuilder {
-        CompiledPatternBuilder {
-            pattern: Vec::new()
-        }
+        CompiledPatternBuilder { pattern: Vec::new() }
     }
 
     pub fn literal<S>(&mut self, literal: S) -> &mut CompiledPatternBuilder
-        where S: Into<String> {
+        where S: Into<String>
+    {
         self.pattern.push(TokenType::Literal(literal.into()));
         self
     }

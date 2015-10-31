@@ -7,7 +7,7 @@ pub use self::deser::DeserError;
 #[derive(Debug)]
 pub enum Error {
     IO(io::Error),
-    Deser(deser::DeserError)
+    Deser(deser::DeserError),
 }
 
 impl From<io::Error> for Error {
@@ -26,7 +26,7 @@ impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         match self {
             &Error::IO(ref error) => error.fmt(formatter),
-            &Error::Deser(ref error) => error.fmt(formatter)
+            &Error::Deser(ref error) => error.fmt(formatter),
         }
     }
 }
@@ -35,14 +35,14 @@ impl error::Error for Error {
     fn description(&self) -> &str {
         match self {
             &Error::IO(ref error) => error.description(),
-            &Error::Deser(ref error) => error.description()
+            &Error::Deser(ref error) => error.description(),
         }
     }
 
     fn cause(&self) -> Option<&error::Error> {
         match self {
             &Error::IO(ref error) => error.cause(),
-            &Error::Deser(ref error) => error.cause()
+            &Error::Deser(ref error) => error.cause(),
         }
     }
 }
@@ -54,7 +54,7 @@ mod deser {
 
     #[derive(Debug)]
     pub enum DeserError {
-        JSON(serde_json::Error)
+        JSON(serde_json::Error),
     }
 
     impl From<serde_json::Error> for DeserError {
@@ -66,7 +66,7 @@ mod deser {
     impl fmt::Display for DeserError {
         fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
             match self {
-                &DeserError::JSON(ref error) => error.fmt(formatter)
+                &DeserError::JSON(ref error) => error.fmt(formatter),
             }
         }
     }
@@ -74,13 +74,13 @@ mod deser {
     impl error::Error for DeserError {
         fn description(&self) -> &str {
             match self {
-                &DeserError::JSON(ref error) => error.description()
+                &DeserError::JSON(ref error) => error.description(),
             }
         }
 
         fn cause(&self) -> Option<&error::Error> {
             match self {
-                &DeserError::JSON(ref error) => error.cause()
+                &DeserError::JSON(ref error) => error.cause(),
             }
         }
     }

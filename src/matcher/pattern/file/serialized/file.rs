@@ -7,7 +7,7 @@ use std::io::Read;
 use super::error::{DeserError, Error};
 
 pub struct SerializedPatternFile {
-    pub patterns: Vec<Pattern>
+    pub patterns: Vec<Pattern>,
 }
 
 impl SerializedPatternFile {
@@ -16,7 +16,8 @@ impl SerializedPatternFile {
         let mut file = try!(fs::File::open(path));
 
         try!(file.read_to_string(&mut buffer));
-        serde_json::from_str::<SerializedPatternFile>(&buffer).map_err(|error| Error::from(DeserError::from(error)))
+        serde_json::from_str::<SerializedPatternFile>(&buffer)
+            .map_err(|error| Error::from(DeserError::from(error)))
     }
 
     pub fn patterns(&self) -> &Vec<Pattern> {

@@ -29,7 +29,8 @@ impl serde::Deserialize for Field {
             {
                 match value {
                     "patterns" => Ok(Field::PATTERNS),
-                    name @ _ => Err(serde::de::Error::syntax(&format!("Unexpected field: {}", name))),
+                    name @ _ =>
+                        Err(serde::de::Error::syntax(&format!("Unexpected field: {}", name))),
                 }
             }
         }
@@ -50,8 +51,12 @@ impl serde::de::Visitor for FileVisitor {
 
         loop {
             match try!(visitor.visit_key()) {
-                Some(Field::PATTERNS) => { patterns = Some(try!(visitor.visit_value())); }
-                None => { break; }
+                Some(Field::PATTERNS) => {
+                    patterns = Some(try!(visitor.visit_value()));
+                }
+                None => {
+                    break;
+                }
             }
         }
 
@@ -62,6 +67,6 @@ impl serde::de::Visitor for FileVisitor {
 
         try!(visitor.end());
 
-        Ok(SerializedPatternFile{ patterns: patterns_final })
+        Ok(SerializedPatternFile { patterns: patterns_final })
     }
 }

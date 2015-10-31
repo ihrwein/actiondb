@@ -1,11 +1,4 @@
-use parsers::{
-    GreedyParser,
-    IntParser,
-    OptionalParameter,
-    Parser,
-    ParserFactory,
-    SetParser,
-};
+use parsers::{GreedyParser, IntParser, OptionalParameter, Parser, ParserFactory, SetParser};
 
 macro_rules! set_optinal_param {
     ($parser:expr, $param:expr) => {
@@ -38,14 +31,19 @@ macro_rules! set_optional_params {
 pub struct TrieParserFactory;
 
 impl ParserFactory for TrieParserFactory {
-    fn new_set<'a>(set: &str, name: Option<&str>, opt_params: Option<Vec<OptionalParameter<'a>>>) -> Box<Parser> {
+    fn new_set<'a>(set: &str,
+                   name: Option<&str>,
+                   opt_params: Option<Vec<OptionalParameter<'a>>>)
+                   -> Box<Parser> {
         let mut parser = SetParser::new(set);
         set_optional_params!(&mut parser, opt_params);
         let name = name.map(|name| name.to_string());
         parser.set_name(name);
         Box::new(parser)
     }
-    fn new_int<'a>(name: Option<&str>, opt_params: Option<Vec<OptionalParameter<'a>>>) -> Box<Parser> {
+    fn new_int<'a>(name: Option<&str>,
+                   opt_params: Option<Vec<OptionalParameter<'a>>>)
+                   -> Box<Parser> {
         let mut parser = IntParser::new();
         set_optional_params!(&mut parser, opt_params);
         let name = name.map(|name| name.to_string());

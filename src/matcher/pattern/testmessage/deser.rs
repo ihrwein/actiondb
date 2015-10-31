@@ -32,7 +32,8 @@ impl serde::Deserialize for Field {
                     "message" => Ok(Field::MESSAGE),
                     "values" => Ok(Field::VALUES),
                     "tags" => Ok(Field::TAGS),
-                    name @ _ => Err(serde::de::Error::syntax(&format!("Unexpected field: {}", name))),
+                    name @ _ =>
+                        Err(serde::de::Error::syntax(&format!("Unexpected field: {}", name))),
                 }
             }
         }
@@ -56,10 +57,18 @@ impl serde::de::Visitor for TestMessageVisitor {
 
         loop {
             match try!(visitor.visit_key()) {
-                Some(Field::MESSAGE) => { message = Some(try!(visitor.visit_value())); }
-                Some(Field::VALUES) => { values = Some(try!(visitor.visit_value())); }
-                Some(Field::TAGS) => { tags = Some(try!(visitor.visit_value())); }
-                None => { break; }
+                Some(Field::MESSAGE) => {
+                    message = Some(try!(visitor.visit_value()));
+                }
+                Some(Field::VALUES) => {
+                    values = Some(try!(visitor.visit_value()));
+                }
+                Some(Field::TAGS) => {
+                    tags = Some(try!(visitor.visit_value()));
+                }
+                None => {
+                    break;
+                }
             }
         }
 

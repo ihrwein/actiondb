@@ -10,7 +10,7 @@ use super::BuildError;
 pub struct Builder;
 
 impl Builder {
-    pub fn drain_into(from: &mut PatternSource, matcher: &mut Matcher) -> Result<(), BuildError>{
+    pub fn drain_into(from: &mut PatternSource, matcher: &mut Matcher) -> Result<(), BuildError> {
         for pattern in from {
             let pattern = try!(pattern);
             try!(Builder::check_pattern(pattern, matcher));
@@ -34,17 +34,27 @@ impl Builder {
         messages
     }
 
-    fn check_test_messages(matcher: &Matcher, messages: &[TestMessage], uuid: &Uuid) -> Result<(), BuildError> {
+    fn check_test_messages(matcher: &Matcher,
+                           messages: &[TestMessage],
+                           uuid: &Uuid)
+                           -> Result<(), BuildError> {
         for msg in messages {
-            let result = try!(matcher.parse(msg.message()).ok_or(testmessage::Error::test_message_does_not_match(uuid, msg)));
+            let result = try!(matcher.parse(msg.message())
+                                     .ok_or(testmessage::Error::test_message_does_not_match(uuid,
+                                                                                            msg)));
             try!(Builder::check_test_message(msg, &result, uuid));
         }
         Ok(())
     }
 
-    fn check_test_message(message: &TestMessage, result: &MatchResult, expected_uuid: &Uuid) -> Result<(), testmessage::Error> {
+    fn check_test_message(message: &TestMessage,
+                          result: &MatchResult,
+                          expected_uuid: &Uuid)
+                          -> Result<(), testmessage::Error> {
         if result.pattern().uuid() != expected_uuid {
-            Err(testmessage::Error::matched_to_other_pattern(expected_uuid, result.pattern().uuid(), message.message()))
+            Err(testmessage::Error::matched_to_other_pattern(expected_uuid,
+                                                             result.pattern().uuid(),
+                                                             message.message()))
         } else {
             message.test_result(&result)
         }

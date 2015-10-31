@@ -38,7 +38,8 @@ fn test_given_parser_as_a_string_when_it_is_parsed_then_we_get_the_instantiated_
 }
 
 #[test]
-fn test_given_parser_as_a_string_when_its_name_is_invalid_then_we_dont_get_the_instantiated_parser() {
+fn test_given_parser_as_a_string_when_its_name_is_invalid_then_we_dont_get_the_instantiated_parser
+    () {
     ::grammar::parser::pattern("%{INT:test$name}").err().unwrap();
     ::grammar::parser::pattern("%{INT:test-name}").err().unwrap();
     ::grammar::parser::pattern("%{INT:-").err().unwrap();
@@ -71,9 +72,10 @@ fn test_given_literal_as_a_string_when_it_is_parsed_then_we_stop_at_the_parsers_
 }
 
 #[test]
-fn test_given_pattern_as_a_string_when_it_is_parsed_with_the_grammar_we_got_the_right_compiled_pattern() {
+fn test_given_pattern_as_a_string_when_it_is_parsed_with_the_grammar_we_got_the_right_compiled_pattern
+    () {
     let pattern_as_string = "foo %{INT:int_0} bar %{INT:int_1}%{INT:int_2} baz";
-    let vec: Vec<TokenType<>> = ::grammar::parser::pattern(pattern_as_string).ok().unwrap();
+    let vec: Vec<TokenType> = ::grammar::parser::pattern(pattern_as_string).ok().unwrap();
 
     assert_eq!(vec.len(), 6);
     assert_literal_equals(vec.get(0), "foo ");
@@ -92,7 +94,8 @@ fn test_given_invalid_string_when_we_parse_it_then_the_parser_returns_with_error
 }
 
 #[test]
-fn test_given_string_which_contains_escaped_chars_when_we_parse_it_then_we_get_the_right_string() {
+fn test_given_string_which_contains_escaped_chars_when_we_parse_it_then_we_get_the_right_string
+                                                                                                () {
     let vec = ::grammar::parser::pattern(r#"foo \%\{ %{INT:test_name} baz"#).ok().unwrap();
     assert_eq!(vec.len(), 3);
     assert_literal_equals(vec.get(0), "foo %{ ");
@@ -101,7 +104,8 @@ fn test_given_string_which_contains_escaped_chars_when_we_parse_it_then_we_get_t
 }
 
 #[test]
-fn test_given_set_parser_with_character_set_parameter_when_we_parse_it_then_we_get_the_right_parser() {
+fn test_given_set_parser_with_character_set_parameter_when_we_parse_it_then_we_get_the_right_parser
+    () {
     let expected_parser = SetParser::from_str("test_set", "0123456789");
     let vec = ::grammar::parser::pattern(r#"%{SET("0123456789"):test_set}"#).ok().unwrap();
     assert_eq!(vec.len(), 1);
@@ -109,18 +113,22 @@ fn test_given_set_parser_with_character_set_parameter_when_we_parse_it_then_we_g
 }
 
 #[test]
-fn test_given_set_parser_with_optional_parameters_when_we_parse_it_then_we_get_the_right_parser() {
+fn test_given_set_parser_with_optional_parameters_when_we_parse_it_then_we_get_the_right_parser
+                                                                                                () {
     let mut expected_parser = SetParser::from_str("test_set", "0123456789");
     expected_parser.set_min_length(2);
     expected_parser.set_max_length(5);
 
-    let vec = ::grammar::parser::pattern(r#"%{SET("0123456789",min_len=2, max_len=5):test_set}"#).ok().unwrap();
+    let vec = ::grammar::parser::pattern(r#"%{SET("0123456789",min_len=2, max_len=5):test_set}"#)
+                  .ok()
+                  .unwrap();
     assert_eq!(vec.len(), 1);
     assert_parser_equals(vec.get(0), &expected_parser);
 }
 
 #[test]
-fn test_given_int_parser_with_optional_parameters_when_we_parse_it_then_we_get_the_right_parser() {
+fn test_given_int_parser_with_optional_parameters_when_we_parse_it_then_we_get_the_right_parser
+                                                                                                () {
     let mut expected_parser = IntParser::from_str("test_int");
     expected_parser.set_min_length(2);
     expected_parser.set_max_length(5);
@@ -134,7 +142,7 @@ fn test_given_int_parser_with_optional_parameters_when_we_parse_it_then_we_get_t
 fn test_given_greedy_parser_when_we_parse_it_then_we_get_the_right_result() {
     let expected_parser = GreedyParser::from_str("greedy", " baz");
     let pattern_as_string = "foo %{INT:int_0} bar %{GREEDY:greedy} baz";
-    let vec: Vec<TokenType<>> = ::grammar::parser::pattern(pattern_as_string).ok().unwrap();
+    let vec: Vec<TokenType> = ::grammar::parser::pattern(pattern_as_string).ok().unwrap();
 
     assert_eq!(vec.len(), 5);
     assert_literal_equals(vec.get(0), "foo ");
@@ -146,9 +154,10 @@ fn test_given_greedy_parser_when_we_parse_it_then_we_get_the_right_result() {
 }
 
 #[test]
-fn test_given_greedy_parser_when_there_is_no_literal_after_it_then_we_take_all_the_remaining_intput_as_matching() {
+fn test_given_greedy_parser_when_there_is_no_literal_after_it_then_we_take_all_the_remaining_intput_as_matching
+    () {
     let pattern_as_string = "bar %{GREEDY:greedy}";
-    let vec: Vec<TokenType<>> = ::grammar::parser::pattern(pattern_as_string).ok().unwrap();
+    let vec: Vec<TokenType> = ::grammar::parser::pattern(pattern_as_string).ok().unwrap();
 
     if let &TokenType::Parser(ref parser) = vec.get(1).unwrap() {
         let res = parser.parse("the quick brown fox").unwrap();
@@ -162,7 +171,7 @@ fn test_given_greedy_parser_when_there_is_no_literal_after_it_then_we_take_all_t
 #[test]
 fn test_given_parser_when_there_is_a_dot_in_its_name_then_it_is_ok() {
     let pattern_as_string = "bar %{GREEDY:.some.dotted_notation}";
-    let vec: Vec<TokenType<>> = ::grammar::parser::pattern(pattern_as_string).ok().unwrap();
+    let vec: Vec<TokenType> = ::grammar::parser::pattern(pattern_as_string).ok().unwrap();
     assert_parser_name_equals(vec.get(1), Some(".some.dotted_notation"));
 }
 
@@ -171,7 +180,9 @@ fn test_given_invalid_pattern_as_a_string_when_we_parse_them_then_we_get_error()
     let pattern = r#"Jun %{INT:day %{INT:hour}:%{INT:min}:%{INT:sec}"#;
     let res = ::grammar::parser::pattern(pattern);
     println!("res: {:?}", &res);
-    let err = res.err().expect("Failed to get error when we parsed a patttern which contains syntax error(s)");
+    let err = res.err()
+                 .expect("Failed to get error when we parsed a patttern which contains syntax \
+                          error(s)");
     println!("res: {}", &err);
 }
 
@@ -180,7 +191,7 @@ fn test_given_valid_pattern_when_it_contains_cr_character_then_we_can_parse_it()
     let pattern_as_string = "foo %{INT:int_0} \n bar %{INT:int_1}";
     let res = ::grammar::parser::pattern(pattern_as_string);
     println!("{:?}", &res);
-    let vec: Vec<TokenType<>> = res.ok().expect("CR characters should be supported in patterns");
+    let vec: Vec<TokenType> = res.ok().expect("CR characters should be supported in patterns");
 
     assert_eq!(vec.len(), 4);
     assert_literal_equals(vec.get(0), "foo ");
@@ -192,7 +203,9 @@ fn test_given_valid_pattern_when_it_contains_cr_character_then_we_can_parse_it()
 #[test]
 fn test_given_valid_pattern_when_it_does_not_have_a_name_then_we_can_parse_the_pattern() {
     let string_parser = "%{INT}";
-    let vec = ::grammar::parser::pattern(string_parser).ok().expect("Failed to get a Parser instance when it doesn't have a name");
+    let vec = ::grammar::parser::pattern(string_parser)
+                  .ok()
+                  .expect("Failed to get a Parser instance when it doesn't have a name");
 
     assert_eq!(vec.len(), 1);
     println!("{:?}", &vec);

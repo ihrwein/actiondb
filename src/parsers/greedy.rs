@@ -4,13 +4,15 @@ use super::{ParserBase, Parser, ObjectSafeHash, ParseResult};
 #[derive(Clone, Debug, Hash)]
 pub struct GreedyParser {
     base: ParserBase,
-    end_string: Option<String>
+    end_string: Option<String>,
 }
 
 impl GreedyParser {
     pub fn with_name(name: String) -> GreedyParser {
-        GreedyParser{ base: ParserBase::with_name(name),
-                       end_string: None }
+        GreedyParser {
+            base: ParserBase::with_name(name),
+            end_string: None,
+        }
     }
 
     pub fn from_str(name: &str, end_string: &str) -> GreedyParser {
@@ -23,7 +25,7 @@ impl GreedyParser {
     pub fn new() -> GreedyParser {
         GreedyParser {
             base: ParserBase::new(),
-            end_string: None
+            end_string: None,
         }
     }
 
@@ -44,7 +46,7 @@ impl ObjectSafeHash for GreedyParser {
 impl Parser for GreedyParser {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<ParseResult<'a, 'b>> {
         if self.end_string.is_none() {
-            return Some(ParseResult::new(self, &value[..]))
+            return Some(ParseResult::new(self, &value[..]));
         }
 
         if let Some(pos) = value.find(&self.end_string.as_ref().unwrap()[..]) {
@@ -72,13 +74,15 @@ mod test {
     use parsers::{GreedyParser, Parser};
 
     #[test]
-    fn test_given_greedy_parser_when_the_end_string_is_not_found_in_the_value_then_the_parser_doesnt_match() {
+    fn test_given_greedy_parser_when_the_end_string_is_not_found_in_the_value_then_the_parser_doesnt_match
+        () {
         let parser = GreedyParser::from_str("name", "foo");
         assert_eq!(parser.parse("qux baz bar").is_none(), true);
     }
 
     #[test]
-    fn test_given_greedy_parser_when_the_end_string_is_found_in_the_value_then_the_parser_matches() {
+    fn test_given_greedy_parser_when_the_end_string_is_found_in_the_value_then_the_parser_matches
+                                                                                                  () {
         let parser = GreedyParser::from_str("name", "foo");
         let res = parser.parse("qux foo bar").unwrap();
         assert_eq!(res.parser().name(), Some("name"));

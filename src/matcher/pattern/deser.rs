@@ -43,7 +43,8 @@ impl serde::Deserialize for Field {
                     "values" => Ok(Field::VALUES),
                     "tags" => Ok(Field::TAGS),
                     "test_messages" => Ok(Field::TESTMESSAGES),
-                    name @_ => Err(serde::de::Error::syntax(&format!("Unexpected field: {}", name))),
+                    name @_ =>
+                        Err(serde::de::Error::syntax(&format!("Unexpected field: {}", name))),
                 }
             }
         }
@@ -66,7 +67,7 @@ impl PatternVisitor {
                         None
                     }
                 }
-            },
+            }
             None => {
                 None
             }
@@ -96,13 +97,27 @@ impl serde::de::Visitor for PatternVisitor {
 
         loop {
             match try!(visitor.visit_key()) {
-                Some(Field::NAME) => { name = Some(try!(visitor.visit_value())); }
-                Some(Field::UUID) => { uuid = Some(try!(visitor.visit_value())); }
-                Some(Field::PATTERN) => { pattern = Some(try!(visitor.visit_value())); }
-                Some(Field::VALUES) => { values = Some(try!(visitor.visit_value())); }
-                Some(Field::TAGS) => { tags = Some(try!(visitor.visit_value())); }
-                Some(Field::TESTMESSAGES) => { test_messages = Some(try!(visitor.visit_value())); }
-                None => { break; }
+                Some(Field::NAME) => {
+                    name = Some(try!(visitor.visit_value()));
+                }
+                Some(Field::UUID) => {
+                    uuid = Some(try!(visitor.visit_value()));
+                }
+                Some(Field::PATTERN) => {
+                    pattern = Some(try!(visitor.visit_value()));
+                }
+                Some(Field::VALUES) => {
+                    values = Some(try!(visitor.visit_value()));
+                }
+                Some(Field::TAGS) => {
+                    tags = Some(try!(visitor.visit_value()));
+                }
+                Some(Field::TESTMESSAGES) => {
+                    test_messages = Some(try!(visitor.visit_value()));
+                }
+                None => {
+                    break;
+                }
             }
         }
 
@@ -117,11 +132,16 @@ impl serde::de::Visitor for PatternVisitor {
                 match ::grammar::parser::pattern(&pattern) {
                     Ok(pattern) => pattern,
                     Err(err) => {
-                        error!("Invalid field 'pattern': pattern={:?} name={:?} uuid={:?} error={}", pattern, name, uuid, err);
+                        error!("Invalid field 'pattern': pattern={:?} name={:?} uuid={:?} \
+                                error={}",
+                               pattern,
+                               name,
+                               uuid,
+                               err);
                         try!(Err(serde::de::Error::syntax("Invalid field 'pattern'")))
                     }
                 }
-            },
+            }
             None => {
                 error!("Missing field 'pattern': name={:?} uuid={:?}", name, uuid);
                 try!(Err(serde::de::Error::missing_field("pattern")))
