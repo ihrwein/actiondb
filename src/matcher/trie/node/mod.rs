@@ -232,7 +232,6 @@ impl SuffixTree {
                     trace!("insert_literal_tail(): to_be_split = {}", hit.literal());
                     trace!("insert_literal_tail(): tail = {}", tail);
                     hit.split(common_prefix_len, tail);
-                    println!("{:?}", &hit);
                     let suffix = tail.ltrunc(common_prefix_len);
                     hit.node_mut().expect("Failed to get").lookup_freshly_inserted_literal(suffix)
                 } else {
