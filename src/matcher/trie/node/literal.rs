@@ -1,17 +1,17 @@
 use std::cmp::{Ord, Ordering};
 use utils::common_prefix::CommonPrefix;
 
-use matcher::trie::node::{Node, ParserNode};
-use matcher::trie::TrieElement;
+use matcher::trie::node::SuffixTree;
 use matcher::Pattern;
-use parsers::Parser;
+
+use matcher::trie::node::interface::{Entry, LiteralEntry};
 
 #[derive(Debug, Clone)]
 pub struct LiteralNode {
     literal: String,
     has_value: bool,
     pattern: Option<Pattern>,
-    node: Option<Node>,
+    node: Option<SuffixTree>,
 }
 
 impl LiteralNode {
@@ -40,15 +40,15 @@ impl LiteralNode {
         self.has_value = has_value;
     }
 
-    pub fn set_node(&mut self, node: Option<Node>) {
+    pub fn set_node(&mut self, node: Option<SuffixTree>) {
         self.node = node;
     }
 
-    pub fn node_mut(&mut self) -> Option<&mut Node> {
+    pub fn node_mut(&mut self) -> Option<&mut SuffixTree> {
         self.node.as_mut()
     }
 
-    pub fn node(&self) -> Option<&Node> {
+    pub fn node(&self) -> Option<&SuffixTree> {
         self.node.as_ref()
     }
 
@@ -64,37 +64,35 @@ impl LiteralNode {
         }
     }
 
-    pub fn split(self, common_prefix_len: usize, literal: &str) -> LiteralNode {
-        let LiteralNode{ literal: self_literal,
-                         has_value: self_has_value,
-                         pattern: self_pattern,
-                         node: self_node} = self;
-
+    pub fn split(&mut self, common_prefix_len: usize, literal: &str) {
         let common_prefix = literal.rtrunc(literal.len() - common_prefix_len);
         trace!("split(): common_prefix = {}", common_prefix);
-        let left_branch = literal.ltrunc(common_prefix_len);
-        let right_branch = self_literal.ltrunc(common_prefix_len);
-        trace!("split(): left_branch = {}", left_branch);
-        trace!("split(): right_branch = {}", right_branch);
+        let mut new_node = SuffixTree::new();
 
-        let mut node_to_return = LiteralNode::from_str(common_prefix);
-
-        let mut new_node = Node::new();
-        let mut left_node = LiteralNode::from_str(left_branch);
+        let mut left_node = {
+            let left_branch = literal.ltrunc(common_prefix_len);
+            trace!("split(): left_branch = {}", left_branch);
+            LiteralNode::from_str(left_branch)
+        };
+        let mut right_node = {
+            let right_branch = self.literal().ltrunc(common_prefix_len);
+            trace!("split(): right_branch = {}", right_branch);
+            LiteralNode::from_str(right_branch)
+        };
         left_node.set_has_value(true);
-        let mut right_node = LiteralNode::from_str(right_branch);
 
-        right_node.set_node(self_node);
-        right_node.set_has_value(self_has_value);
+        right_node.set_node(self.node.take());
+        right_node.set_has_value(self.has_value);
 
-        if let Some(pattern) = self_pattern {
-            right_node.set_pattern(pattern);
+        if let Some(pattern) = self.pattern.take() {
+            right_node.set_pattern(Some(pattern));
         }
 
         new_node.add_literal_node(left_node);
         new_node.add_literal_node(right_node);
-        node_to_return.set_node(Some(new_node));
-        node_to_return
+        self.set_node(Some(new_node));
+        self.has_value = false;
+        self.literal = common_prefix.to_string();
     }
 
     pub fn is_leaf(&self) -> bool {
@@ -106,29 +104,28 @@ impl LiteralNode {
     }
 }
 
-impl TrieElement for LiteralNode {
-    fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
-        if self.is_leaf() {
-            self.node = Some(Node::new());
-        }
-
-        self.node.as_mut().unwrap().insert_literal(literal)
-    }
-
-    fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode {
-        if self.is_leaf() {
-            self.node = Some(Node::new());
-        }
-
-        self.node.as_mut().unwrap().insert_parser(parser)
-    }
-
-    fn set_pattern(&mut self, pattern: Pattern) {
-        self.pattern = Some(pattern);
-    }
-
+impl Entry for LiteralNode {
+    type ST = SuffixTree;
     fn pattern(&self) -> Option<&Pattern> {
         self.pattern.as_ref()
+    }
+    fn set_pattern(&mut self, pattern: Option<Pattern>) {
+        self.pattern = pattern;
+    }
+    fn child(&self) -> Option<&SuffixTree> {
+        self.node.as_ref()
+    }
+    fn child_mut(&mut self) -> Option<&mut SuffixTree> {
+        self.node.as_mut()
+    }
+    fn set_child(&mut self, child: Option<Self::ST>) {
+        self.node = child;
+    }
+}
+
+impl LiteralEntry for LiteralNode {
+    fn literal(&self) -> &String {
+        &self.literal
     }
 }
 

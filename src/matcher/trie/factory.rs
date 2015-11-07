@@ -1,12 +1,12 @@
 use matcher::factory::MatcherFactory;
-use matcher::trie::TrieMatcher;
+use matcher::trie::SuffixTree;
 
 pub struct TrieMatcherFactory;
 
 impl MatcherFactory for TrieMatcherFactory {
-    type Matcher = TrieMatcher;
+    type Matcher = SuffixTree;
 
     fn new_matcher() -> Self::Matcher {
-        TrieMatcher::new()
+        SuffixTree::new()
     }
 }

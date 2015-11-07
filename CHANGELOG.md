@@ -1,4 +1,14 @@
 # Changelog
+## Actiondb 0.5.0
+This release contains only refactors.
+* decouple grammar from the Parser instances
+* run rustfmt on the code
+* match on `*self`
+* rename `SerializedPatternFile` to `PatternFile`
+* merge `HasPattern` trait into `TrieOperations`
+* rename `TrieOperations` to `TrieElement`
+* rename `ParserTrie` to `TrieMatcher`
+
 ## Actiondb 0.4.0
 * include pattern UUIDs in error messages
 * check the pattern's uuid when testing its test messages
