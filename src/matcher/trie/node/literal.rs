@@ -1,7 +1,7 @@
 use std::cmp::{Ord, Ordering};
 use utils::common_prefix::CommonPrefix;
 
-use matcher::trie::node::{Node, ParserNode};
+use matcher::trie::node::{SuffixTree, ParserNode};
 use matcher::trie::TrieElement;
 use matcher::Pattern;
 use parsers::Parser;
@@ -11,7 +11,7 @@ pub struct LiteralNode {
     literal: String,
     has_value: bool,
     pattern: Option<Pattern>,
-    node: Option<Node>,
+    node: Option<SuffixTree>,
 }
 
 impl LiteralNode {
@@ -40,15 +40,15 @@ impl LiteralNode {
         self.has_value = has_value;
     }
 
-    pub fn set_node(&mut self, node: Option<Node>) {
+    pub fn set_node(&mut self, node: Option<SuffixTree>) {
         self.node = node;
     }
 
-    pub fn node_mut(&mut self) -> Option<&mut Node> {
+    pub fn node_mut(&mut self) -> Option<&mut SuffixTree> {
         self.node.as_mut()
     }
 
-    pub fn node(&self) -> Option<&Node> {
+    pub fn node(&self) -> Option<&SuffixTree> {
         self.node.as_ref()
     }
 
@@ -79,7 +79,7 @@ impl LiteralNode {
 
         let mut node_to_return = LiteralNode::from_str(common_prefix);
 
-        let mut new_node = Node::new();
+        let mut new_node = SuffixTree::new();
         let mut left_node = LiteralNode::from_str(left_branch);
         left_node.set_has_value(true);
         let mut right_node = LiteralNode::from_str(right_branch);
@@ -109,7 +109,7 @@ impl LiteralNode {
 impl TrieElement for LiteralNode {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         if self.is_leaf() {
-            self.node = Some(Node::new());
+            self.node = Some(SuffixTree::new());
         }
 
         self.node.as_mut().unwrap().insert_literal(literal)
@@ -117,7 +117,7 @@ impl TrieElement for LiteralNode {
 
     fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode {
         if self.is_leaf() {
-            self.node = Some(Node::new());
+            self.node = Some(SuffixTree::new());
         }
 
         self.node.as_mut().unwrap().insert_parser(parser)

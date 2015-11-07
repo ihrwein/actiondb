@@ -8,7 +8,7 @@ use matcher::result::MatchResult;
 use matcher::compiled_pattern::TokenType;
 
 #[derive(Debug, Clone)]
-pub struct Node {
+pub struct SuffixTree {
     literal_children: SortedVec<LiteralNode>,
     parser_children: Vec<ParserNode>,
 }
@@ -19,9 +19,9 @@ enum LiteralLookupResult<'a> {
     GoDown(usize, &'a str),
 }
 
-impl Node {
-    pub fn new() -> Node {
-        Node {
+impl SuffixTree {
+    pub fn new() -> SuffixTree {
+        SuffixTree {
             literal_children: SortedVec::new(),
             parser_children: Vec::new(),
         }
@@ -36,13 +36,13 @@ impl Node {
     }
 
 
-    // If a literal isn't found the last Node instance and the remaining length of
+    // If a literal isn't found the last SuffixTree instance and the remaining length of
     // the literal will be returned
-    // if the literal is in the trie, we return the last Node instance and the
+    // if the literal is in the trie, we return the last SuffixTree instance and the
     // index of the LiteralNode which contains the literal
     pub fn lookup_literal_mut(&mut self,
                               literal: &str)
-                              -> Result<(&mut Node, usize), (&mut Node, usize)> {
+                              -> Result<(&mut SuffixTree, usize), (&mut SuffixTree, usize)> {
         match self.search(literal) {
             LiteralLookupResult::Found(pos) => {
                 Ok((self, pos))
@@ -62,7 +62,7 @@ impl Node {
     }
 
     // It's the same as lookup_literal_mut() without the muts
-    pub fn lookup_literal(&self, literal: &str) -> Result<(&Node, usize), (&Node, usize)> {
+    pub fn lookup_literal(&self, literal: &str) -> Result<(&SuffixTree, usize), (&SuffixTree, usize)> {
         match self.search(literal) {
             LiteralLookupResult::Found(pos) => {
                 Ok((self, pos))
@@ -160,7 +160,7 @@ impl Node {
                 let child = node.literal_children
                                 .get(pos)
                                 .expect("Failed to get a looked up child");
-                Node::create_match_result_if_child_is_leaf(child)
+                SuffixTree::create_match_result_if_child_is_leaf(child)
             }
             Err((node, remaining_len)) => {
                 let text = text.ltrunc(text.len() - remaining_len);
@@ -257,7 +257,7 @@ impl Node {
     }
 
     pub fn insert(&mut self, pattern: Pattern) {
-        Node::insert_pattern(self, pattern)
+        SuffixTree::insert_pattern(self, pattern)
     }
 
     fn insert_pattern<T>(node: &mut T, mut pattern: Pattern)
@@ -280,7 +280,7 @@ impl Node {
     }
 }
 
-impl TrieElement for Node {
+impl TrieElement for SuffixTree {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         trace!("inserting literal: '{}'", literal);
 
@@ -318,14 +318,14 @@ impl TrieElement for Node {
 #[cfg(test)]
 mod test {
     use matcher::trie::TrieElement;
-    use matcher::trie::node::Node;
+    use matcher::trie::node::SuffixTree;
     use parsers::{Parser, SetParser, IntParser, GreedyParser};
     use matcher::compiled_pattern::CompiledPatternBuilder;
     use matcher::pattern::Pattern;
 
     #[test]
     fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
-        let mut node = Node::new();
+        let mut node = SuffixTree::new();
 
         let _ = node.insert_literal("alma");
         assert_eq!(node.lookup_literal("alma").is_ok(), true);
@@ -337,7 +337,7 @@ mod test {
 
     #[test]
     fn test_given_empty_trie_when_literals_are_inserted_the_child_counts_are_right() {
-        let mut node = Node::new();
+        let mut node = SuffixTree::new();
 
         let _ = node.insert_literal("alma");
         let _ = node.insert_literal("alm");
@@ -349,7 +349,7 @@ mod test {
 
     #[test]
     fn test_given_empty_trie_when_literals_are_inserted_the_nodes_are_split_on_the_right_place() {
-        let mut node = Node::new();
+        let mut node = SuffixTree::new();
 
         let _ = node.insert_literal("alm");
         let _ = node.insert_literal("alma");
@@ -365,7 +365,7 @@ mod test {
     #[test]
     fn test_given_trie_when_literals_are_looked_up_then_the_edges_in_the_trie_are_not_counted_as_literals
         () {
-        let mut node = Node::new();
+        let mut node = SuffixTree::new();
 
         let _ = node.insert_literal("alm");
         let _ = node.insert_literal("ala");
@@ -375,7 +375,7 @@ mod test {
     #[test]
     fn test_given_node_when_the_same_parsers_are_inserted_then_they_are_merged_into_one_parsernode
         () {
-        let mut node = Node::new();
+        let mut node = SuffixTree::new();
 
         let _ = node.insert_parser(Box::new(SetParser::from_str("test", "ab")));
         let _ = node.insert_parser(Box::new(SetParser::from_str("test", "ab")));
@@ -385,7 +385,7 @@ mod test {
 
     #[test]
     fn test_given_node_when_different_parsers_are_inserted_then_they_are_not_merged() {
-        let mut node = Node::new();
+        let mut node = SuffixTree::new();
 
         let _ = node.insert_parser(Box::new(SetParser::from_str("test", "ab")));
         let _ = node.insert_parser(Box::new(SetParser::from_str("test", "a")));
@@ -393,8 +393,8 @@ mod test {
         assert_eq!(node.parser_children.len(), 2);
     }
 
-    fn create_parser_trie() -> Node {
-        let mut root = Node::new();
+    fn create_parser_trie() -> SuffixTree {
+        let mut root = SuffixTree::new();
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "01234")))
@@ -457,8 +457,8 @@ mod test {
         }
     }
 
-    fn create_complex_parser_trie() -> Node {
-        let mut root = Node::new();
+    fn create_complex_parser_trie() -> SuffixTree {
+        let mut root = SuffixTree::new();
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("middle", "01234")))
@@ -531,7 +531,7 @@ mod test {
 
     #[test]
     fn test_given_empty_parser_node_when_it_is_used_for_parsing_then_it_returns_none() {
-        let root = Node::new();
+        let root = SuffixTree::new();
         println!("root: {:?}", &root);
         {
             let kvpairs = root.parse("bamb");
@@ -545,7 +545,7 @@ mod test {
 
     #[test]
     fn test_given_node_when_the_message_is_too_short_we_do_not_try_to_unwrap_a_childs_pattern() {
-        let mut root = Node::new();
+        let mut root = SuffixTree::new();
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("middle", "01234")))
@@ -566,7 +566,7 @@ mod test {
 
     #[test]
     fn test_given_patterns_when_inserted_into_the_prefix_tree_then_the_proper_tree_is_built() {
-        let mut trie = Node::new();
+        let mut trie = SuffixTree::new();
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "01234")))
@@ -591,7 +591,7 @@ mod test {
     #[test]
     fn test_given_pattern_when_inserted_into_the_parser_tree_then_the_pattern_is_stored_in_the_leaf
         () {
-        let mut trie = Node::new();
+        let mut trie = SuffixTree::new();
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "01234")))
@@ -615,7 +615,7 @@ mod test {
     #[test]
     fn test_given_pattern_with_two_neighbouring_parser_when_the_pattern_is_inserted_into_the_trie_then_everything_is_ok
         () {
-        let mut trie = Node::new();
+        let mut trie = SuffixTree::new();
         let expected = btreemap!["test" => "ccc", "test2" => "12", "test3" => "le"];
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")

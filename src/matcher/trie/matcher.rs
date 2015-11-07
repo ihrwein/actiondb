@@ -1,9 +1,9 @@
 use matcher::Matcher;
-use super::TrieMatcher;
+use super::SuffixTree;
 use matcher::result::MatchResult;
 use matcher::pattern::Pattern;
 
-impl Matcher for TrieMatcher {
+impl Matcher for SuffixTree {
     fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
         self.parse(text)
     }

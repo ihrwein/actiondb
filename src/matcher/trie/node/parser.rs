@@ -1,4 +1,4 @@
-use matcher::trie::node::{Node, LiteralNode};
+use matcher::trie::node::{SuffixTree, LiteralNode};
 use matcher::trie::TrieElement;
 use matcher::result::MatchResult;
 use matcher::Pattern;
@@ -9,7 +9,7 @@ use utils::CommonPrefix;
 pub struct ParserNode {
     parser: Box<Parser>,
     pattern: Option<Pattern>,
-    node: Option<Node>,
+    node: Option<SuffixTree>,
 }
 
 impl ParserNode {
@@ -29,7 +29,7 @@ impl ParserNode {
         self.node.is_none()
     }
 
-    pub fn node(&self) -> Option<&Node> {
+    pub fn node(&self) -> Option<&SuffixTree> {
         self.node.as_ref()
     }
 
@@ -67,7 +67,7 @@ impl ParserNode {
 impl TrieElement for ParserNode {
     fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         if self.is_leaf() {
-            self.node = Some(Node::new());
+            self.node = Some(SuffixTree::new());
         }
 
         self.node.as_mut().unwrap().insert_literal(literal)
@@ -75,7 +75,7 @@ impl TrieElement for ParserNode {
 
     fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode {
         if self.is_leaf() {
-            self.node = Some(Node::new());
+            self.node = Some(SuffixTree::new());
         }
 
         self.node.as_mut().unwrap().insert_parser(parser)
