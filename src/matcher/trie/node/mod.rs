@@ -7,6 +7,7 @@ use matcher::compiled_pattern::TokenType;
 
 mod literal;
 mod parser;
+mod interface;
 
 pub use self::literal::LiteralNode;
 pub use self::parser::ParserNode;
