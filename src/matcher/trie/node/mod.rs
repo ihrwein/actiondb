@@ -226,15 +226,13 @@ impl SuffixTree {
                                                      .has_common_prefix(&tail) {
                     trace!("insert_literal_tail(): common_prefix_len = {}",
                            common_prefix_len);
-                    let hit = self.literal_children.remove(pos);
+                    let hit = self.literal_children.get_mut(pos).expect("Failed to remove a literal child");
                     trace!("insert_literal_tail(): to_be_split = {}", hit.literal());
                     trace!("insert_literal_tail(): tail = {}", tail);
-                    let new_node = hit.split(common_prefix_len, tail);
-                    trace!("insert_literal_tail(): new_node = {:?}", &new_node);
-                    self.add_literal_node(new_node);
-
+                    hit.split(common_prefix_len, tail);
+                    println!("{:?}", &hit);
                     let suffix = tail.ltrunc(common_prefix_len);
-                    self.lookup_freshly_inserted_literal(pos, suffix)
+                    hit.node_mut().expect("Failed to get").lookup_freshly_inserted_literal(suffix)
                 } else {
                     unreachable!()
                 }
@@ -250,13 +248,10 @@ impl SuffixTree {
         }
     }
 
-    fn lookup_freshly_inserted_literal(&mut self, pos: usize, literal: &str) -> &mut LiteralNode {
-        let branching_node = self.literal_children.get_mut(pos).unwrap();
-        let (node, pos) = branching_node.node_mut()
-                                        .unwrap()
-                                        .lookup_literal_mut(literal)
-                                        .ok()
-                                        .unwrap();
+    fn lookup_freshly_inserted_literal(&mut self, literal: &str) -> &mut LiteralNode {
+        let (node, pos) = self.lookup_literal_mut(literal)
+                              .ok()
+                              .unwrap();
         node.literal_children.get_mut(pos).unwrap()
     }
 

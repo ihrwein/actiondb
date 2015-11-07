@@ -64,37 +64,35 @@ impl LiteralNode {
         }
     }
 
-    pub fn split(self, common_prefix_len: usize, literal: &str) -> LiteralNode {
-        let LiteralNode{ literal: self_literal,
-                         has_value: self_has_value,
-                         pattern: self_pattern,
-                         node: self_node} = self;
-
+    pub fn split(&mut self, common_prefix_len: usize, literal: &str) {
         let common_prefix = literal.rtrunc(literal.len() - common_prefix_len);
         trace!("split(): common_prefix = {}", common_prefix);
-        let left_branch = literal.ltrunc(common_prefix_len);
-        let right_branch = self_literal.ltrunc(common_prefix_len);
-        trace!("split(): left_branch = {}", left_branch);
-        trace!("split(): right_branch = {}", right_branch);
-
-        let mut node_to_return = LiteralNode::from_str(common_prefix);
-
         let mut new_node = SuffixTree::new();
-        let mut left_node = LiteralNode::from_str(left_branch);
+
+        let mut left_node = {
+            let left_branch = literal.ltrunc(common_prefix_len);
+            trace!("split(): left_branch = {}", left_branch);
+            LiteralNode::from_str(left_branch)
+        };
+        let mut right_node = {
+            let right_branch = self.literal().ltrunc(common_prefix_len);
+            trace!("split(): right_branch = {}", right_branch);
+            LiteralNode::from_str(right_branch)
+        };
         left_node.set_has_value(true);
-        let mut right_node = LiteralNode::from_str(right_branch);
 
-        right_node.set_node(self_node);
-        right_node.set_has_value(self_has_value);
+        right_node.set_node(self.node.take());
+        right_node.set_has_value(self.has_value);
 
-        if let Some(pattern) = self_pattern {
+        if let Some(pattern) = self.pattern.take() {
             right_node.set_pattern(pattern);
         }
 
         new_node.add_literal_node(left_node);
         new_node.add_literal_node(right_node);
-        node_to_return.set_node(Some(new_node));
-        node_to_return
+        self.set_node(Some(new_node));
+        self.has_value = false;
+        self.literal = common_prefix.to_string();
     }
 
     pub fn is_leaf(&self) -> bool {
