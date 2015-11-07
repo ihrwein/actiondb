@@ -1,5 +1,5 @@
-use matcher::trie::node::{SuffixTree, LiteralNode};
-use matcher::trie::TrieElement;
+use matcher::trie::node::SuffixTree;
+use matcher::trie::node::interface::{Entry, ParserEntry};
 use matcher::result::MatchResult;
 use matcher::Pattern;
 use parsers::{Parser, ParseResult};
@@ -64,29 +64,44 @@ impl ParserNode {
     }
 }
 
-impl TrieElement for ParserNode {
-    fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
-        if self.is_leaf() {
-            self.node = Some(SuffixTree::new());
-        }
-
-        self.node.as_mut().unwrap().insert_literal(literal)
-    }
-
-    fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode {
-        if self.is_leaf() {
-            self.node = Some(SuffixTree::new());
-        }
-
-        self.node.as_mut().unwrap().insert_parser(parser)
-    }
-
-    fn set_pattern(&mut self, pattern: Pattern) {
-        self.pattern = Some(pattern);
-    }
-
+impl Entry for ParserNode {
+    type ST = SuffixTree;
     fn pattern(&self) -> Option<&Pattern> {
         self.pattern.as_ref()
+    }
+    fn set_pattern(&mut self, pattern: Option<Pattern>) {
+        self.pattern = pattern;
+    }
+    fn child(&self) -> Option<&SuffixTree> {
+        self.node.as_ref()
+    }
+    fn child_mut(&mut self) -> Option<&mut SuffixTree> {
+        self.node.as_mut()
+    }
+    fn set_child(&mut self, child: Option<Self::ST>) {
+        self.node = child;
+    }
+}
+
+impl ParserEntry for ParserNode {
+    fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<MatchResult<'a, 'b>> {
+        if let Some(parsed_kwpair) = self.parser.parse(value) {
+            trace!("parse(): parsed_kwpair = {:?}", &parsed_kwpair);
+            let text = value.ltrunc(parsed_kwpair.value().len());
+
+            return match self.node() {
+                Some(node) => {
+                    node.parse_then_push_kvpair(text, parsed_kwpair)
+                }
+                None => {
+                    self.push_last_kvpair(text, parsed_kwpair)
+                }
+            };
+        }
+        None
+    }
+    fn parser(&self) -> &Box<Parser> {
+        &self.parser
     }
 }
 

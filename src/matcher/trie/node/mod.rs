@@ -1,13 +1,14 @@
 use parsers::{Parser, ParseResult};
 use utils::{SortedVec, CommonPrefix};
 use matcher::pattern::Pattern;
-use matcher::trie::TrieElement;
 use matcher::result::MatchResult;
 use matcher::compiled_pattern::TokenType;
 
 mod literal;
 mod parser;
-mod interface;
+pub mod interface;
+
+use self::interface::{Entry, LiteralEntry, ParserEntry};
 
 pub use self::literal::LiteralNode;
 pub use self::parser::ParserNode;
@@ -256,32 +257,7 @@ impl SuffixTree {
         node.literal_children.get_mut(pos).unwrap()
     }
 
-    pub fn insert(&mut self, pattern: Pattern) {
-        SuffixTree::insert_pattern(self, pattern)
-    }
-
-    fn insert_pattern<T>(node: &mut T, mut pattern: Pattern)
-        where T: TrieElement
-    {
-        if let Some(token) = pattern.pop_first_token() {
-            match token {
-                TokenType::Literal(literal) => {
-                    let mut node = node.insert_literal(&literal);
-                    Self::insert_pattern(node, pattern)
-                }
-                TokenType::Parser(parser) => {
-                    let mut node = node.insert_parser(parser);
-                    Self::insert_pattern(node, pattern)
-                }
-            }
-        } else {
-            node.set_pattern(pattern);
-        }
-    }
-}
-
-impl TrieElement for SuffixTree {
-    fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
+    pub fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
         trace!("inserting literal: '{}'", literal);
 
         match self.lookup_literal_mut(literal) {
@@ -297,7 +273,7 @@ impl TrieElement for SuffixTree {
         }
     }
 
-    fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode {
+    pub fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode {
         if let Some(item) = self.lookup_parser(&*parser) {
             self.parser_children.get_mut(item).unwrap()
         } else {
@@ -306,22 +282,38 @@ impl TrieElement for SuffixTree {
             self.parser_children.last_mut().unwrap()
         }
     }
+}
 
-    fn set_pattern(&mut self, _: Pattern) {
+impl self::interface::SuffixTree for SuffixTree {
+    fn new() -> Self {
+        SuffixTree {
+            literal_children: SortedVec::new(),
+            parser_children: Vec::new(),
+        }
+    }
+    fn insert(&mut self, mut pattern: Pattern) {
+        if let Some(token) = pattern.pop_first_token() {
+            let mut entry: &mut Entry<ST=Self> = match token {
+                TokenType::Literal(literal) => {
+                    self.insert_literal(&literal)
+                },
+                TokenType::Parser(parser) => {
+                    self.insert_parser(parser)
+                }
+            };
+            entry.insert(pattern);
+        }
     }
 
-    fn pattern(&self) -> Option<&Pattern> {
-        None
-    }
 }
 
 #[cfg(test)]
 mod test {
-    use matcher::trie::TrieElement;
     use matcher::trie::node::SuffixTree;
     use parsers::{Parser, SetParser, IntParser, GreedyParser};
     use matcher::compiled_pattern::CompiledPatternBuilder;
     use matcher::pattern::Pattern;
+    use matcher::trie::node::interface::SuffixTree as STree;
 
     #[test]
     fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
@@ -637,16 +629,5 @@ mod test {
             }
             None => unreachable!(),
         }
-    }
-
-    #[test]
-    fn test_given_node_when_literals_are_inserted_in_chains_then_they_can_be_looked_up() {
-        let mut node = SuffixTree::new();
-
-        let _ = node.insert_literal("appl").insert_literal("et").insert_literal("ree");
-        println!("{:?}", &node);
-        assert_eq!(node.lookup_literal_mut("applet").is_ok(), true);
-        assert_eq!(node.lookup_literal_mut("appletree").is_ok(), true);
-        assert_eq!(node.lookup_literal_mut("appletre").is_ok(), false);
     }
 }

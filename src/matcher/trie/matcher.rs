@@ -2,6 +2,7 @@ use matcher::Matcher;
 use super::SuffixTree;
 use matcher::result::MatchResult;
 use matcher::pattern::Pattern;
+use matcher::trie::node::interface::SuffixTree as STree;
 
 impl Matcher for SuffixTree {
     fn parse<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {

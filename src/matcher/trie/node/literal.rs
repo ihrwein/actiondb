@@ -1,10 +1,10 @@
 use std::cmp::{Ord, Ordering};
 use utils::common_prefix::CommonPrefix;
 
-use matcher::trie::node::{SuffixTree, ParserNode};
-use matcher::trie::TrieElement;
+use matcher::trie::node::SuffixTree;
 use matcher::Pattern;
-use parsers::Parser;
+
+use matcher::trie::node::interface::{Entry, LiteralEntry};
 
 #[derive(Debug, Clone)]
 pub struct LiteralNode {
@@ -85,7 +85,7 @@ impl LiteralNode {
         right_node.set_has_value(self.has_value);
 
         if let Some(pattern) = self.pattern.take() {
-            right_node.set_pattern(pattern);
+            right_node.set_pattern(Some(pattern));
         }
 
         new_node.add_literal_node(left_node);
@@ -104,29 +104,28 @@ impl LiteralNode {
     }
 }
 
-impl TrieElement for LiteralNode {
-    fn insert_literal(&mut self, literal: &str) -> &mut LiteralNode {
-        if self.is_leaf() {
-            self.node = Some(SuffixTree::new());
-        }
-
-        self.node.as_mut().unwrap().insert_literal(literal)
-    }
-
-    fn insert_parser(&mut self, parser: Box<Parser>) -> &mut ParserNode {
-        if self.is_leaf() {
-            self.node = Some(SuffixTree::new());
-        }
-
-        self.node.as_mut().unwrap().insert_parser(parser)
-    }
-
-    fn set_pattern(&mut self, pattern: Pattern) {
-        self.pattern = Some(pattern);
-    }
-
+impl Entry for LiteralNode {
+    type ST = SuffixTree;
     fn pattern(&self) -> Option<&Pattern> {
         self.pattern.as_ref()
+    }
+    fn set_pattern(&mut self, pattern: Option<Pattern>) {
+        self.pattern = pattern;
+    }
+    fn child(&self) -> Option<&SuffixTree> {
+        self.node.as_ref()
+    }
+    fn child_mut(&mut self) -> Option<&mut SuffixTree> {
+        self.node.as_mut()
+    }
+    fn set_child(&mut self, child: Option<Self::ST>) {
+        self.node = child;
+    }
+}
+
+impl LiteralEntry for LiteralNode {
+    fn literal(&self) -> &String {
+        &self.literal
     }
 }
 
