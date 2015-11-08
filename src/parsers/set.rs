@@ -2,26 +2,32 @@ use std::collections::BTreeSet;
 use std::iter::FromIterator;
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, LengthCheckedParserBase, ParseResult};
+use parsers::{Parser, ObjectSafeHash, ParseResult, ParserBase, HasLengthConstraint};
 
 #[derive(Clone, Debug, Hash)]
 pub struct SetParser {
+    base: ParserBase,
     character_set: BTreeSet<u8>,
-    base: LengthCheckedParserBase,
+    min_length: Option<usize>,
+    max_length: Option<usize>,
 }
 
 impl SetParser {
     pub fn with_name(name: String, set: &str) -> SetParser {
         SetParser {
+            base: ParserBase::with_name(name),
             character_set: SetParser::create_set_from_str(set),
-            base: LengthCheckedParserBase::with_name(name),
+            min_length: None,
+            max_length: None,
         }
     }
 
     pub fn new(set: &str) -> SetParser {
         SetParser {
+            base: ParserBase::new(),
             character_set: SetParser::create_set_from_str(set),
-            base: LengthCheckedParserBase::new(),
+            min_length: None,
+            max_length: None,
         }
     }
 
@@ -31,14 +37,6 @@ impl SetParser {
 
     pub fn set_character_set(&mut self, set: &str) {
         self.character_set = SetParser::create_set_from_str(set);
-    }
-
-    pub fn set_min_length(&mut self, length: usize) {
-        self.base.set_min_length(length)
-    }
-
-    pub fn set_max_length(&mut self, length: usize) {
-        self.base.set_max_length(length)
     }
 
     fn create_set_from_str(set: &str) -> BTreeSet<u8> {
@@ -61,11 +59,26 @@ impl SetParser {
     }
 }
 
+impl HasLengthConstraint for SetParser {
+    fn min_length(&self) -> Option<usize> {
+        self.min_length
+    }
+    fn set_min_length(&mut self, length: Option<usize>) {
+        self.min_length = length;
+    }
+    fn max_length(&self) -> Option<usize> {
+        self.max_length
+    }
+    fn set_max_length(&mut self, length: Option<usize>) {
+        self.max_length = length;
+    }
+}
+
 impl Parser for SetParser {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<ParseResult<'a, 'b>> {
         let match_len = self.calculate_match_length(value);
 
-        if self.base.is_match_length_ok(match_len) {
+        if self.is_match_length_ok(match_len) {
             Some(ParseResult::new(self, &value[..match_len]))
         } else {
             None
@@ -96,7 +109,7 @@ impl ObjectSafeHash for SetParser {
 
 #[cfg(test)]
 mod test {
-    use parsers::{Parser, SetParser};
+    use parsers::{Parser, SetParser, HasLengthConstraint};
 
     #[test]
     fn test_given_empty_string_when_parsed_it_wont_match() {
@@ -121,7 +134,7 @@ mod test {
     #[test]
     fn test_given_minimum_match_length_when_a_match_is_shorter_it_doesnt_count_as_a_match() {
         let mut p = SetParser::from_str("test", "0123");
-        p.set_min_length(7);
+        p.set_min_length(Some(7));
         let res = p.parse("11230almafa");
         assert_eq!(res.is_none(), true);
     }
@@ -129,7 +142,7 @@ mod test {
     #[test]
     fn test_given_maximum_match_length_when_a_match_is_longer_it_doesnt_count_as_a_match() {
         let mut p = SetParser::from_str("name", "0123");
-        p.set_max_length(3);
+        p.set_max_length(Some(3));
         assert_eq!(p.parse("11230almafa").is_none(), true);
     }
 
@@ -137,8 +150,8 @@ mod test {
     fn test_given_minimum_and_maximum_match_length_when_a_proper_length_match_occures_it_counts_as_a_match
         () {
         let mut p = SetParser::from_str("testname", "0123");
-        p.set_min_length(3);
-        p.set_max_length(7);
+        p.set_min_length(Some(3));
+        p.set_max_length(Some(7));
         let res = p.parse("11230almafa").unwrap();
         assert_eq!(res.parser().name(), Some("testname"));
         assert_eq!(res.value(), "11230");

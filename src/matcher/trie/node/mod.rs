@@ -42,7 +42,8 @@ impl SuffixTree {
     }
 
 
-    // If a literal isn't found the last SuffixTree instance and the remaining length of
+    // If a literal isn't found the last SuffixTree instance and the remaining
+    // length of
     // the literal will be returned
     // if the literal is in the trie, we return the last SuffixTree instance and the
     // index of the LiteralNode which contains the literal
@@ -68,7 +69,9 @@ impl SuffixTree {
     }
 
     // It's the same as lookup_literal_mut() without the muts
-    pub fn lookup_literal(&self, literal: &str) -> Result<(&SuffixTree, usize), (&SuffixTree, usize)> {
+    pub fn lookup_literal(&self,
+                          literal: &str)
+                          -> Result<(&SuffixTree, usize), (&SuffixTree, usize)> {
         match self.search(literal) {
             LiteralLookupResult::Found(pos) => {
                 Ok((self, pos))
@@ -228,7 +231,9 @@ impl SuffixTree {
                                                      .has_common_prefix(&tail) {
                     trace!("insert_literal_tail(): common_prefix_len = {}",
                            common_prefix_len);
-                    let hit = self.literal_children.get_mut(pos).expect("Failed to remove a literal child");
+                    let hit = self.literal_children
+                                  .get_mut(pos)
+                                  .expect("Failed to remove a literal child");
                     trace!("insert_literal_tail(): to_be_split = {}", hit.literal());
                     trace!("insert_literal_tail(): tail = {}", tail);
                     hit.split(common_prefix_len, tail);
@@ -292,10 +297,10 @@ impl self::interface::SuffixTree for SuffixTree {
     }
     fn insert(&mut self, mut pattern: Pattern) {
         if let Some(token) = pattern.pop_first_token() {
-            let mut entry: &mut Entry<ST=Self> = match token {
+            let mut entry: &mut Entry<ST = Self> = match token {
                 TokenType::Literal(literal) => {
                     self.insert_literal(&literal)
-                },
+                }
                 TokenType::Parser(parser) => {
                     self.insert_parser(parser)
                 }

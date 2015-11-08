@@ -1,5 +1,5 @@
 use matcher::compiled_pattern::TokenType;
-use parsers::{SetParser, Parser, ObjectSafeHash, IntParser, GreedyParser};
+use parsers::{SetParser, Parser, ObjectSafeHash, IntParser, GreedyParser, HasLengthConstraint};
 
 fn assert_parser_name_equals(item: Option<&TokenType>, expected_name: Option<&str>) {
     if let Some(&TokenType::Parser(ref parser)) = item {
@@ -116,8 +116,8 @@ fn test_given_set_parser_with_character_set_parameter_when_we_parse_it_then_we_g
 fn test_given_set_parser_with_optional_parameters_when_we_parse_it_then_we_get_the_right_parser
                                                                                                 () {
     let mut expected_parser = SetParser::from_str("test_set", "0123456789");
-    expected_parser.set_min_length(2);
-    expected_parser.set_max_length(5);
+    expected_parser.set_min_length(Some(2));
+    expected_parser.set_max_length(Some(5));
 
     let vec = ::grammar::parser::pattern(r#"%{SET("0123456789",min_len=2, max_len=5):test_set}"#)
                   .ok()
@@ -130,8 +130,8 @@ fn test_given_set_parser_with_optional_parameters_when_we_parse_it_then_we_get_t
 fn test_given_int_parser_with_optional_parameters_when_we_parse_it_then_we_get_the_right_parser
                                                                                                 () {
     let mut expected_parser = IntParser::from_str("test_int");
-    expected_parser.set_min_length(2);
-    expected_parser.set_max_length(5);
+    expected_parser.set_min_length(Some(2));
+    expected_parser.set_max_length(Some(5));
 
     let vec = ::grammar::parser::pattern(r#"%{INT(min_len=2,max_len=5):test_int}"#).ok().unwrap();
     assert_eq!(vec.len(), 1);

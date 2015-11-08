@@ -1,14 +1,14 @@
 mod set;
 mod base;
 mod int;
-mod length_checked;
+pub mod has_length_constraint;
 mod greedy;
 
 use std::fmt::Debug;
 pub use self::set::SetParser;
 pub use self::base::ParserBase;
 pub use self::int::IntParser;
-pub use self::length_checked::LengthCheckedParserBase;
+pub use self::has_length_constraint::HasLengthConstraint;
 pub use self::greedy::GreedyParser;
 
 pub trait ObjectSafeHash {
