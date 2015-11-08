@@ -1,6 +1,6 @@
 use std::hash::{SipHasher, Hash, Hasher};
 
-use parsers::{Parser, ObjectSafeHash, SetParser, ParseResult};
+use parsers::{Parser, ObjectSafeHash, SetParser, ParseResult, HasLengthConstraint};
 
 #[derive(Clone, Debug, Hash)]
 pub struct IntParser {
@@ -19,14 +19,6 @@ impl IntParser {
 
     pub fn new() -> IntParser {
         IntParser { delegate: SetParser::new("0123456789") }
-    }
-
-    pub fn set_min_length(&mut self, length: usize) {
-        self.delegate.set_min_length(length)
-    }
-
-    pub fn set_max_length(&mut self, length: usize) {
-        self.delegate.set_max_length(length)
     }
 }
 
@@ -48,6 +40,21 @@ impl Parser for IntParser {
     }
 }
 
+impl HasLengthConstraint for IntParser {
+    fn min_length(&self) -> Option<usize> {
+        self.delegate.min_length()
+    }
+    fn set_min_length(&mut self, length: Option<usize>) {
+        self.delegate.set_min_length(length);
+    }
+    fn max_length(&self) -> Option<usize> {
+        self.delegate.max_length()
+    }
+    fn set_max_length(&mut self, length: Option<usize>) {
+        self.delegate.set_max_length(length);
+    }
+}
+
 impl ObjectSafeHash for IntParser {
     fn hash_os(&self) -> u64 {
         let mut hasher = SipHasher::new();
@@ -59,7 +66,7 @@ impl ObjectSafeHash for IntParser {
 
 #[cfg(test)]
 mod test {
-    use parsers::{IntParser, Parser};
+    use parsers::{IntParser, Parser, HasLengthConstraint};
 
     #[test]
     fn test_given_int_parser_when_the_match_is_empty_then_the_result_isnt_successful() {
@@ -82,7 +89,7 @@ mod test {
         () {
         let parser_name = "test_int_parser";
         let mut parser = IntParser::from_str(parser_name);
-        parser.set_max_length(3);
+        parser.set_max_length(Some(3));
         assert_eq!(parser.parse("1234asd").is_none(), true);
     }
 }

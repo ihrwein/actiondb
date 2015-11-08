@@ -1,4 +1,4 @@
-use parsers::{GreedyParser, IntParser, OptionalParameter, Parser, ParserFactory, SetParser};
+use parsers::{GreedyParser, IntParser, OptionalParameter, Parser, ParserFactory, SetParser, HasLengthConstraint};
 
 macro_rules! set_optinal_param {
     ($parser:expr, $param:expr) => {
@@ -6,10 +6,10 @@ macro_rules! set_optinal_param {
             OptionalParameter::Int(key, value) => {
                 match key {
                     "min_len" => {
-                        $parser.set_min_length(value);
+                        $parser.set_min_length(Some(value));
                     },
                     "max_len" => {
-                        $parser.set_max_length(value);
+                        $parser.set_max_length(Some(value));
                     },
                     _ => ()
                 }
