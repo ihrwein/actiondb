@@ -1,4 +1,5 @@
-use parsers::{GreedyParser, IntParser, OptionalParameter, Parser, ParserFactory, SetParser, HasLengthConstraint};
+use parsers::{GreedyParser, IntParser, OptionalParameter, Parser, ParserFactory, SetParser,
+              HasLengthConstraint};
 
 macro_rules! set_optinal_param {
     ($parser:expr, $param:expr) => {

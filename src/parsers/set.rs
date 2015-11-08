@@ -18,7 +18,7 @@ impl SetParser {
             base: ParserBase::with_name(name),
             character_set: SetParser::create_set_from_str(set),
             min_length: None,
-            max_length: None
+            max_length: None,
         }
     }
 
@@ -27,7 +27,7 @@ impl SetParser {
             base: ParserBase::new(),
             character_set: SetParser::create_set_from_str(set),
             min_length: None,
-            max_length: None
+            max_length: None,
         }
     }
 

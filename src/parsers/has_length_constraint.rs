@@ -66,7 +66,8 @@ mod test {
     }
 
     #[test]
-    fn test_given_parser_when_the_minimum_match_length_is_set_then_the_shorter_matches_are_discarded() {
+    fn test_given_parser_when_the_minimum_match_length_is_set_then_the_shorter_matches_are_discarded
+        () {
         let mut base = DummyImpl::new();
         base.set_min_length(Some(10));
         assert_eq!(base.is_match_length_ok(42), true);
