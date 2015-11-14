@@ -87,7 +87,7 @@ impl MatcherBuilder {
         Ok(matcher)
     }
 
-    pub fn check_pattern(mut pattern: Pattern, matcher: &mut Matcher) -> Result<(), BuildError> {
+    pub fn check_pattern<M: Matcher>(mut pattern: Pattern, matcher: &mut M) -> Result<(), BuildError> {
         let uuid = pattern.uuid().clone();
         let test_messages = MatcherBuilder::extract_test_messages(&mut pattern);
         matcher.add_pattern(pattern);
@@ -103,7 +103,7 @@ impl MatcherBuilder {
         messages
     }
 
-    fn check_test_messages(matcher: &Matcher,
+    fn check_test_messages<M: Matcher>(matcher: &M,
                            messages: &[TestMessage],
                            uuid: &Uuid)
                            -> Result<(), BuildError> {
