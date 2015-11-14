@@ -1,7 +1,8 @@
 use super::pattern::file;
-use super::matcher::builder::{BuildError, MatcherBuilder};
+use super::matcher::builder::BuildError;
 use super::matcher::Matcher;
 use matcher::MatcherFactory;
+use matcher::matcher::builder::FromPatternSource;
 
 use std::path;
 use std::ffi;
@@ -13,7 +14,7 @@ impl PatternLoader {
         where F: MatcherFactory
     {
         let file = try!(file::PatternFile::open(pattern_file_path));
-        MatcherBuilder::from_source::<F>(&mut file.into_iter())
+        F::Matcher::from_source::<F>(&mut file.into_iter())
     }
 
     pub fn from_file<F>(pattern_file_path: &str) -> Result<F::Matcher, BuildError>
