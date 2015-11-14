@@ -7,11 +7,11 @@ mod logger;
 mod parse;
 
 use clap::{Arg, App, SubCommand, ArgMatches};
-use actiondb::matcher::Factory;
+use actiondb::matcher::GenericFactory;
+use actiondb::matcher::trie::factory::TrieMatcherFactory;
 use actiondb::matcher::Builder;
 use log::LogLevelFilter;
 use actiondb::matcher::pattern::file::PatternFile;
-use actiondb::matcher::trie::factory::TrieMatcherFactory;
 use actiondb::matcher::factory::MatcherFactory;
 use self::logger::StdoutLogger;
 
@@ -69,7 +69,7 @@ fn handle_validate(matches: &ArgMatches) {
     if matches.is_present(IGNORE_ERRORS) {
         validate_patterns_independently(pattern_file);
     } else {
-        if let Err(e) = Factory::from_file(pattern_file) {
+        if let Err(e) = GenericFactory::from_file::<TrieMatcherFactory>(pattern_file) {
             error!("{}", e);
             std::process::exit(1);
         }

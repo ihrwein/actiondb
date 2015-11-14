@@ -8,7 +8,6 @@ pub mod compiled_pattern;
 
 pub use self::pattern::Pattern;
 pub use self::matcher::Matcher;
-pub use self::factory::Factory;
 pub use self::factory::GenericFactory;
 pub use self::factory::MatcherFactory;
 pub use self::matcher::builder::Builder;

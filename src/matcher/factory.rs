@@ -1,24 +1,9 @@
-use super::trie::SuffixTree;
 use super::pattern::file;
 use super::matcher::builder;
 use super::matcher::Matcher;
-use matcher::trie::factory::TrieMatcherFactory;
 
 use std::path;
 use std::ffi;
-
-#[derive(Clone, Debug)]
-pub struct Factory;
-
-impl Factory {
-    pub fn from_json_file(pattern_file_path: &str) -> Result<SuffixTree, builder::BuildError> {
-        GenericFactory::from_json_file::<TrieMatcherFactory>(pattern_file_path)
-    }
-
-    pub fn from_file(pattern_file_path: &str) -> Result<SuffixTree, builder::BuildError> {
-        GenericFactory::from_file::<TrieMatcherFactory>(pattern_file_path)
-    }
-}
 
 pub struct GenericFactory;
 
