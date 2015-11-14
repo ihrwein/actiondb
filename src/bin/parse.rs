@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead, Error, ErrorKind, BufWriter, Write};
 use actiondb::Matcher;
-use actiondb::matcher::factory::PatternLoader;
+use actiondb::matcher::pattern_loader::PatternLoader;
 use actiondb::matcher::trie::factory::TrieMatcherFactory;
 
 pub fn parse(pattern_file_path: &str,
