@@ -1,8 +1,8 @@
 use super::pattern::file;
-use super::matcher::builder::BuildError;
-use super::matcher::Matcher;
+use matcher::BuildError;
+use matcher::Matcher;
 use matcher::MatcherFactory;
-use matcher::matcher::builder::FromPatternSource;
+use matcher::FromPatternSource;
 
 use std::path;
 use std::ffi;

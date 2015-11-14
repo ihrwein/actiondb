@@ -1,4 +1,4 @@
-use super::matcher::Matcher;
+use matcher::Matcher;
 
 pub trait MatcherFactory {
     type Matcher: Matcher;

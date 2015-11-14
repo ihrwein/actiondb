@@ -9,7 +9,7 @@ mod parse;
 use clap::{Arg, App, SubCommand, ArgMatches};
 use actiondb::matcher::PatternLoader;
 use actiondb::matcher::trie::factory::TrieMatcherFactory;
-use actiondb::matcher::matcher::builder::FromPatternSource;
+use actiondb::matcher::FromPatternSource;
 use log::LogLevelFilter;
 use actiondb::matcher::pattern::file::PatternFile;
 use actiondb::matcher::MatcherFactory;

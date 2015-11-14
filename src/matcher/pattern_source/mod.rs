@@ -5,7 +5,9 @@ use matcher::pattern::testmessage::{self, TestMessage};
 use matcher::{Matcher, MatcherFactory};
 use matcher::result::MatchResult;
 use matcher::pattern::source::BuildResult;
-use super::BuildError;
+pub use self::error::BuildError;
+
+mod error;
 
 pub trait FromPatternSource {
     fn from_source<F: MatcherFactory>(from: &mut PatternSource) -> Result<F::Matcher, BuildError> {
