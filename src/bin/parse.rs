@@ -1,14 +1,14 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead, Error, ErrorKind, BufWriter, Write};
 use actiondb::Matcher;
-use actiondb::matcher::factory::GenericFactory;
+use actiondb::matcher::factory::PatternLoader;
 use actiondb::matcher::trie::factory::TrieMatcherFactory;
 
 pub fn parse(pattern_file_path: &str,
              input_file_path: &str,
              output_file_path: &str)
              -> Result<(), Error> {
-    match GenericFactory::from_file::<TrieMatcherFactory>(pattern_file_path) {
+    match PatternLoader::from_file::<TrieMatcherFactory>(pattern_file_path) {
         Ok(matcher) => {
             let input_file = try!(File::open(input_file_path));
             let mut output_file = try!(File::create(output_file_path));

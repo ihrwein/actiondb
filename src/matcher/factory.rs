@@ -5,9 +5,9 @@ use super::matcher::Matcher;
 use std::path;
 use std::ffi;
 
-pub struct GenericFactory;
+pub struct PatternLoader;
 
-impl GenericFactory {
+impl PatternLoader {
     pub fn from_json_file<F>(pattern_file_path: &str) -> Result<F::Matcher, builder::BuildError>
         where F: MatcherFactory
     {
@@ -23,7 +23,7 @@ impl GenericFactory {
         let path = path::Path::new(pattern_file_path);
         match path.extension() {
             Some(extension) => {
-                GenericFactory::from_file_based_on_extension::<F>(extension, pattern_file_path)
+                PatternLoader::from_file_based_on_extension::<F>(extension, pattern_file_path)
             }
             None => Err(builder::BuildError::UnsupportedFileExtension),
         }
@@ -35,7 +35,7 @@ impl GenericFactory {
         where F: MatcherFactory
     {
         match try!(extension.to_str().ok_or(builder::BuildError::NotUtf8FileName)) {
-            "json" => GenericFactory::from_json_file::<F>(pattern_file_path),
+            "json" => PatternLoader::from_json_file::<F>(pattern_file_path),
             _ => Err(builder::BuildError::UnsupportedFileExtension),
         }
     }
