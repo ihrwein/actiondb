@@ -18,7 +18,7 @@ pub trait FromPatternSource {
         Ok(matcher)
     }
 
-    fn from_source_ignore_errors<F: MatcherFactory>(from: &mut PatternSource) -> Result<F::Matcher, BuildError> {
+    fn from_source_ignore_errors<F: MatcherFactory>(from: &mut PatternSource) -> F::Matcher {
         let mut matcher = F::new_matcher();
         for pattern in from {
             let result = Self::check_pattern::<F::Matcher>(&mut matcher, pattern);
@@ -26,7 +26,7 @@ pub trait FromPatternSource {
                 error!("{}", error);
             }
         }
-        Ok(matcher)
+        matcher
     }
 
     fn check_pattern<M: Matcher>(matcher: &mut M, result: BuildResult) -> Result<(), BuildError> {
