@@ -12,10 +12,8 @@ impl PatternLoader {
     pub fn from_json_file<F>(pattern_file_path: &str) -> Result<F::Matcher, BuildError>
         where F: MatcherFactory
     {
-        let mut matcher = F::new_matcher();
         let file = try!(file::PatternFile::open(pattern_file_path));
-        try!(MatcherBuilder::drain_into(&mut file.into_iter(), &mut matcher));
-        Ok(matcher)
+        MatcherBuilder::from_source::<F>(&mut file.into_iter())
     }
 
     pub fn from_file<F>(pattern_file_path: &str) -> Result<F::Matcher, BuildError>

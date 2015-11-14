@@ -2,20 +2,20 @@ use uuid::Uuid;
 
 use matcher::pattern::{Pattern, PatternSource};
 use matcher::pattern::testmessage::{self, TestMessage};
-use matcher::Matcher;
+use matcher::{Matcher, MatcherFactory};
 use matcher::result::MatchResult;
 use super::BuildError;
-
 
 pub struct MatcherBuilder;
 
 impl MatcherBuilder {
-    pub fn drain_into(from: &mut PatternSource, matcher: &mut Matcher) -> Result<(), BuildError> {
+    pub fn from_source<F: MatcherFactory>(from: &mut PatternSource) -> Result<F::Matcher, BuildError> {
+        let mut matcher = F::new_matcher();
         for pattern in from {
             let pattern = try!(pattern);
-            try!(MatcherBuilder::check_pattern(pattern, matcher));
+            try!(MatcherBuilder::check_pattern(pattern, &mut matcher));
         }
-        Ok(())
+        Ok(matcher)
     }
 
     pub fn check_pattern(mut pattern: Pattern, matcher: &mut Matcher) -> Result<(), BuildError> {
