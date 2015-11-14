@@ -48,9 +48,9 @@ pub trait FromPatternSource {
     }
 
     fn check_test_messages<M: Matcher>(matcher: &M,
-                           messages: &[TestMessage],
-                           uuid: &Uuid)
-                           -> Result<(), BuildError> {
+                                       messages: &[TestMessage],
+                                       uuid: &Uuid)
+                                       -> Result<(), BuildError> {
         for msg in messages {
             let result = try!(matcher.parse(msg.message())
                                      .ok_or(testmessage::Error::test_message_does_not_match(uuid,
