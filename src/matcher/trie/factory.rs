@@ -1,4 +1,4 @@
-use matcher::pattern_loader::MatcherFactory;
+use matcher::MatcherFactory;
 use matcher::trie::SuffixTree;
 
 pub struct TrieMatcherFactory;

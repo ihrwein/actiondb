@@ -1,6 +1,7 @@
 use super::pattern::file;
 use super::matcher::builder;
 use super::matcher::Matcher;
+use matcher::MatcherFactory;
 
 use std::path;
 use std::ffi;
@@ -39,9 +40,4 @@ impl PatternLoader {
             _ => Err(builder::BuildError::UnsupportedFileExtension),
         }
     }
-}
-
-pub trait MatcherFactory {
-    type Matcher: Matcher;
-    fn new_matcher() -> Self::Matcher;
 }

@@ -12,7 +12,7 @@ use actiondb::matcher::trie::factory::TrieMatcherFactory;
 use actiondb::matcher::Builder;
 use log::LogLevelFilter;
 use actiondb::matcher::pattern::file::PatternFile;
-use actiondb::matcher::pattern_loader::MatcherFactory;
+use actiondb::matcher::MatcherFactory;
 use self::logger::StdoutLogger;
 
 const VERSION: &'static str = "0.2.1";
