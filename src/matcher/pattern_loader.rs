@@ -14,7 +14,7 @@ impl PatternLoader {
     {
         let mut matcher = F::new_matcher();
         let file = try!(file::PatternFile::open(pattern_file_path));
-        try!(builder::Builder::drain_into(&mut file.into_iter(), &mut matcher));
+        try!(builder::MatcherBuilder::drain_into(&mut file.into_iter(), &mut matcher));
         Ok(matcher)
     }
 

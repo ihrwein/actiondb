@@ -11,5 +11,5 @@ pub use self::pattern::Pattern;
 pub use self::matcher::Matcher;
 pub use self::pattern_loader::PatternLoader;
 pub use self::factory::MatcherFactory;
-pub use self::matcher::builder::Builder;
+pub use self::matcher::builder::MatcherBuilder;
 pub use self::suite::MatcherSuite;

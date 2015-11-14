@@ -7,22 +7,22 @@ use matcher::result::MatchResult;
 use super::BuildError;
 
 
-pub struct Builder;
+pub struct MatcherBuilder;
 
-impl Builder {
+impl MatcherBuilder {
     pub fn drain_into(from: &mut PatternSource, matcher: &mut Matcher) -> Result<(), BuildError> {
         for pattern in from {
             let pattern = try!(pattern);
-            try!(Builder::check_pattern(pattern, matcher));
+            try!(MatcherBuilder::check_pattern(pattern, matcher));
         }
         Ok(())
     }
 
     pub fn check_pattern(mut pattern: Pattern, matcher: &mut Matcher) -> Result<(), BuildError> {
         let uuid = pattern.uuid().clone();
-        let test_messages = Builder::extract_test_messages(&mut pattern);
+        let test_messages = MatcherBuilder::extract_test_messages(&mut pattern);
         matcher.add_pattern(pattern);
-        Builder::check_test_messages(matcher, &test_messages, &uuid)
+        MatcherBuilder::check_test_messages(matcher, &test_messages, &uuid)
     }
 
     fn extract_test_messages(pattern: &mut Pattern) -> Vec<TestMessage> {
@@ -42,7 +42,7 @@ impl Builder {
             let result = try!(matcher.parse(msg.message())
                                      .ok_or(testmessage::Error::test_message_does_not_match(uuid,
                                                                                             msg)));
-            try!(Builder::check_test_message(msg, &result, uuid));
+            try!(MatcherBuilder::check_test_message(msg, &result, uuid));
         }
         Ok(())
     }

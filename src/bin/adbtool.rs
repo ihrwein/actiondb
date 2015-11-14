@@ -9,7 +9,7 @@ mod parse;
 use clap::{Arg, App, SubCommand, ArgMatches};
 use actiondb::matcher::PatternLoader;
 use actiondb::matcher::trie::factory::TrieMatcherFactory;
-use actiondb::matcher::Builder;
+use actiondb::matcher::MatcherBuilder;
 use log::LogLevelFilter;
 use actiondb::matcher::pattern::file::PatternFile;
 use actiondb::matcher::MatcherFactory;
@@ -83,7 +83,7 @@ fn validate_patterns_independently(pattern_file: &str) {
             let PatternFile{patterns} = file;
             for i in patterns {
                 debug!("validating pattern: {}", i.uuid().to_hyphenated_string());
-                if let Err(error) = Builder::check_pattern(i, &mut matcher) {
+                if let Err(error) = MatcherBuilder::check_pattern(i, &mut matcher) {
                     error!("{}", error);
                 }
             }
