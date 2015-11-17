@@ -1,5 +1,5 @@
 use super::Pattern;
-use matcher::matcher::builder::BuildError;
+use matcher::BuildError;
 
 pub type BuildResult = Result<Pattern, BuildError>;
 

@@ -7,12 +7,12 @@ mod logger;
 mod parse;
 
 use clap::{Arg, App, SubCommand, ArgMatches};
-use actiondb::matcher::Factory;
-use actiondb::matcher::Builder;
+use actiondb::matcher::PatternLoader;
+use actiondb::matcher::trie::factory::TrieMatcherFactory;
+use actiondb::matcher::FromPatternSource;
 use log::LogLevelFilter;
 use actiondb::matcher::pattern::file::PatternFile;
-use actiondb::matcher::trie::factory::TrieMatcherFactory;
-use actiondb::matcher::factory::MatcherFactory;
+use actiondb::matcher::MatcherFactory;
 use self::logger::StdoutLogger;
 
 const VERSION: &'static str = "0.2.1";
@@ -69,7 +69,7 @@ fn handle_validate(matches: &ArgMatches) {
     if matches.is_present(IGNORE_ERRORS) {
         validate_patterns_independently(pattern_file);
     } else {
-        if let Err(e) = Factory::from_file(pattern_file) {
+        if let Err(e) = PatternLoader::from_file::<TrieMatcherFactory>(pattern_file) {
             error!("{}", e);
             std::process::exit(1);
         }
@@ -77,16 +77,9 @@ fn handle_validate(matches: &ArgMatches) {
 }
 
 fn validate_patterns_independently(pattern_file: &str) {
-    let mut matcher = TrieMatcherFactory::new_matcher();
     match PatternFile::open(pattern_file) {
         Ok(file) => {
-            let PatternFile{patterns} = file;
-            for i in patterns {
-                debug!("validating pattern: {}", i.uuid().to_hyphenated_string());
-                if let Err(error) = Builder::check_pattern(i, &mut matcher) {
-                    error!("{}", error);
-                }
-            }
+            let _ = <TrieMatcherFactory as MatcherFactory>::Matcher::from_source_ignore_errors::<TrieMatcherFactory>(&mut file.into_iter());
         }
         Err(error) => {
             error!("{}", error);
