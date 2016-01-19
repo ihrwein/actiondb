@@ -46,12 +46,12 @@ impl SuffixTable {
         let result = self.literal_entries.binary_search_by(|probe| probe.literal().cmp(&literal));
         match result {
             Ok(pos) => {
-                self.literal_entries.get_mut(pos).expect("Failed to remove")
+                self.literal_entries.get_mut(pos).expect("Literal entry found, but failed to remove")
             },
             Err(pos) => {
                 let entry = LiteralE::new(literal);
                 self.literal_entries.insert(pos, entry);
-                self.literal_entries.get_mut(pos).expect("Failed to remove")
+                self.literal_entries.get_mut(pos).expect("Parser entry inserted, but failed to remove")
             }
         }
     }
@@ -61,11 +61,11 @@ impl SuffixTable {
             x.parser.hash_os() == parser.hash_os()
         });
         if let Some(pos) = pos {
-            self.parser_entries.get_mut(pos).expect("Failed to remove parser entry")
+            self.parser_entries.get_mut(pos).expect("Parser entry found, but failed to remove")
         } else {
             let parser = ParserE::new(parser);
             self.parser_entries.push(parser);
-            self.parser_entries.last_mut().expect("Failed to last_mut freshly inserted parser entry")
+            self.parser_entries.last_mut().expect("Parser entry inserted, but failed to remove")
         }
     }
 }
@@ -99,7 +99,7 @@ impl SuffixArray for SuffixTable {
         });
         match result {
             Ok(pos) => {
-                let child = self.literal_entries.get(pos).expect("Failed to get() a literal entry");
+                let child = self.literal_entries.get(pos).expect("Literal entry found, but failed to remove");
                 let common_prefix_len = child.literal().common_prefix_len(value);
                 Some((pos, common_prefix_len))
             },
