@@ -56,6 +56,15 @@ impl SuffixTable {
         }
     }
 
+    fn parse_with_parsers<'a, 'b>(&'a self, value: &'b str) -> Option<MatchResult<'a, 'b>> {
+        for parser in &self.parser_entries {
+            if let Some(result) = parser.parse(value) {
+                return Some(result);
+            }
+        }
+        None
+    }
+
     fn insert_parser(&mut self, parser: Box<Parser>) -> &mut Entry<SA=SuffixTable> {
         let pos = self.parser_entries.iter().position(|x| {
             x.parser.hash_os() == parser.hash_os()
@@ -259,12 +268,7 @@ impl Matcher for SuffixTable {
                 None
             }
         } else {
-            for parser in &self.parser_entries {
-                if let Some(result) = parser.parse(value) {
-                    return Some(result);
-                }
-            }
-            None
+            self.parse_with_parsers(value)
         }
     }
     fn add_pattern(&mut self, pattern: Pattern) {
