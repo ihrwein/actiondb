@@ -170,12 +170,10 @@ impl ParserEntry for ParserE {
             let value = value.ltrunc(kvpair.value().len());
 
             if let Some(child) = self.child() {
-                if let Some(mut result) = child.parse(value) {
+                child.parse(value).and_then(|mut result| {
                     result.insert(kvpair);
                     Some(result)
-                } else {
-                    None
-                }
+                })
             } else {
                 if value.is_empty() {
                     let mut result = MatchResult::new(self.pattern().expect("Failed to get the pattern"));
