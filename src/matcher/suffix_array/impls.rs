@@ -77,6 +77,28 @@ impl SuffixTable {
             self.parser_entries.last_mut().expect("Parser entry inserted, but failed to remove")
         }
     }
+
+    pub fn longest_common_prefix(&self, value: &str) -> Option<(usize, usize)> {
+        let result = self.literal_entries.binary_search_by(|probe| {
+            let s: &str = probe.literal().borrow();
+            s.cmp(value)
+        });
+        match result {
+            Ok(pos) => {
+                let child = self.literal_entries.get(pos).expect("Literal entry found, but failed to remove");
+                let common_prefix_len = child.literal().common_prefix_len(value);
+                Some((pos, common_prefix_len))
+            },
+            Err(pos) => {
+                let (min_pos, min_len) = self.longest_common_prefix_around_pos(value, pos);
+                if min_len > 0 {
+                    Some((min_pos, min_len))
+                } else {
+                    None
+                }
+            },
+        }
+    }
 }
 
 impl SuffixArray for SuffixTable {
@@ -100,29 +122,6 @@ impl SuffixArray for SuffixTable {
             entry.insert(pattern);
         }
     }
-
-    fn longest_common_prefix(&self, value: &str) -> Option<(usize, usize)> {
-        let result = self.literal_entries.binary_search_by(|probe| {
-            let s: &str = probe.literal().borrow();
-            s.cmp(value)
-        });
-        match result {
-            Ok(pos) => {
-                let child = self.literal_entries.get(pos).expect("Literal entry found, but failed to remove");
-                let common_prefix_len = child.literal().common_prefix_len(value);
-                Some((pos, common_prefix_len))
-            },
-            Err(pos) => {
-                let (min_pos, min_len) = self.longest_common_prefix_around_pos(value, pos);
-                if min_len > 0 {
-                    Some((min_pos, min_len))
-                } else {
-                    None
-                }
-            },
-        }
-    }
-
 }
 
 #[derive(Debug)]

@@ -5,7 +5,6 @@ use matcher::result::MatchResult;
 pub trait SuffixArray: Clone {
     fn new() -> Self;
     fn insert(&mut self, pattern: Pattern);
-    fn longest_common_prefix(&self, value: &str) -> Option<(usize, usize)>;
 }
 
 pub trait Entry {
