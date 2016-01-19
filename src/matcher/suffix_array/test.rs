@@ -1,5 +1,5 @@
 use super::impls::SuffixTable;
-use super::interface::SuffixArray;
+use super::interface::{SuffixArray, LiteralEntry};
 use matcher::compiled_pattern::CompiledPatternBuilder;
 use parsers::SetParser;
 use matcher::pattern::Pattern;
@@ -64,5 +64,5 @@ fn test_given_suffix_array_when_literals_are_inserted_then_it_can_find_the_strin
     pattern.set_pattern(cp1);
     root.insert(pattern);
 
-    assert_eq!(Some((0, 3)), root.longest_common_prefix("app42"));
+    assert_eq!("app", root.longest_common_prefix("app42").unwrap().literal());
 }

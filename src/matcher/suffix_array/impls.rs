@@ -78,21 +78,19 @@ impl SuffixTable {
         }
     }
 
-    pub fn longest_common_prefix(&self, value: &str) -> Option<(usize, usize)> {
+    pub fn longest_common_prefix<'a, 'b>(&'a self, value: &'b str) -> Option<&'a LiteralE> {
         let result = self.literal_entries.binary_search_by(|probe| {
             let s: &str = probe.literal().borrow();
             s.cmp(value)
         });
         match result {
             Ok(pos) => {
-                let child = self.literal_entries.get(pos).expect("Literal entry found, but failed to remove");
-                let common_prefix_len = child.literal().common_prefix_len(value);
-                Some((pos, common_prefix_len))
+                self.literal_entries.get(pos)
             },
             Err(pos) => {
                 let (min_pos, min_len) = self.longest_common_prefix_around_pos(value, pos);
                 if min_len > 0 {
-                    Some((min_pos, min_len))
+                    self.literal_entries.get(min_pos)
                 } else {
                     None
                 }
@@ -248,12 +246,12 @@ impl LiteralEntry for LiteralE {
 
 impl Matcher for SuffixTable {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<MatchResult<'a, 'b>> {
-        if let Some((pos, len)) = self.longest_common_prefix(value) {
-            let child = self.literal_entries.get(pos).expect("Failed to get() a literal entry");
-            if len == value.len() {
+        if let Some(child) = self.longest_common_prefix(value) {
+            let common_prefix_len = child.literal().common_prefix_len(value);
+            if common_prefix_len == value.len() {
                 child.pattern().and_then(|pattern| Some(MatchResult::new(pattern)))
-            } else if len < value.len() {
-                let value = value.ltrunc(len);
+            } else if common_prefix_len < value.len() {
+                let value = value.ltrunc(common_prefix_len);
                 child.child().and_then(|child| child.parse(value))
             } else {
                 None
