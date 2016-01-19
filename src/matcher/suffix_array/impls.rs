@@ -240,34 +240,31 @@ impl LiteralEntry for LiteralE {
 
 impl Matcher for SuffixTable {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<MatchResult<'a, 'b>> {
-        match self.longest_common_prefix(value) {
-            Some((pos, len)) => {
-                let child = self.literal_entries.get(pos).expect("Failed to get() a literal entry");
-                if len == value.len() {
-                    if let Some(pattern) = child.pattern() {
-                        Some(MatchResult::new(pattern))
-                    } else {
-                        None
-                    }
-                } else if len < value.len() {
-                    let value = value.ltrunc(len);
-                    if let Some(child) = child.child() {
-                        child.parse(value)
-                    } else {
-                        None
-                    }
+        if let Some((pos, len)) = self.longest_common_prefix(value) {
+            let child = self.literal_entries.get(pos).expect("Failed to get() a literal entry");
+            if len == value.len() {
+                if let Some(pattern) = child.pattern() {
+                    Some(MatchResult::new(pattern))
                 } else {
                     None
                 }
-            },
-            None => {
-                for parser in &self.parser_entries {
-                    if let Some(result) = parser.parse(value) {
-                        return Some(result);
-                    }
+            } else if len < value.len() {
+                let value = value.ltrunc(len);
+                if let Some(child) = child.child() {
+                    child.parse(value)
+                } else {
+                    None
                 }
+            } else {
                 None
             }
+        } else {
+            for parser in &self.parser_entries {
+                if let Some(result) = parser.parse(value) {
+                    return Some(result);
+                }
+            }
+            None
         }
     }
     fn add_pattern(&mut self, pattern: Pattern) {
