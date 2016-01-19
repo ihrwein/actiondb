@@ -5,7 +5,7 @@ use super::interface::{
     ParserEntry
 };
 
-use parsers::Parser;
+use parsers::{Parser, ParseResult};
 use matcher::{
     Matcher,
     Pattern
@@ -141,6 +141,17 @@ impl ParserE {
             child: None
         }
     }
+
+    fn create_match_result<'a, 'b>(&'a self, kvpair: ParseResult<'a, 'b>) -> Option<MatchResult<'a, 'b>> {
+        if let Some(pattern) = self.pattern() {
+            let mut result = MatchResult::new(pattern);
+            result.insert(kvpair);
+            Some(result)
+        } else {
+            debug!("Value parsing ended before reaching a leaf. Please create a new, shorter pattern.");
+            None
+        }
+    }
 }
 
 impl Entry for ParserE {
@@ -176,9 +187,7 @@ impl ParserEntry for ParserE {
                 })
             } else {
                 if value.is_empty() {
-                    let mut result = MatchResult::new(self.pattern().expect("Failed to get the pattern"));
-                    result.insert(kvpair);
-                    Some(result)
+                    self.create_match_result(kvpair)
                 } else {
                     None
                 }
