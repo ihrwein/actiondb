@@ -51,7 +51,7 @@ impl SuffixTable {
             Err(pos) => {
                 let entry = LiteralE::new(literal);
                 self.literal_entries.insert(pos, entry);
-                self.literal_entries.get_mut(pos).expect("Parser entry inserted, but failed to remove")
+                self.literal_entries.get_mut(pos).expect("Literal entry inserted, but failed to remove")
             }
         }
     }
