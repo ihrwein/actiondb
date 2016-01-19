@@ -166,7 +166,7 @@ impl ParserEntry for ParserE {
         &self.parser
     }
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<MatchResult<'a, 'b>> {
-        if let Some(kvpair) = self.parser.parse(value) {
+        self.parser.parse(value).and_then(|kvpair| {
             let value = value.ltrunc(kvpair.value().len());
 
             match self.child() {
@@ -188,9 +188,7 @@ impl ParserEntry for ParserE {
                     }
                 }
             }
-        } else {
-            None
-        }
+        })
     }
 }
 
