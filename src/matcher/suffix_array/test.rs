@@ -100,7 +100,20 @@ fn test_given_suffix_array_when_the_match_is_too_short_then_we_dont_panic() {
     pattern.set_pattern(cp1);
     root.insert(pattern);
 
-    assert_eq!(true, root.parse("app").is_none());
+    assert_eq!(true, root.parse("XYZ").is_none());
+}
+
+#[test]
+fn test_given_suffix_array_when_during_parsing_the_parsed_value_is_not_empty_but_we_cant_go_forward_then_the_parsing_is_unsuccessful() {
+    let mut root = SuffixTable::new();
+    let cp1 = CompiledPatternBuilder::new()
+                .literal("app")
+                .build();
+    let mut pattern = Pattern::with_random_uuid();
+    pattern.set_pattern(cp1);
+    root.insert(pattern);
+
+    assert_eq!(true, root.parse("apple").is_none());
 }
 
 #[test]
