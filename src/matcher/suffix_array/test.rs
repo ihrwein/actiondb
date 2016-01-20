@@ -90,6 +90,19 @@ fn test_given_suffix_array_when_there_is_no_match_then_the_parsing_is_unsuccessf
 }
 
 #[test]
+fn test_given_suffix_array_when_a_literal_entry_is_found_then_it_is_returned() {
+    let mut root = SuffixTable::new();
+    let cp1 = CompiledPatternBuilder::new()
+                .literal("app")
+                .build();
+    let mut pattern = Pattern::with_random_uuid();
+    pattern.set_pattern(cp1);
+    root.insert(pattern);
+
+    assert_eq!(true, root.parse("app").is_some());
+}
+
+#[test]
 fn test_given_suffix_array_when_literals_are_inserted_then_it_can_find_the_string_with_the_longest_common_prefix() {
     let mut root = SuffixTable::new();
     let cp1 = CompiledPatternBuilder::new()
