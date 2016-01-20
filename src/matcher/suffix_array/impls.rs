@@ -23,23 +23,27 @@ pub struct SuffixTable {
 }
 
 impl SuffixTable {
-    fn longest_common_prefix_around_pos(&self, value: &str, pos: usize) -> (usize, usize) {
-        let mut min_pos = pos;
-        let mut min_len = 0;
-        if pos > 0 {
-            min_pos = pos - 1;
-        }
+    fn longest_common_prefix_between_consecutive_entries(&self, value: &str, pos: usize) -> Option<&LiteralE> {
+        let first_opt = self.literal_entries.get(pos);
+        let second_opt = self.literal_entries.get(pos + 1);
 
-        for i in min_pos..pos+1 {
-            if let Some(entry) = self.literal_entries.get(i) {
-                let len = entry.literal().common_prefix_len(value);
-                if len > min_len {
-                    min_pos = i;
-                    min_len = len;
+        first_opt.map_or(second_opt, |first| {
+            second_opt.map_or(first_opt, |second| {
+                if first.literal().common_prefix_len(value) >= second.literal().common_prefix_len(value) {
+                    first_opt
+                } else {
+                    second_opt
                 }
-            }
+            })
+        })
+    }
+
+    fn longest_common_prefix_around_pos(&self, value: &str, pos: usize) -> Option<&LiteralE> {
+        if pos == 0 {
+            self.literal_entries.get(pos)
+        } else {
+            self.longest_common_prefix_between_consecutive_entries(value, pos - 1)
         }
-        (min_pos, min_len)
     }
 
     fn insert_literal(&mut self, literal: String) -> &mut Entry<SA=SuffixTable> {
@@ -84,17 +88,8 @@ impl SuffixTable {
             s.cmp(value)
         });
         match result {
-            Ok(pos) => {
-                self.literal_entries.get(pos)
-            },
-            Err(pos) => {
-                let (min_pos, min_len) = self.longest_common_prefix_around_pos(value, pos);
-                if min_len > 0 {
-                    self.literal_entries.get(min_pos)
-                } else {
-                    None
-                }
-            },
+            Ok(pos) => self.literal_entries.get(pos),
+            Err(pos) =>self.longest_common_prefix_around_pos(value, pos)
         }
     }
 }
