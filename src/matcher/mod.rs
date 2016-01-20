@@ -6,6 +6,7 @@ pub mod factory;
 pub mod pattern_loader;
 pub mod suite;
 pub mod compiled_pattern;
+pub mod suffix_array;
 
 pub use self::pattern::Pattern;
 pub use self::pattern_loader::PatternLoader;
