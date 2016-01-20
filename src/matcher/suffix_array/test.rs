@@ -76,6 +76,20 @@ fn test_given_suffix_array_when_a_parser_entry_is_inserted_it_is_only_added_if_i
 }
 
 #[test]
+fn test_given_suffix_array_when_there_is_no_match_then_the_parsing_is_unsuccessful() {
+    let mut root = SuffixTable::new();
+    let cp1 = CompiledPatternBuilder::new()
+                .literal("app")
+                .parser(Box::new(IntParser::new()))
+                .build();
+    let mut pattern = Pattern::with_random_uuid();
+    pattern.set_pattern(cp1);
+    root.insert(pattern);
+
+    assert_eq!(true, root.parse("XYZ").is_none());
+}
+
+#[test]
 fn test_given_suffix_array_when_literals_are_inserted_then_it_can_find_the_string_with_the_longest_common_prefix() {
     let mut root = SuffixTable::new();
     let cp1 = CompiledPatternBuilder::new()
