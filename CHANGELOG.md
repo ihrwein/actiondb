@@ -1,4 +1,23 @@
 # Changelog
+
+## Actiondb 0.6.0
+
+This release mostly contains internal changes and a suffix array Matcher implementation.
+
+* suffix tree refactoring
+* remove forgotten println! call
+* refacor `Parser` by removing `LengthCheckedParserBase` struct
+* add `HasLengthConstraint` trait
+* remove `Factory`
+* rename `GenericFactory` to `PatternLoader`
+* rename `Builder` to `MatcherBuilder`
+* rename `drain_into` to `from_source`
+* add `FromPatternSource` trait
+* add a suffix array based `Matcher` implementation
+* use `travis-cargo` in Travis
+* test on stable, beta, previous stable rustc releases
+* update clap to 1.5
+
 ## Actiondb 0.5.0
 This release contains only refactors.
 * decouple grammar from the Parser instances
