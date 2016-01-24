@@ -1,5 +1,9 @@
 # Changelog
 
+## Actiondb 0.6.1
+* derive Clone for TrieMatcherSuite
+* derive Clone for SuffixArrayMatcherSuite
+
 ## Actiondb 0.6.0
 
 This release mostly contains internal changes and a suffix array Matcher implementation.
