@@ -20,6 +20,7 @@ impl MatcherFactory for SuffixArrayMatcherFactory {
     }
 }
 
+#[derive(Clone)]
 pub struct SuffixArrayMatcherSuite;
 
 impl MatcherSuite for SuffixArrayMatcherSuite {
