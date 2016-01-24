@@ -1,7 +1,6 @@
 use super::Pattern;
 use super::testmessage::TestMessage;
 
-use serde::de::Deserialize;
 use serde;
 use uuid::Uuid;
 

@@ -1,6 +1,5 @@
 use super::TestMessage;
 use serde;
-use serde::de::Deserialize;
 
 impl serde::Deserialize for TestMessage {
     fn deserialize<D>(deserializer: &mut D) -> Result<TestMessage, D::Error>
