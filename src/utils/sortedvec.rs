@@ -160,8 +160,8 @@ mod test {
         () {
         let mut sv = SortedVec::new();
 
-        sv.push(LiteralNode::from_str("a"));
-        sv.push(LiteralNode::from_str(""));
+        sv.push(LiteralNode::new("a"));
+        sv.push(LiteralNode::new(""));
         let seek = "a";
 
         assert_eq!(sv.binary_search_by(|probe| probe.cmp_str(&seek)), Ok(1));

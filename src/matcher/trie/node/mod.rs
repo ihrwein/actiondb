@@ -246,7 +246,7 @@ impl SuffixTree {
             Err(pos) => {
                 trace!("insert_literal_tail(): creating new literal node from tail = {}",
                        tail);
-                let mut new_node = LiteralNode::from_str(tail);
+                let mut new_node = LiteralNode::new(tail);
                 new_node.set_has_value(true);
                 self.add_literal_node(new_node);
                 self.literal_children.get_mut(pos).unwrap()
@@ -616,7 +616,7 @@ mod test {
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "abcd")))
-                      .parser(Box::new(IntParser::from_str("test2")))
+                      .parser(Box::new(IntParser::with_name("test2")))
                       .parser(Box::new(GreedyParser::with_name("test3".to_owned())))
                       .build();
         let mut pattern = Pattern::with_random_uuid();

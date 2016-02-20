@@ -129,7 +129,7 @@ fn test_given_set_parser_with_optional_parameters_when_we_parse_it_then_we_get_t
 #[test]
 fn test_given_int_parser_with_optional_parameters_when_we_parse_it_then_we_get_the_right_parser
                                                                                                 () {
-    let mut expected_parser = IntParser::from_str("test_int");
+    let mut expected_parser = IntParser::with_name("test_int");
     expected_parser.set_min_length(Some(2));
     expected_parser.set_max_length(Some(5));
 
