@@ -13,7 +13,6 @@ use actiondb::matcher::FromPatternSource;
 use actiondb::matcher::MatcherSuite;
 use log::LogLevelFilter;
 use actiondb::matcher::pattern::file::PatternFile;
-use actiondb::matcher::MatcherFactory;
 use self::logger::StdoutLogger;
 
 const AUTHOR: &'static str = "Tibor Benke <tibor.benke@balabit.com>";
@@ -89,12 +88,12 @@ fn validate_patterns_independently<MS: MatcherSuite>(pattern_file: &str) {
     }
 }
 
-fn handle_parse(matches: &ArgMatches) {
+fn handle_parse<MS: MatcherSuite>(matches: &ArgMatches) {
     let pattern_file = matches.value_of(PATTERN_FILE).unwrap();
     let input_file = matches.value_of(INPUT_FILE).unwrap();
     let output_file = matches.value_of(OUTPUT_FILE).unwrap();
 
-    if let Err(e) = parse::parse(pattern_file, input_file, output_file) {
+    if let Err(e) = parse::parse::<MS>(pattern_file, input_file, output_file) {
         error!("{}", e);
         std::process::exit(1);
     }
@@ -119,7 +118,7 @@ fn process_command_line_args<'a, MS: MatcherSuite>(matches: ArgMatches<'a>) {
     if let Some(matches) = matches.subcommand_matches(VALIDATE) {
         handle_validate::<MS>(&matches);
     } else if let Some(matches) = matches.subcommand_matches(PARSE) {
-        handle_parse(&matches);
+        handle_parse::<MS>(&matches);
     } else {
         error!("{}", matches.usage.as_ref().unwrap());
     }

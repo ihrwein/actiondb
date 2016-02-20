@@ -1,18 +1,17 @@
 use std::fs::File;
 use std::io::{BufReader, BufRead, Error, ErrorKind, BufWriter, Write};
 use actiondb::Matcher;
-use actiondb::matcher::PatternLoader;
-use actiondb::matcher::trie::factory::TrieMatcherFactory;
+use actiondb::matcher::{PatternLoader, MatcherSuite};
 
-pub fn parse(pattern_file_path: &str,
+pub fn parse<MS: MatcherSuite>(pattern_file_path: &str,
              input_file_path: &str,
              output_file_path: &str)
              -> Result<(), Error> {
-    match PatternLoader::from_file::<TrieMatcherFactory>(pattern_file_path) {
+    match PatternLoader::from_file::<MS::MatcherFactory>(pattern_file_path) {
         Ok(matcher) => {
             let input_file = try!(File::open(input_file_path));
             let mut output_file = try!(File::create(output_file_path));
-            parse_file(&input_file, &mut output_file, &matcher);
+            parse_file::<MS>(&input_file, &mut output_file, &matcher);
             Ok(())
         }
         Err(err) => {
@@ -22,7 +21,7 @@ pub fn parse(pattern_file_path: &str,
     }
 }
 
-fn parse_file<M: Matcher>(input_file: &File, output_file: &mut File, matcher: &M) {
+fn parse_file<MS: MatcherSuite>(input_file: &File, output_file: &mut File, matcher: &MS::Matcher) {
     let reader = BufReader::new(input_file);
     let mut writer = BufWriter::new(output_file);
     let mut count: usize = 0;
