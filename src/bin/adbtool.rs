@@ -8,8 +8,9 @@ mod parse;
 
 use clap::{Arg, App, SubCommand, ArgMatches};
 use actiondb::matcher::PatternLoader;
-use actiondb::matcher::trie::factory::TrieMatcherFactory;
+use actiondb::matcher::trie::TrieMatcherSuite;
 use actiondb::matcher::FromPatternSource;
+use actiondb::matcher::MatcherSuite;
 use log::LogLevelFilter;
 use actiondb::matcher::pattern::file::PatternFile;
 use actiondb::matcher::MatcherFactory;
@@ -64,22 +65,22 @@ fn build_command_line_argument_parser<'a, 'b>() -> App<'a, 'b> {
                                  .help("The output file where the results are written")))
 }
 
-fn handle_validate(matches: &ArgMatches) {
+fn handle_validate<MS: MatcherSuite>(matches: &ArgMatches) {
     let pattern_file = matches.value_of(PATTERN_FILE).unwrap();
     if matches.is_present(IGNORE_ERRORS) {
-        validate_patterns_independently(pattern_file);
+        validate_patterns_independently::<MS>(pattern_file);
     } else {
-        if let Err(e) = PatternLoader::from_file::<TrieMatcherFactory>(pattern_file) {
+        if let Err(e) = PatternLoader::from_file::<MS::MatcherFactory>(pattern_file) {
             error!("{}", e);
             std::process::exit(1);
         }
     }
 }
 
-fn validate_patterns_independently(pattern_file: &str) {
+fn validate_patterns_independently<MS: MatcherSuite>(pattern_file: &str) {
     match PatternFile::open(pattern_file) {
         Ok(file) => {
-            let _ = <TrieMatcherFactory as MatcherFactory>::Matcher::from_source_ignore_errors::<TrieMatcherFactory>(&mut file.into_iter());
+            let _ = MS::Matcher::from_source_ignore_errors::<MS::MatcherFactory>(&mut file.into_iter());
         }
         Err(error) => {
             error!("{}", error);
@@ -114,9 +115,9 @@ fn choose_log_level<'a>(matches: &ArgMatches<'a>) -> LogLevelFilter {
     }
 }
 
-fn process_command_line_args<'a>(matches: ArgMatches<'a>) {
+fn process_command_line_args<'a, MS: MatcherSuite>(matches: ArgMatches<'a>) {
     if let Some(matches) = matches.subcommand_matches(VALIDATE) {
-        handle_validate(&matches);
+        handle_validate::<MS>(&matches);
     } else if let Some(matches) = matches.subcommand_matches(PARSE) {
         handle_parse(&matches);
     } else {
@@ -128,5 +129,5 @@ fn main() {
     let matches = build_command_line_argument_parser().get_matches();
     let log_level = choose_log_level(&matches);
     setup_stdout_logger(log_level);
-    process_command_line_args(matches);
+    process_command_line_args::<TrieMatcherSuite>(matches);
 }
