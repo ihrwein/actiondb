@@ -8,14 +8,13 @@ mod parse;
 
 use clap::{Arg, App, SubCommand, ArgMatches};
 use actiondb::matcher::PatternLoader;
-use actiondb::matcher::trie::factory::TrieMatcherFactory;
+use actiondb::matcher::suffix_array::SuffixArrayMatcherSuite;
 use actiondb::matcher::FromPatternSource;
+use actiondb::matcher::MatcherSuite;
 use log::LogLevelFilter;
 use actiondb::matcher::pattern::file::PatternFile;
-use actiondb::matcher::MatcherFactory;
 use self::logger::StdoutLogger;
 
-const VERSION: &'static str = "0.2.1";
 const AUTHOR: &'static str = "Tibor Benke <tibor.benke@balabit.com>";
 const APPNAME: &'static str = "adbtool";
 const DEBUG: &'static str = "debug";
@@ -27,9 +26,10 @@ const IGNORE_ERRORS: &'static str = "ignore-errors";
 const INPUT_FILE: &'static str = "input file";
 const OUTPUT_FILE: &'static str = "output file";
 
-fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, 'c, 'd, 'e, 'f> {
+fn build_command_line_argument_parser<'a, 'b>() -> App<'a, 'b> {
+    let version = env!("CARGO_PKG_VERSION");
     App::new(APPNAME)
-        .version(VERSION)
+        .version(version)
         .author(AUTHOR)
         .about("Tool for parsing unstructured data")
         .arg(Arg::with_name(DEBUG)
@@ -37,7 +37,7 @@ fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, '
                  .help("Enable debug messages"))
         .subcommand(SubCommand::with_name(VALIDATE)
                         .about("validates pattern file")
-                        .version(VERSION)
+                        .version(version)
                         .author(AUTHOR)
                         .arg(Arg::with_name(PATTERN_FILE)
                                  .required(true)
@@ -48,7 +48,7 @@ fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, '
                                  .help("Don't stop at the first test message error")))
         .subcommand(SubCommand::with_name(PARSE)
                         .about("parses a file based on predefined patterns")
-                        .version(VERSION)
+                        .version(version)
                         .author(AUTHOR)
                         .arg(Arg::with_name(PATTERN_FILE)
                                  .required(true)
@@ -64,22 +64,22 @@ fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, '
                                  .help("The output file where the results are written")))
 }
 
-fn handle_validate(matches: &ArgMatches) {
+fn handle_validate<MS: MatcherSuite>(matches: &ArgMatches) {
     let pattern_file = matches.value_of(PATTERN_FILE).unwrap();
     if matches.is_present(IGNORE_ERRORS) {
-        validate_patterns_independently(pattern_file);
+        validate_patterns_independently::<MS>(pattern_file);
     } else {
-        if let Err(e) = PatternLoader::from_file::<TrieMatcherFactory>(pattern_file) {
+        if let Err(e) = PatternLoader::from_file::<MS::MatcherFactory>(pattern_file) {
             error!("{}", e);
             std::process::exit(1);
         }
     }
 }
 
-fn validate_patterns_independently(pattern_file: &str) {
+fn validate_patterns_independently<MS: MatcherSuite>(pattern_file: &str) {
     match PatternFile::open(pattern_file) {
         Ok(file) => {
-            let _ = <TrieMatcherFactory as MatcherFactory>::Matcher::from_source_ignore_errors::<TrieMatcherFactory>(&mut file.into_iter());
+            let _ = MS::Matcher::from_source_ignore_errors::<MS::MatcherFactory>(&mut file.into_iter());
         }
         Err(error) => {
             error!("{}", error);
@@ -88,12 +88,12 @@ fn validate_patterns_independently(pattern_file: &str) {
     }
 }
 
-fn handle_parse(matches: &ArgMatches) {
+fn handle_parse<MS: MatcherSuite>(matches: &ArgMatches) {
     let pattern_file = matches.value_of(PATTERN_FILE).unwrap();
     let input_file = matches.value_of(INPUT_FILE).unwrap();
     let output_file = matches.value_of(OUTPUT_FILE).unwrap();
 
-    if let Err(e) = parse::parse(pattern_file, input_file, output_file) {
+    if let Err(e) = parse::parse::<MS>(pattern_file, input_file, output_file) {
         error!("{}", e);
         std::process::exit(1);
     }
@@ -106,7 +106,7 @@ fn setup_stdout_logger(log_level: LogLevelFilter) {
     });
 }
 
-fn choose_log_level<'n, 'a>(matches: &ArgMatches<'n, 'a>) -> LogLevelFilter {
+fn choose_log_level<'a>(matches: &ArgMatches<'a>) -> LogLevelFilter {
     if matches.is_present(DEBUG) {
         LogLevelFilter::Debug
     } else {
@@ -114,16 +114,19 @@ fn choose_log_level<'n, 'a>(matches: &ArgMatches<'n, 'a>) -> LogLevelFilter {
     }
 }
 
+fn process_command_line_args<'a, MS: MatcherSuite>(matches: ArgMatches<'a>) {
+    if let Some(matches) = matches.subcommand_matches(VALIDATE) {
+        handle_validate::<MS>(&matches);
+    } else if let Some(matches) = matches.subcommand_matches(PARSE) {
+        handle_parse::<MS>(&matches);
+    } else {
+        error!("{}", matches.usage.as_ref().unwrap());
+    }
+}
+
 fn main() {
     let matches = build_command_line_argument_parser().get_matches();
     let log_level = choose_log_level(&matches);
     setup_stdout_logger(log_level);
-
-    if let Some(matches) = matches.subcommand_matches(VALIDATE) {
-        handle_validate(&matches);
-    } else if let Some(matches) = matches.subcommand_matches(PARSE) {
-        handle_parse(&matches);
-    } else {
-        error!("{}", matches.usage.as_ref().unwrap());
-    }
+    process_command_line_args::<SuffixArrayMatcherSuite>(matches);
 }

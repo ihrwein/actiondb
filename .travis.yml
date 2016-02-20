@@ -8,12 +8,10 @@ addons:
       - libdw-dev
 
 # run builds for all the trains (and more)
-rust:
-  - beta
-  # check it compiles on the latest stable compiler
-  - stable
-  # and the previous stable
-  - 1.5.0
+matrix:
+  include:
+    - rust: beta
+    - rust: stable
 
 # load travis-cargo
 before_script:
