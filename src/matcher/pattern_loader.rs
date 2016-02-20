@@ -1,6 +1,5 @@
 use super::pattern::file;
 use matcher::BuildError;
-use matcher::Matcher;
 use matcher::MatcherFactory;
 use matcher::FromPatternSource;
 
