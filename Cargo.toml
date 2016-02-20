@@ -20,3 +20,8 @@ uuid = "0.1"
 serde = "0.6"
 serde_json = "0.6"
 maplit = "0.1"
+clippy = {version = "*", optional = true}
+
+[features]
+default=[]
+nightly = ["clippy"]

@@ -1,3 +1,7 @@
+#![cfg_attr(feature="nightly", feature(plugin))]
+#![cfg_attr(feature="nightly", plugin(clippy))]
+#![cfg_attr(feature="nightly", deny(warnings))]
+
 #[macro_use]
 extern crate log;
 extern crate uuid;
