@@ -30,7 +30,7 @@ impl CommonPrefix for str {
                 return i;
             }
         }
-        return min_len;
+        min_len
     }
 
     fn ltrunc(&self, len: usize) -> &Self {

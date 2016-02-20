@@ -55,8 +55,8 @@ pub trait ParserFactory: {
                    name: Option<&str>,
                    opt_params: Option<Vec<OptionalParameter<'a>>>)
                    -> Box<Parser>;
-    fn new_int<'a>(name: Option<&str>,
-                   opt_params: Option<Vec<OptionalParameter<'a>>>)
+    fn new_int(name: Option<&str>,
+                   opt_params: Option<Vec<OptionalParameter>>)
                    -> Box<Parser>;
-    fn new_greedy<'a>(name: Option<&str>, end_string: Option<&str>) -> Box<Parser>;
+    fn new_greedy(name: Option<&str>, end_string: Option<&str>) -> Box<Parser>;
 }

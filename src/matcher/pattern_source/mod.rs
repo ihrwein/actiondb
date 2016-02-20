@@ -31,7 +31,7 @@ pub trait FromPatternSource {
 
     fn check_pattern<M: Matcher>(matcher: &mut M, result: BuildResult) -> Result<(), BuildError> {
         let mut pattern = try!(result);
-        let uuid = pattern.uuid().clone();
+        let uuid = pattern.uuid().to_owned();
         let test_messages = Self::extract_test_messages(&mut pattern);
         matcher.add_pattern(pattern);
         debug!("validating pattern: {}", uuid.to_hyphenated_string());

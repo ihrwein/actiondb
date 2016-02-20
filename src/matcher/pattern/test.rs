@@ -18,10 +18,10 @@ fn test_given_json_document_when_it_does_not_contain_errors_then_pattern_can_be_
 "#;
 
     let expected_uuid = Uuid::parse_str("9a49c47d-29e9-4072-be84-3b76c6814743").ok().unwrap();
-    let expected_tags = &["tag1".to_string(), "tag2".to_string()];
+    let expected_tags = &["tag1".to_owned(), "tag2".to_owned()];
     let result = Pattern::from_json(buffer);
     println!("{:?}", result);
-    let pattern = result.ok().expect("Failed to deserialize a JSON Pattern");
+    let pattern = result.expect("Failed to deserialize a JSON Pattern");
     assert_eq!(pattern.name(), Some("SSH_DISCONNECT"));
     assert_eq!(pattern.uuid().as_bytes(), expected_uuid.as_bytes());
     assert_eq!(pattern.values()
@@ -56,7 +56,7 @@ fn test_given_json_pattern_when_it_does_not_have_the_optional_paramaters_then_pa
 }
 "#;
 
-    let pattern = Pattern::from_json(buffer).ok().expect("Failed to deserialize a JSON Pattern");
+    let pattern = Pattern::from_json(buffer).expect("Failed to deserialize a JSON Pattern");
     assert_eq!(pattern.name(), None);
 }
 
@@ -104,7 +104,6 @@ fn test_given_json_pattern_when_test_messages_are_specified_then_they_are_parsed
 "#;
 
     let _ = Pattern::from_json(buffer)
-                .ok()
                 .expect("Failed to create a Pattern when test_messages are specified");
 }
 

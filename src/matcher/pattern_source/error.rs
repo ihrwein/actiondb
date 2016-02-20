@@ -51,8 +51,7 @@ impl error::Error for BuildError {
         match *self {
             BuildError::FromSerialized(ref error) => error.cause(),
             BuildError::TestMessage(ref error) => error.cause(),
-            BuildError::UnsupportedFileExtension => None,
-            BuildError::NotUtf8FileName => None,
+            BuildError::UnsupportedFileExtension | BuildError::NotUtf8FileName => None,
         }
     }
 }

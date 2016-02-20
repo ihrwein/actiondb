@@ -31,7 +31,7 @@ pub type ParseResult<T> = Result<T, ParseError>;
 impl ::std::fmt::Display for ParseError {
     fn fmt(&self, fmt: &mut ::std::fmt::Formatter) -> ::std::result::Result<(), ::std::fmt::Error> {
         try!(write!(fmt, "error at {}:{}: expected ", self.line, self.column));
-        if self.expected.len() == 0 {
+        if self.expected.is_empty() {
             try!(write!(fmt, "EOF"));
         } else if self.expected.len() == 1 {
             try!(write!(fmt,
@@ -101,7 +101,7 @@ fn pos_to_line(input: &str, pos: usize) -> (usize, usize) {
         remaining -= line_length;
         lineno += 1;
     }
-    return (lineno, remaining + 1);
+    (lineno, remaining + 1)
 }
 struct ParseState<'input> {
     max_err_pos: usize,
@@ -379,7 +379,7 @@ fn parse_parser_SET_optional_params<'input, F: ParserFactory>
                             let mut repeat_value = vec![];
                             loop {
                                 let pos = repeat_pos;
-                                let pos = if repeat_value.len() > 0 {
+                                let pos = if !repeat_value.is_empty() {
                                     let sep_res = parse_comma::<F>(input, state, pos);
                                     match sep_res {
                                         Matched(newpos, _) => {
@@ -494,7 +494,7 @@ fn parse_parser_INT_optional_params<'input, F: ParserFactory>
                             let mut repeat_value = vec![];
                             loop {
                                 let pos = repeat_pos;
-                                let pos = if repeat_value.len() > 0 {
+                                let pos = if !repeat_value.is_empty() {
                                     let sep_res = parse_comma::<F>(input, state, pos);
                                     match sep_res {
                                         Matched(newpos, _) => {
@@ -604,7 +604,7 @@ fn parse_parser_GREEDY<'input, F: ParserFactory>(input: &'input str,
                                                                                     tokens.push(TokenType::Parser(parser));
                                                                                     let end_string =
                                                                                         end_string.map(|string|
-                                                                                                           string.to_string());
+                                                                                                           string.to_owned());
                                                                                     if let Some(end_string)
                                                                                            =
                                                                                            end_string
@@ -1197,15 +1197,12 @@ fn parse_int<'input, F: ParserFactory>(input: &'input str,
         }
     }
 }
-pub fn pattern<'input, F: ParserFactory>(input: &'input str) -> ParseResult<CompiledPattern> {
+pub fn pattern<F: ParserFactory>(input: &str) -> ParseResult<CompiledPattern> {
     let mut state = ParseState::new();
-    match parse_pattern::<F>(input, &mut state, 0) {
-        Matched(pos, value) => {
-            if pos == input.len() {
-                return Ok(value);
-            }
+    if let Matched(pos, value) = parse_pattern::<F>(input, &mut state, 0) {
+        if pos == input.len() {
+            return Ok(value);
         }
-        _ => {}
     }
     let (line, col) = pos_to_line(input, state.max_err_pos);
     Err(ParseError {

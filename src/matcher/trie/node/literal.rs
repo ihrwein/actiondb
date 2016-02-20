@@ -25,7 +25,7 @@ impl LiteralNode {
     }
 
     pub fn from_str(literal: &str) -> LiteralNode {
-        LiteralNode::new(literal.to_string())
+        LiteralNode::new(literal.to_owned())
     }
 
     pub fn literal(&self) -> &str {
@@ -92,7 +92,7 @@ impl LiteralNode {
         new_node.add_literal_node(right_node);
         self.set_node(Some(new_node));
         self.has_value = false;
-        self.literal = common_prefix.to_string();
+        self.literal = common_prefix.to_owned();
     }
 
     pub fn is_leaf(&self) -> bool {
@@ -168,8 +168,8 @@ mod test {
     #[test]
     fn given_literal_node_when_it_is_compared_to_an_other_literal_node_then_only_their_first_chars_are_checked
         () {
-        let alpha = LiteralNode::new("alpha".to_string());
-        let beta = LiteralNode::new("beta".to_string());
+        let alpha = LiteralNode::new("alpha".to_owned());
+        let beta = LiteralNode::new("beta".to_owned());
         let aleph = LiteralNode::from_str("aleph");
         let a = LiteralNode::from_str("a");
         let empty = LiteralNode::from_str("");

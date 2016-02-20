@@ -48,14 +48,9 @@ impl serde::de::Visitor for FileVisitor {
     {
         let mut patterns: Option<Vec<Pattern>> = None;
 
-        loop {
-            match try!(visitor.visit_key()) {
-                Some(Field::PATTERNS) => {
-                    patterns = Some(try!(visitor.visit_value()));
-                }
-                None => {
-                    break;
-                }
+        while let Some (field) = try!(visitor.visit_key()) {
+            match field {
+                Field::PATTERNS => patterns = Some(try!(visitor.visit_value()))
             }
         }
 

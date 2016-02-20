@@ -32,7 +32,7 @@ impl SetParser {
     }
 
     pub fn from_str(name: &str, set: &str) -> SetParser {
-        SetParser::with_name(name.to_string(), set)
+        SetParser::with_name(name.to_owned(), set)
     }
 
     pub fn set_character_set(&mut self, set: &str) {

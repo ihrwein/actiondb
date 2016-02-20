@@ -16,8 +16,8 @@ impl GreedyParser {
     }
 
     pub fn from_str(name: &str, end_string: &str) -> GreedyParser {
-        let mut parser = GreedyParser::with_name(name.to_string());
-        let end_string = end_string.to_string();
+        let mut parser = GreedyParser::with_name(name.to_owned());
+        let end_string = end_string.to_owned();
         parser.set_end_string(Some(end_string));
         parser
     }

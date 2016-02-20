@@ -53,7 +53,7 @@ impl <T: Ord> SortedVec<T> {
         self.array.binary_search_by(f)
     }
 
-    fn binary_search<'a>(&self, needle: &T) -> Option<usize> {
+    fn binary_search(&self, needle: &T) -> Option<usize> {
         let mut low = 0;
         let mut high = self.array.len();
 

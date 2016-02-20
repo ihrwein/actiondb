@@ -192,7 +192,7 @@ impl SuffixTree {
     }
 
     fn parse_with_parsers<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
-        for i in self.parser_children.iter() {
+        for i in &self.parser_children {
             trace!("parse(): testing parser");
 
             if let Some(result) = i.parse(text) {
@@ -617,7 +617,7 @@ mod test {
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "abcd")))
                       .parser(Box::new(IntParser::from_str("test2")))
-                      .parser(Box::new(GreedyParser::with_name("test3".to_string())))
+                      .parser(Box::new(GreedyParser::with_name("test3".to_owned())))
                       .build();
         let mut pattern = Pattern::with_random_uuid();
         pattern.set_pattern(cp1);

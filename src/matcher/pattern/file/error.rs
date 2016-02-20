@@ -24,25 +24,25 @@ impl From<DeserError> for Error {
 
 impl fmt::Display for Error {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        match self {
-            &Error::IO(ref error) => error.fmt(formatter),
-            &Error::Deser(ref error) => error.fmt(formatter),
+        match *self {
+            Error::IO(ref error) => error.fmt(formatter),
+            Error::Deser(ref error) => error.fmt(formatter),
         }
     }
 }
 
 impl error::Error for Error {
     fn description(&self) -> &str {
-        match self {
-            &Error::IO(ref error) => error.description(),
-            &Error::Deser(ref error) => error.description(),
+        match *self {
+            Error::IO(ref error) => error.description(),
+            Error::Deser(ref error) => error.description(),
         }
     }
 
     fn cause(&self) -> Option<&error::Error> {
-        match self {
-            &Error::IO(ref error) => error.cause(),
-            &Error::Deser(ref error) => error.cause(),
+        match *self {
+            Error::IO(ref error) => error.cause(),
+            Error::Deser(ref error) => error.cause(),
         }
     }
 }

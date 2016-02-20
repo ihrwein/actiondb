@@ -10,11 +10,11 @@ pub enum TokenType {
 
 impl Clone for TokenType {
     fn clone(&self) -> TokenType {
-        match self {
-            &TokenType::Parser(ref parser) => {
+        match *self {
+            TokenType::Parser(ref parser) => {
                 TokenType::Parser(parser.boxed_clone())
             }
-            &TokenType::Literal(ref literal) => {
+            TokenType::Literal(ref literal) => {
                 TokenType::Literal(literal.clone())
             }
         }
