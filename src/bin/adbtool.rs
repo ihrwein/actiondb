@@ -15,7 +15,6 @@ use actiondb::matcher::pattern::file::PatternFile;
 use actiondb::matcher::MatcherFactory;
 use self::logger::StdoutLogger;
 
-const VERSION: &'static str = "0.2.1";
 const AUTHOR: &'static str = "Tibor Benke <tibor.benke@balabit.com>";
 const APPNAME: &'static str = "adbtool";
 const DEBUG: &'static str = "debug";
@@ -28,8 +27,9 @@ const INPUT_FILE: &'static str = "input file";
 const OUTPUT_FILE: &'static str = "output file";
 
 fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, 'c, 'd, 'e, 'f> {
+    let version = env!("CARGO_PKG_VERSION");
     App::new(APPNAME)
-        .version(VERSION)
+        .version(version)
         .author(AUTHOR)
         .about("Tool for parsing unstructured data")
         .arg(Arg::with_name(DEBUG)
@@ -37,7 +37,7 @@ fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, '
                  .help("Enable debug messages"))
         .subcommand(SubCommand::with_name(VALIDATE)
                         .about("validates pattern file")
-                        .version(VERSION)
+                        .version(version)
                         .author(AUTHOR)
                         .arg(Arg::with_name(PATTERN_FILE)
                                  .required(true)
@@ -48,7 +48,7 @@ fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, '
                                  .help("Don't stop at the first test message error")))
         .subcommand(SubCommand::with_name(PARSE)
                         .about("parses a file based on predefined patterns")
-                        .version(VERSION)
+                        .version(version)
                         .author(AUTHOR)
                         .arg(Arg::with_name(PATTERN_FILE)
                                  .required(true)
