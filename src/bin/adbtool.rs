@@ -114,11 +114,7 @@ fn choose_log_level<'a>(matches: &ArgMatches<'a>) -> LogLevelFilter {
     }
 }
 
-fn main() {
-    let matches = build_command_line_argument_parser().get_matches();
-    let log_level = choose_log_level(&matches);
-    setup_stdout_logger(log_level);
-
+fn process_command_line_args<'a>(matches: ArgMatches<'a>) {
     if let Some(matches) = matches.subcommand_matches(VALIDATE) {
         handle_validate(&matches);
     } else if let Some(matches) = matches.subcommand_matches(PARSE) {
@@ -126,4 +122,11 @@ fn main() {
     } else {
         error!("{}", matches.usage.as_ref().unwrap());
     }
+}
+
+fn main() {
+    let matches = build_command_line_argument_parser().get_matches();
+    let log_level = choose_log_level(&matches);
+    setup_stdout_logger(log_level);
+    process_command_line_args(matches);
 }
