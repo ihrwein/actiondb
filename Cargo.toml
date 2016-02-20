@@ -14,7 +14,7 @@ name = "adbtool"
 path = "src/bin/adbtool.rs"
 
 [dependencies]
-clap = "1.5"
+clap = "2.1"
 log = "0.3"
 uuid = "0.1"
 serde = "0.6"

@@ -26,7 +26,7 @@ const IGNORE_ERRORS: &'static str = "ignore-errors";
 const INPUT_FILE: &'static str = "input file";
 const OUTPUT_FILE: &'static str = "output file";
 
-fn build_command_line_argument_parser<'a, 'b, 'c, 'd, 'e, 'f>() -> App<'a, 'b, 'c, 'd, 'e, 'f> {
+fn build_command_line_argument_parser<'a, 'b>() -> App<'a, 'b> {
     let version = env!("CARGO_PKG_VERSION");
     App::new(APPNAME)
         .version(version)
@@ -106,7 +106,7 @@ fn setup_stdout_logger(log_level: LogLevelFilter) {
     });
 }
 
-fn choose_log_level<'n, 'a>(matches: &ArgMatches<'n, 'a>) -> LogLevelFilter {
+fn choose_log_level<'a>(matches: &ArgMatches<'a>) -> LogLevelFilter {
     if matches.is_present(DEBUG) {
         LogLevelFilter::Debug
     } else {
