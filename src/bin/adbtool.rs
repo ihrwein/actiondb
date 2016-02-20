@@ -8,7 +8,7 @@ mod parse;
 
 use clap::{Arg, App, SubCommand, ArgMatches};
 use actiondb::matcher::PatternLoader;
-use actiondb::matcher::trie::TrieMatcherSuite;
+use actiondb::matcher::suffix_array::SuffixArrayMatcherSuite;
 use actiondb::matcher::FromPatternSource;
 use actiondb::matcher::MatcherSuite;
 use log::LogLevelFilter;
@@ -128,5 +128,5 @@ fn main() {
     let matches = build_command_line_argument_parser().get_matches();
     let log_level = choose_log_level(&matches);
     setup_stdout_logger(log_level);
-    process_command_line_args::<TrieMatcherSuite>(matches);
+    process_command_line_args::<SuffixArrayMatcherSuite>(matches);
 }
