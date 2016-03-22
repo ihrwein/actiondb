@@ -27,7 +27,7 @@ pub struct CompiledPatternBuilder {
 
 impl CompiledPatternBuilder {
     pub fn new() -> CompiledPatternBuilder {
-        CompiledPatternBuilder { pattern: Vec::new() }
+        CompiledPatternBuilder::default()
     }
 
     pub fn literal<S>(&mut self, literal: S) -> &mut CompiledPatternBuilder
@@ -44,5 +44,11 @@ impl CompiledPatternBuilder {
 
     pub fn build(&self) -> CompiledPattern {
         self.pattern.clone()
+    }
+}
+
+impl Default for CompiledPatternBuilder {
+    fn default() -> Self {
+        CompiledPatternBuilder { pattern: Vec::new() }
     }
 }

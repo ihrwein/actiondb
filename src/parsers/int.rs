@@ -14,7 +14,7 @@ impl IntParser {
     }
 
     pub fn new() -> IntParser {
-        IntParser { delegate: SetParser::new("0123456789") }
+        IntParser::default()
     }
 }
 
@@ -33,6 +33,12 @@ impl Parser for IntParser {
 
     fn boxed_clone(&self) -> Box<Parser> {
         Box::new(self.clone())
+    }
+}
+
+impl Default for IntParser {
+    fn default() -> Self {
+        IntParser { delegate: SetParser::new("0123456789") }
     }
 }
 

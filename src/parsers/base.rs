@@ -11,7 +11,7 @@ impl ParserBase {
     }
 
     pub fn new() -> ParserBase {
-        ParserBase { name: None }
+        ParserBase::default()
     }
 
     pub fn name(&self) -> Option<&str> {
@@ -20,5 +20,11 @@ impl ParserBase {
 
     pub fn set_name(&mut self, name: Option<String>) {
         self.name = name;
+    }
+}
+
+impl Default for ParserBase {
+    fn default() -> Self {
+        ParserBase { name: None }
     }
 }

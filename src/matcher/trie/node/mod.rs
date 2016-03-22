@@ -27,10 +27,7 @@ enum LiteralLookupResult<'a> {
 
 impl SuffixTree {
     pub fn new() -> SuffixTree {
-        SuffixTree {
-            literal_children: SortedVec::new(),
-            parser_children: Vec::new(),
-        }
+        SuffixTree::default()
     }
 
     pub fn add_literal_node(&mut self, lnode: LiteralNode) {
@@ -284,6 +281,15 @@ impl SuffixTree {
             let pnode = ParserNode::new(parser);
             self.parser_children.push(pnode);
             self.parser_children.last_mut().unwrap()
+        }
+    }
+}
+
+impl Default for SuffixTree {
+    fn default() -> Self {
+        SuffixTree {
+            literal_children: SortedVec::new(),
+            parser_children: Vec::new(),
         }
     }
 }

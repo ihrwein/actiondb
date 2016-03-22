@@ -23,14 +23,20 @@ impl GreedyParser {
     }
 
     pub fn new() -> GreedyParser {
-        GreedyParser {
-            base: ParserBase::new(),
-            end_string: None,
-        }
+        GreedyParser::default()
     }
 
     pub fn set_end_string(&mut self, end_string: Option<String>) {
         self.end_string = end_string;
+    }
+}
+
+impl Default for GreedyParser {
+    fn default() -> Self {
+        GreedyParser {
+            base: ParserBase::new(),
+            end_string: None,
+        }
     }
 }
 

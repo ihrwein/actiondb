@@ -94,12 +94,18 @@ impl SuffixTable {
     }
 }
 
-impl SuffixArray for SuffixTable {
-    fn new() -> SuffixTable {
+impl Default for SuffixTable {
+    fn default() -> Self {
         SuffixTable {
             literal_entries: Vec::new(),
             parser_entries: Vec::new()
         }
+    }
+}
+
+impl SuffixArray for SuffixTable {
+    fn new() -> SuffixTable {
+        SuffixTable::default()
     }
 
     fn insert(&mut self, mut pattern: Pattern) {
