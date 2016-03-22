@@ -64,12 +64,12 @@ pub trait FromPatternSource {
                           result: &MatchResult,
                           expected_uuid: &Uuid)
                           -> Result<(), testmessage::Error> {
-        if result.pattern().uuid() != expected_uuid {
-            Err(testmessage::Error::matched_to_other_pattern(expected_uuid,
-                                                             result.pattern().uuid(),
-                                                             message.message()))
-        } else {
+        if result.pattern().uuid() == expected_uuid {
             message.test_result(&result)
+        } else {
+            Err(testmessage::Error::matched_to_other_pattern(expected_uuid,
+                result.pattern().uuid(),
+                message.message()))
         }
     }
 }

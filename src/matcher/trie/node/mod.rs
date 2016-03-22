@@ -111,10 +111,10 @@ impl SuffixTree {
                                       literal: &'b str,
                                       pos: usize)
                                       -> LiteralLookupResult<'b> {
-        if !self.literal_children.get(pos).unwrap().is_leaf() {
-            self.search_prefix_is_found_and_node_is_not_leaf(literal, pos)
-        } else {
+        if self.literal_children.get(pos).unwrap().is_leaf() {
             self.search_prefix_is_found_and_node_is_leaf(literal, pos)
+        } else {
+            self.search_prefix_is_found_and_node_is_not_leaf(literal, pos)
         }
     }
 
