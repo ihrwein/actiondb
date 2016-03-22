@@ -325,6 +325,9 @@ mod test {
     use matcher::pattern::Pattern;
     use matcher::trie::node::interface::SuffixTree as STree;
 
+    use std::iter::FromIterator;
+    use std::collections::BTreeMap;
+
     #[test]
     fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
         let mut node = SuffixTree::new();
@@ -504,8 +507,8 @@ mod test {
         println!("root: {:?}", &root);
         {
             let result = root.parse("app42letree123");
-            assert_eq!(result.unwrap().values(),
-                       &btreemap!["end" => "123", "middle" => "42"]);
+            let expected = BTreeMap::from_iter(vec![("end", "123"), ("middle", "42")].into_iter());
+            assert_eq!(result.unwrap().values(), &expected);
         }
     }
 
@@ -604,11 +607,11 @@ mod test {
 
         trie.insert(pattern);
         println!("{:?}", &trie);
-
+        let expected = BTreeMap::from_iter(vec![("test", "23")].into_iter());
         match trie.parse("app23le") {
             Some(res) => {
                 println!("{:?}", res);
-                assert_eq!(res.values(), &btreemap!["test" => "23"]);
+                assert_eq!(res.values(), &expected);
             }
             None => unreachable!(),
         }
@@ -618,7 +621,7 @@ mod test {
     fn test_given_pattern_with_two_neighbouring_parser_when_the_pattern_is_inserted_into_the_trie_then_everything_is_ok
         () {
         let mut trie = SuffixTree::new();
-        let expected = btreemap!["test" => "ccc", "test2" => "12", "test3" => "le"];
+        let expected = BTreeMap::from_iter(vec![("test", "ccc"), ("test2", "12"), ("test3", "le")].into_iter());
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "abcd")))
