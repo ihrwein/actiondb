@@ -53,20 +53,11 @@ impl serde::de::Visitor for TestMessageVisitor {
         let mut values = None;
         let mut tags = None;
 
-        loop {
-            match try!(visitor.visit_key()) {
-                Some(Field::MESSAGE) => {
-                    message = Some(try!(visitor.visit_value()));
-                }
-                Some(Field::VALUES) => {
-                    values = Some(try!(visitor.visit_value()));
-                }
-                Some(Field::TAGS) => {
-                    tags = Some(try!(visitor.visit_value()));
-                }
-                None => {
-                    break;
-                }
+        while let Some(field) = try!(visitor.visit_key()) {
+            match field {
+                Field::MESSAGE => message = Some(try!(visitor.visit_value())),
+                Field::VALUES => values = Some(try!(visitor.visit_value())),
+                Field::TAGS => tags = Some(try!(visitor.visit_value())),
             }
         }
 
