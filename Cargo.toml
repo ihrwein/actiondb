@@ -17,8 +17,8 @@ path = "src/bin/adbtool.rs"
 clap = "2.1"
 log = "0.3"
 uuid = "0.1"
-serde = "0.6"
-serde_json = "0.6"
+serde = "0.7"
+serde_json = "0.7"
 # there is no reason to use THAT particular version, but every update introduces
 # new warnings, which results in compilation errors. Clippy should be updated
 # time-to-time.
