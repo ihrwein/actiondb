@@ -6,11 +6,11 @@ use uuid::Uuid;
 
 use std::collections::BTreeMap;
 
-impl serde::Deserialize for Pattern {
+impl serde::de::Deserialize for Pattern {
     fn deserialize<D>(deserializer: &mut D) -> Result<Pattern, D::Error>
         where D: serde::de::Deserializer
     {
-        deserializer.visit_struct("Pattern", &[], PatternVisitor)
+        deserializer.deserialize_struct("Pattern", &[], PatternVisitor)
     }
 }
 
@@ -42,12 +42,12 @@ impl serde::Deserialize for Field {
                     "values" => Ok(Field::VALUES),
                     "tags" => Ok(Field::TAGS),
                     "test_messages" => Ok(Field::TESTMESSAGES),
-                    _ => Err(serde::de::Error::syntax(&format!("Unexpected field: {}", value))),
+                    _ => Err(serde::de::Error::custom(format!("Unexpected field: {}", value))),
                 }
             }
         }
 
-        deserializer.visit(FieldVisitor)
+        deserializer.deserialize(FieldVisitor)
     }
 }
 
@@ -93,37 +93,18 @@ impl serde::de::Visitor for PatternVisitor {
         let mut tags: Option<Vec<String>> = None;
         let mut test_messages: Option<Vec<TestMessage>> = None;
 
-        loop {
-            match try!(visitor.visit_key()) {
-                Some(Field::NAME) => {
-                    name = Some(try!(visitor.visit_value()));
-                }
-                Some(Field::UUID) => {
-                    uuid = Some(try!(visitor.visit_value()));
-                }
-                Some(Field::PATTERN) => {
-                    pattern = Some(try!(visitor.visit_value()));
-                }
-                Some(Field::VALUES) => {
-                    values = Some(try!(visitor.visit_value()));
-                }
-                Some(Field::TAGS) => {
-                    tags = Some(try!(visitor.visit_value()));
-                }
-                Some(Field::TESTMESSAGES) => {
-                    test_messages = Some(try!(visitor.visit_value()));
-                }
-                None => {
-                    break;
-                }
+        while let Some(field) = try!(visitor.visit_key()) {
+            match field {
+                Field::NAME => name = Some(try!(visitor.visit_value())),
+                Field::UUID => uuid = Some(try!(visitor.visit_value())),
+                Field::PATTERN => pattern = Some(try!(visitor.visit_value())),
+                Field::VALUES => values = Some(try!(visitor.visit_value())),
+                Field::TAGS => tags = Some(try!(visitor.visit_value())),
+                Field::TESTMESSAGES => test_messages = Some(try!(visitor.visit_value())),
             }
         }
 
         let uuid = try!(PatternVisitor::parse_uuid::<V>(uuid));
-        let name = match name {
-            Some(name) => name,
-            None => try!(visitor.missing_field("name")),
-        };
 
         let pattern = match pattern {
             Some(pattern) => {
@@ -136,7 +117,7 @@ impl serde::de::Visitor for PatternVisitor {
                                name,
                                uuid,
                                err);
-                        try!(Err(serde::de::Error::syntax("Invalid field 'pattern'")))
+                        try!(Err(serde::de::Error::custom("Invalid field 'pattern'")))
                     }
                 }
             }
@@ -145,7 +126,6 @@ impl serde::de::Visitor for PatternVisitor {
                 try!(Err(serde::de::Error::missing_field("pattern")))
             }
         };
-
 
         try!(visitor.end());
 
