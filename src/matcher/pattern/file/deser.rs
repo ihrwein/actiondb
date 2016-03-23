@@ -3,11 +3,11 @@ use serde;
 use super::PatternFile;
 use matcher::pattern::Pattern;
 
-impl serde::Deserialize for PatternFile {
+impl serde::de::Deserialize for PatternFile {
     fn deserialize<D>(deserializer: &mut D) -> Result<PatternFile, D::Error>
         where D: serde::de::Deserializer
     {
-        deserializer.visit_struct("File", &[], FileVisitor)
+        deserializer.deserialize_struct("File", &[], FileVisitor)
     }
 }
 
@@ -29,12 +29,12 @@ impl serde::Deserialize for Field {
             {
                 match value {
                     "patterns" => Ok(Field::PATTERNS),
-                    _ => Err(serde::de::Error::syntax(&format!("Unexpected field: {}", value))),
+                    _ => Err(serde::de::Error::custom(format!("Unexpected field: {}", value))),
                 }
             }
         }
 
-        deserializer.visit(FieldVisitor)
+        deserializer.deserialize(FieldVisitor)
     }
 }
 

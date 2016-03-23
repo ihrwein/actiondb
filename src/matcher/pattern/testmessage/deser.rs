@@ -5,7 +5,7 @@ impl serde::Deserialize for TestMessage {
     fn deserialize<D>(deserializer: &mut D) -> Result<TestMessage, D::Error>
         where D: serde::de::Deserializer
     {
-        deserializer.visit_struct("TestMessage", &[], TestMessageVisitor)
+        deserializer.deserialize_struct("TestMessage", &[], TestMessageVisitor)
     }
 }
 
@@ -31,12 +31,12 @@ impl serde::Deserialize for Field {
                     "message" => Ok(Field::MESSAGE),
                     "values" => Ok(Field::VALUES),
                     "tags" => Ok(Field::TAGS),
-                    _ => Err(serde::de::Error::syntax(&format!("Unexpected field: {}", value))),
+                    _ => Err(serde::de::Error::custom(format!("Unexpected field: {}", value))),
                 }
             }
         }
 
-        deserializer.visit(FieldVisitor)
+        deserializer.deserialize(FieldVisitor)
     }
 }
 

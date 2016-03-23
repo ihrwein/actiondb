@@ -6,11 +6,11 @@ use uuid::Uuid;
 
 use std::collections::BTreeMap;
 
-impl serde::Deserialize for Pattern {
+impl serde::de::Deserialize for Pattern {
     fn deserialize<D>(deserializer: &mut D) -> Result<Pattern, D::Error>
         where D: serde::de::Deserializer
     {
-        deserializer.visit_struct("Pattern", &[], PatternVisitor)
+        deserializer.deserialize_struct("Pattern", &[], PatternVisitor)
     }
 }
 
@@ -42,12 +42,12 @@ impl serde::Deserialize for Field {
                     "values" => Ok(Field::VALUES),
                     "tags" => Ok(Field::TAGS),
                     "test_messages" => Ok(Field::TESTMESSAGES),
-                    _ => Err(serde::de::Error::syntax(&format!("Unexpected field: {}", value))),
+                    _ => Err(serde::de::Error::custom(format!("Unexpected field: {}", value))),
                 }
             }
         }
 
-        deserializer.visit(FieldVisitor)
+        deserializer.deserialize(FieldVisitor)
     }
 }
 
@@ -136,7 +136,7 @@ impl serde::de::Visitor for PatternVisitor {
                                name,
                                uuid,
                                err);
-                        try!(Err(serde::de::Error::syntax("Invalid field 'pattern'")))
+                        try!(Err(serde::de::Error::custom("Invalid field 'pattern'")))
                     }
                 }
             }
