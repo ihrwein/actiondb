@@ -105,10 +105,6 @@ impl serde::de::Visitor for PatternVisitor {
         }
 
         let uuid = try!(PatternVisitor::parse_uuid::<V>(uuid));
-        let name = match name {
-            Some(name) => name,
-            None => try!(visitor.missing_field("name")),
-        };
 
         let pattern = match pattern {
             Some(pattern) => {
@@ -130,7 +126,6 @@ impl serde::de::Visitor for PatternVisitor {
                 try!(Err(serde::de::Error::missing_field("pattern")))
             }
         };
-
 
         try!(visitor.end());
 

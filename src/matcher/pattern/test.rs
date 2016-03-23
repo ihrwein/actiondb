@@ -133,3 +133,15 @@ fn test_given_json_pattern_when_it_does_not_have_the_pattern_field_then_it_canno
                 .err()
                 .expect("We created a Pattern without the pattern field");
 }
+
+#[test]
+fn test_given_json_pattern_when_it_does_not_have_a_name_it_can_be_successfully_deserialized() {
+    let buffer = r#"
+{
+  "uuid": "b3c778e3-f476-4df9-b5a1-aaf27a3b4e21",
+  "pattern": "Jun %{INT:day}"
+}
+"#;
+
+    let _ = Pattern::from_json(buffer).expect("We should be able to deserialize a pattern definition without a 'name' field");
+}
