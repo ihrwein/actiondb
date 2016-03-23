@@ -93,29 +93,14 @@ impl serde::de::Visitor for PatternVisitor {
         let mut tags: Option<Vec<String>> = None;
         let mut test_messages: Option<Vec<TestMessage>> = None;
 
-        loop {
-            match try!(visitor.visit_key()) {
-                Some(Field::NAME) => {
-                    name = Some(try!(visitor.visit_value()));
-                }
-                Some(Field::UUID) => {
-                    uuid = Some(try!(visitor.visit_value()));
-                }
-                Some(Field::PATTERN) => {
-                    pattern = Some(try!(visitor.visit_value()));
-                }
-                Some(Field::VALUES) => {
-                    values = Some(try!(visitor.visit_value()));
-                }
-                Some(Field::TAGS) => {
-                    tags = Some(try!(visitor.visit_value()));
-                }
-                Some(Field::TESTMESSAGES) => {
-                    test_messages = Some(try!(visitor.visit_value()));
-                }
-                None => {
-                    break;
-                }
+        while let Some(field) = try!(visitor.visit_key()) {
+            match field {
+                Field::NAME => name = Some(try!(visitor.visit_value())),
+                Field::UUID => uuid = Some(try!(visitor.visit_value())),
+                Field::PATTERN => pattern = Some(try!(visitor.visit_value())),
+                Field::VALUES => values = Some(try!(visitor.visit_value())),
+                Field::TAGS => tags = Some(try!(visitor.visit_value())),
+                Field::TESTMESSAGES => test_messages = Some(try!(visitor.visit_value())),
             }
         }
 
