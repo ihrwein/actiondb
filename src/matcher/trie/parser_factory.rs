@@ -38,24 +38,24 @@ impl ParserFactory for TrieParserFactory {
                    -> Box<Parser> {
         let mut parser = SetParser::new(set);
         set_optional_params!(&mut parser, opt_params);
-        let name = name.map(|name| name.to_string());
+        let name = name.map(|name| name.to_owned());
         parser.set_name(name);
         Box::new(parser)
     }
-    fn new_int<'a>(name: Option<&str>,
-                   opt_params: Option<Vec<OptionalParameter<'a>>>)
+    fn new_int(name: Option<&str>,
+                   opt_params: Option<Vec<OptionalParameter>>)
                    -> Box<Parser> {
         let mut parser = IntParser::new();
         set_optional_params!(&mut parser, opt_params);
-        let name = name.map(|name| name.to_string());
+        let name = name.map(|name| name.to_owned());
         parser.set_name(name);
         Box::new(parser)
     }
-    fn new_greedy<'a>(name: Option<&str>, end_string: Option<&str>) -> Box<Parser> {
+    fn new_greedy(name: Option<&str>, end_string: Option<&str>) -> Box<Parser> {
         let mut parser = GreedyParser::new();
-        let end_string = end_string.map(|string| string.to_string());
+        let end_string = end_string.map(|string| string.to_owned());
         parser.set_end_string(end_string);
-        let name = name.map(|name| name.to_string());
+        let name = name.map(|name| name.to_owned());
         parser.set_name(name);
         Box::new(parser)
     }

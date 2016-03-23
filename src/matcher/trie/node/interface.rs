@@ -15,12 +15,12 @@ pub trait Entry {
     fn child_mut(&mut self) -> Option<&mut Self::ST>;
     fn set_child(&mut self, child: Option<Self::ST>);
     fn insert(&mut self, pattern: Pattern) {
-        if !pattern.pattern().is_empty() {
+        if pattern.pattern().is_empty() {
+            self.set_pattern(Some(pattern));
+        } else {
             let sa = Self::ST::new();
             self.set_child(Some(sa));
             self.child_mut().expect("Failed to get a child").insert(pattern);
-        } else {
-            self.set_pattern(Some(pattern));
         }
     }
 }

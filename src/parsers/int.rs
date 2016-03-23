@@ -8,17 +8,13 @@ pub struct IntParser {
 }
 
 impl IntParser {
-    pub fn from_str(name: &str) -> IntParser {
-        IntParser::with_name(name.to_string())
-    }
-
-    pub fn with_name(name: String) -> IntParser {
-        let delegate = SetParser::with_name(name, "0123456789");
+    pub fn with_name<S: Into<String>>(name: S) -> IntParser {
+        let delegate = SetParser::with_name(name.into(), "0123456789");
         IntParser { delegate: delegate }
     }
 
     pub fn new() -> IntParser {
-        IntParser { delegate: SetParser::new("0123456789") }
+        IntParser::default()
     }
 }
 
@@ -37,6 +33,12 @@ impl Parser for IntParser {
 
     fn boxed_clone(&self) -> Box<Parser> {
         Box::new(self.clone())
+    }
+}
+
+impl Default for IntParser {
+    fn default() -> Self {
+        IntParser { delegate: SetParser::new("0123456789") }
     }
 }
 
@@ -70,7 +72,7 @@ mod test {
 
     #[test]
     fn test_given_int_parser_when_the_match_is_empty_then_the_result_isnt_successful() {
-        let parser = IntParser::from_str("test_int_parser");
+        let parser = IntParser::with_name("test_int_parser");
         assert_eq!(parser.parse("").is_none(), true);
         assert_eq!(parser.parse("asdf").is_none(), true);
     }
@@ -78,7 +80,7 @@ mod test {
     #[test]
     fn test_given_matching_string_when_it_is_parsed_then_it_matches() {
         let parser_name = "test_int_parser";
-        let parser = IntParser::from_str(parser_name);
+        let parser = IntParser::with_name(parser_name);
         let res = parser.parse("1234asd").unwrap();
         assert_eq!(res.parser().name(), Some(parser_name));
         assert_eq!(res.value(), "1234");
@@ -88,7 +90,7 @@ mod test {
     fn test_given_matching_string_which_is_longer_than_the_max_match_length_when_it_is_parsed_then_it_does_not_match
         () {
         let parser_name = "test_int_parser";
-        let mut parser = IntParser::from_str(parser_name);
+        let mut parser = IntParser::with_name(parser_name);
         parser.set_max_length(Some(3));
         assert_eq!(parser.parse("1234asd").is_none(), true);
     }

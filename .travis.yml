@@ -10,6 +10,8 @@ addons:
 # run builds for all the trains (and more)
 matrix:
   include:
+    - rust: nightly
+      env: TRAVIS_CARGO_NIGHTLY_FEATURE=nightly
     - rust: beta
     - rust: stable
 

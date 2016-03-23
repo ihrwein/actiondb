@@ -27,10 +27,7 @@ enum LiteralLookupResult<'a> {
 
 impl SuffixTree {
     pub fn new() -> SuffixTree {
-        SuffixTree {
-            literal_children: SortedVec::new(),
-            parser_children: Vec::new(),
-        }
+        SuffixTree::default()
     }
 
     pub fn add_literal_node(&mut self, lnode: LiteralNode) {
@@ -114,10 +111,10 @@ impl SuffixTree {
                                       literal: &'b str,
                                       pos: usize)
                                       -> LiteralLookupResult<'b> {
-        if !self.literal_children.get(pos).unwrap().is_leaf() {
-            self.search_prefix_is_found_and_node_is_not_leaf(literal, pos)
-        } else {
+        if self.literal_children.get(pos).unwrap().is_leaf() {
             self.search_prefix_is_found_and_node_is_leaf(literal, pos)
+        } else {
+            self.search_prefix_is_found_and_node_is_not_leaf(literal, pos)
         }
     }
 
@@ -192,7 +189,7 @@ impl SuffixTree {
     }
 
     fn parse_with_parsers<'a, 'b>(&'a self, text: &'b str) -> Option<MatchResult<'a, 'b>> {
-        for i in self.parser_children.iter() {
+        for i in &self.parser_children {
             trace!("parse(): testing parser");
 
             if let Some(result) = i.parse(text) {
@@ -246,7 +243,7 @@ impl SuffixTree {
             Err(pos) => {
                 trace!("insert_literal_tail(): creating new literal node from tail = {}",
                        tail);
-                let mut new_node = LiteralNode::from_str(tail);
+                let mut new_node = LiteralNode::new(tail);
                 new_node.set_has_value(true);
                 self.add_literal_node(new_node);
                 self.literal_children.get_mut(pos).unwrap()
@@ -288,6 +285,15 @@ impl SuffixTree {
     }
 }
 
+impl Default for SuffixTree {
+    fn default() -> Self {
+        SuffixTree {
+            literal_children: SortedVec::new(),
+            parser_children: Vec::new(),
+        }
+    }
+}
+
 impl self::interface::SuffixTree for SuffixTree {
     fn new() -> Self {
         SuffixTree {
@@ -318,6 +324,9 @@ mod test {
     use matcher::compiled_pattern::CompiledPatternBuilder;
     use matcher::pattern::Pattern;
     use matcher::trie::node::interface::SuffixTree as STree;
+
+    use std::iter::FromIterator;
+    use std::collections::BTreeMap;
 
     #[test]
     fn given_empty_trie_when_literals_are_inserted_then_they_can_be_looked_up() {
@@ -498,8 +507,8 @@ mod test {
         println!("root: {:?}", &root);
         {
             let result = root.parse("app42letree123");
-            assert_eq!(result.unwrap().values(),
-                       &btreemap!["end" => "123", "middle" => "42"]);
+            let expected = BTreeMap::from_iter(vec![("end", "123"), ("middle", "42")].into_iter());
+            assert_eq!(result.unwrap().values(), &expected);
         }
     }
 
@@ -598,11 +607,11 @@ mod test {
 
         trie.insert(pattern);
         println!("{:?}", &trie);
-
+        let expected = BTreeMap::from_iter(vec![("test", "23")].into_iter());
         match trie.parse("app23le") {
             Some(res) => {
                 println!("{:?}", res);
-                assert_eq!(res.values(), &btreemap!["test" => "23"]);
+                assert_eq!(res.values(), &expected);
             }
             None => unreachable!(),
         }
@@ -612,12 +621,12 @@ mod test {
     fn test_given_pattern_with_two_neighbouring_parser_when_the_pattern_is_inserted_into_the_trie_then_everything_is_ok
         () {
         let mut trie = SuffixTree::new();
-        let expected = btreemap!["test" => "ccc", "test2" => "12", "test3" => "le"];
+        let expected = BTreeMap::from_iter(vec![("test", "ccc"), ("test2", "12"), ("test3", "le")].into_iter());
         let cp1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "abcd")))
-                      .parser(Box::new(IntParser::from_str("test2")))
-                      .parser(Box::new(GreedyParser::with_name("test3".to_string())))
+                      .parser(Box::new(IntParser::with_name("test2")))
+                      .parser(Box::new(GreedyParser::with_name("test3".to_owned())))
                       .build();
         let mut pattern = Pattern::with_random_uuid();
         pattern.set_pattern(cp1);

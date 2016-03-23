@@ -19,9 +19,9 @@ fn test_given_json_test_message_when_it_is_deserialized_then_we_get_the_right_in
 }
 "#;
     let result = serde_json::from_str::<TestMessage>(buffer);
-    let expexted_tags = &["tag1".to_string(), "tag2".to_string()];
+    let expexted_tags = &["tag1".to_owned(), "tag2".to_owned()];
     println!("{:?}", result);
-    let msg = result.ok().expect("Failed to deserialize a valid TestMessage from JSON");
+    let msg = result.expect("Failed to deserialize a valid TestMessage from JSON");
     assert_eq!("lame-servers: info: unexpected RCODE (REFUSED) resolving \
                 'ns1.example.org/AAAA/IN': 192.0.2.1#53",
                msg.message());
@@ -58,8 +58,7 @@ fn test_given_json_test_message_when_it_does_not_have_the_optional_fields_then_i
 "#;
     let result = serde_json::from_str::<TestMessage>(buffer);
     println!("{:?}", result);
-    let msg = result.ok()
-                    .expect("Failed to deserialize a valid TestMessage from JSON when it doesn't \
+    let msg = result.expect("Failed to deserialize a valid TestMessage from JSON when it doesn't \
                              contain values");
     assert_eq!("lame-servers: info: unexpected RCODE (REFUSED) resolving \
                 'ns1.example.org/AAAA/IN': 192.0.2.1#53",

@@ -35,6 +35,12 @@ mod test {
 
     impl DummyImpl {
         fn new() -> DummyImpl {
+            DummyImpl::default()
+        }
+    }
+
+    impl Default for DummyImpl {
+        fn default() -> Self {
             DummyImpl {
                 min_length: None,
                 max_length: None,

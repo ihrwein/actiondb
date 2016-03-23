@@ -15,17 +15,13 @@ pub struct LiteralNode {
 }
 
 impl LiteralNode {
-    pub fn new(literal: String) -> LiteralNode {
+    pub fn new<S: Into<String>>(literal: S) -> LiteralNode {
         LiteralNode {
-            literal: literal,
+            literal: literal.into(),
             has_value: false,
             pattern: None,
             node: None,
         }
-    }
-
-    pub fn from_str(literal: &str) -> LiteralNode {
-        LiteralNode::new(literal.to_string())
     }
 
     pub fn literal(&self) -> &str {
@@ -72,12 +68,12 @@ impl LiteralNode {
         let mut left_node = {
             let left_branch = literal.ltrunc(common_prefix_len);
             trace!("split(): left_branch = {}", left_branch);
-            LiteralNode::from_str(left_branch)
+            LiteralNode::new(left_branch)
         };
         let mut right_node = {
             let right_branch = self.literal().ltrunc(common_prefix_len);
             trace!("split(): right_branch = {}", right_branch);
-            LiteralNode::from_str(right_branch)
+            LiteralNode::new(right_branch)
         };
         left_node.set_has_value(true);
 
@@ -92,7 +88,7 @@ impl LiteralNode {
         new_node.add_literal_node(right_node);
         self.set_node(Some(new_node));
         self.has_value = false;
-        self.literal = common_prefix.to_string();
+        self.literal = common_prefix.to_owned();
     }
 
     pub fn is_leaf(&self) -> bool {
@@ -160,7 +156,7 @@ mod test {
 
     #[test]
     fn given_literal_node_when_its_leafness_is_checked_the_right_result_is_returned() {
-        let aleph = LiteralNode::from_str("aleph");
+        let aleph = LiteralNode::new("aleph");
 
         assert_eq!(aleph.is_leaf(), true);
     }
@@ -168,11 +164,11 @@ mod test {
     #[test]
     fn given_literal_node_when_it_is_compared_to_an_other_literal_node_then_only_their_first_chars_are_checked
         () {
-        let alpha = LiteralNode::new("alpha".to_string());
-        let beta = LiteralNode::new("beta".to_string());
-        let aleph = LiteralNode::from_str("aleph");
-        let a = LiteralNode::from_str("a");
-        let empty = LiteralNode::from_str("");
+        let alpha = LiteralNode::new("alpha");
+        let beta = LiteralNode::new("beta");
+        let aleph = LiteralNode::new("aleph");
+        let a = LiteralNode::new("a");
+        let empty = LiteralNode::new("");
 
         assert_eq!(alpha.cmp(&beta), Ordering::Less);
         assert_eq!(alpha.cmp(&aleph), Ordering::Equal);

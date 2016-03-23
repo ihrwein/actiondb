@@ -19,4 +19,11 @@ log = "0.3"
 uuid = "0.1"
 serde = "0.6"
 serde_json = "0.6"
-maplit = "0.1"
+# there is no reason to use THAT particular version, but every update introduces
+# new warnings, which results in compilation errors. Clippy should be updated
+# time-to-time.
+clippy = {version = "0.0.55", optional = true}
+
+[features]
+default=[]
+nightly = ["clippy"]

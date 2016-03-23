@@ -31,7 +31,7 @@ pub trait FromPatternSource {
 
     fn check_pattern<M: Matcher>(matcher: &mut M, result: BuildResult) -> Result<(), BuildError> {
         let mut pattern = try!(result);
-        let uuid = pattern.uuid().clone();
+        let uuid = pattern.uuid().to_owned();
         let test_messages = Self::extract_test_messages(&mut pattern);
         matcher.add_pattern(pattern);
         debug!("validating pattern: {}", uuid.to_hyphenated_string());
@@ -64,12 +64,12 @@ pub trait FromPatternSource {
                           result: &MatchResult,
                           expected_uuid: &Uuid)
                           -> Result<(), testmessage::Error> {
-        if result.pattern().uuid() != expected_uuid {
-            Err(testmessage::Error::matched_to_other_pattern(expected_uuid,
-                                                             result.pattern().uuid(),
-                                                             message.message()))
-        } else {
+        if result.pattern().uuid() == expected_uuid {
             message.test_result(&result)
+        } else {
+            Err(testmessage::Error::matched_to_other_pattern(expected_uuid,
+                result.pattern().uuid(),
+                message.message()))
         }
     }
 }

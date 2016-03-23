@@ -41,16 +41,16 @@ impl Error {
                            -> Error {
         Error::ValueNotMatch {
             pattern_uuid: pattern_uuid.to_hyphenated_string(),
-            key: key.to_string(),
-            expected_value: expected_value.to_string(),
-            got_value: got_value.to_string(),
+            key: key.to_owned(),
+            expected_value: expected_value.to_owned(),
+            got_value: got_value.to_owned(),
         }
     }
 
     pub fn key_not_found(pattern_uuid: &Uuid, key: &str) -> Error {
         Error::KeyNotFound {
             pattern_uuid: pattern_uuid.to_hyphenated_string(),
-            key: key.to_string(),
+            key: key.to_owned(),
         }
     }
 
@@ -68,7 +68,7 @@ impl Error {
         Error::MatchedToOtherPattern {
             expected_uuid: expected_uuid.to_hyphenated_string(),
             got_uuid: got_uuid.to_hyphenated_string(),
-            message: test_message.to_string(),
+            message: test_message.to_owned(),
         }
     }
 
@@ -86,8 +86,8 @@ impl Error {
 
 impl fmt::Display for Error {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        match self {
-            &Error::ValueNotMatch{ref pattern_uuid, ref key, ref expected_value, ref got_value} => {
+        match *self {
+            Error::ValueNotMatch{ref pattern_uuid, ref key, ref expected_value, ref got_value} => {
                 fmt.write_fmt(format_args!("A parsed value does not equal to its expected value: \
                                             uuid={} key={} expected={} got={}",
                                            pattern_uuid,
@@ -95,26 +95,26 @@ impl fmt::Display for Error {
                                            expected_value,
                                            got_value))
             }
-            &Error::KeyNotFound{ref pattern_uuid, ref key} => {
+            Error::KeyNotFound{ref pattern_uuid, ref key} => {
                 fmt.write_fmt(format_args!("A parsed key in not found among the expected ones: \
                                             uuid={} key={}",
                                            pattern_uuid,
                                            key))
             }
-            &Error::TestMessageDoesntMatch{ref pattern_uuid, ref message} => {
+            Error::TestMessageDoesntMatch{ref pattern_uuid, ref message} => {
                 fmt.write_fmt(format_args!("A test message did not match its pattern: uuid={} \
                                             message='{}'",
                                            pattern_uuid,
                                            message))
             }
-            &Error::MatchedToOtherPattern{ref expected_uuid, ref got_uuid, ref message} => {
+            Error::MatchedToOtherPattern{ref expected_uuid, ref got_uuid, ref message} => {
                 fmt.write_fmt(format_args!("The test message matched to an other pattern: \
                                             expected_uuid={} got_uuid={} test_message='{}'",
                                            expected_uuid,
                                            got_uuid,
                                            message))
             }
-            &Error::UnexpectedTags{ref pattern_uuid, ref expected, ref got} => {
+            Error::UnexpectedTags{ref pattern_uuid, ref expected, ref got} => {
                 fmt.write_fmt(format_args!("Unexpected tags found either in the parse result or \
                                             among the expected ones: uuid={} expected: {:?} \
                                             got={:?}",
@@ -128,20 +128,20 @@ impl fmt::Display for Error {
 
 impl error::Error for Error {
     fn description(&self) -> &str {
-        match self {
-            &Error::ValueNotMatch{pattern_uuid: _, key: _, expected_value: _, got_value: _} => {
+        match *self {
+            Error::ValueNotMatch{..} => {
                 "A parsed value does not equal to its expected value"
             }
-            &Error::KeyNotFound{pattern_uuid: _, key: _} => {
+            Error::KeyNotFound{..} => {
                 "A parsed key in not found among the expected ones"
             }
-            &Error::TestMessageDoesntMatch{pattern_uuid: _, message: _} => {
+            Error::TestMessageDoesntMatch{..} => {
                 "A test message cannot be parsed but its pattern is inserted"
             }
-            &Error::MatchedToOtherPattern{expected_uuid: _, got_uuid: _, message: _} => {
+            Error::MatchedToOtherPattern{..} => {
                 "The test message matched to an other pattern"
             }
-            &Error::UnexpectedTags{pattern_uuid: _, expected: _, got: _} => {
+            Error::UnexpectedTags{..} => {
                 "Unexpected tags found either in the parse result or among the expected ones"
             }
         }

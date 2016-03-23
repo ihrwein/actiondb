@@ -129,7 +129,7 @@ fn test_given_set_parser_with_optional_parameters_when_we_parse_it_then_we_get_t
 #[test]
 fn test_given_int_parser_with_optional_parameters_when_we_parse_it_then_we_get_the_right_parser
                                                                                                 () {
-    let mut expected_parser = IntParser::from_str("test_int");
+    let mut expected_parser = IntParser::with_name("test_int");
     expected_parser.set_min_length(Some(2));
     expected_parser.set_max_length(Some(5));
 
@@ -159,7 +159,7 @@ fn test_given_greedy_parser_when_there_is_no_literal_after_it_then_we_take_all_t
     let pattern_as_string = "bar %{GREEDY:greedy}";
     let vec: Vec<TokenType> = ::grammar::parser::pattern(pattern_as_string).ok().unwrap();
 
-    if let &TokenType::Parser(ref parser) = vec.get(1).unwrap() {
+    if let TokenType::Parser(ref parser) = *vec.get(1).unwrap() {
         let res = parser.parse("the quick brown fox").unwrap();
         assert_eq!(res.parser().name(), Some("greedy"));
         assert_eq!(res.value(), "the quick brown fox");
@@ -191,7 +191,7 @@ fn test_given_valid_pattern_when_it_contains_cr_character_then_we_can_parse_it()
     let pattern_as_string = "foo %{INT:int_0} \n bar %{INT:int_1}";
     let res = ::grammar::parser::pattern(pattern_as_string);
     println!("{:?}", &res);
-    let vec: Vec<TokenType> = res.ok().expect("CR characters should be supported in patterns");
+    let vec: Vec<TokenType> = res.expect("CR characters should be supported in patterns");
 
     assert_eq!(vec.len(), 4);
     assert_literal_equals(vec.get(0), "foo ");
@@ -204,7 +204,6 @@ fn test_given_valid_pattern_when_it_contains_cr_character_then_we_can_parse_it()
 fn test_given_valid_pattern_when_it_does_not_have_a_name_then_we_can_parse_the_pattern() {
     let string_parser = "%{INT}";
     let vec = ::grammar::parser::pattern(string_parser)
-                  .ok()
                   .expect("Failed to get a Parser instance when it doesn't have a name");
 
     assert_eq!(vec.len(), 1);

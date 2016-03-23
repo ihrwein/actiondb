@@ -6,6 +6,9 @@ use parsers::SetParser;
 use matcher::pattern::Pattern;
 use matcher::Matcher;
 
+use std::iter::FromIterator;
+use std::collections::BTreeMap;
+
 fn create_populated_suffix_table() -> SuffixTable {
     let mut root = SuffixTable::new();
     let cp1 = CompiledPatternBuilder::new()
@@ -50,7 +53,9 @@ fn test_given_parser_trie_when_a_parser_is_not_matched_then_the_parser_stack_is_
     println!("root: {:?}", &root);
     {
         let result = root.parse("app42letree123");
-        assert_eq!(result.expect("Failed to get result").values(), &btreemap!["end" => "123", "middle" => "42"]);
+        let expected = BTreeMap::from_iter(vec![("end", "123"), ("middle", "42")].into_iter());
+
+        assert_eq!(&expected, result.expect("Failed to get result").values());
     }
 }
 

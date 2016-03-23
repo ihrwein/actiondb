@@ -10,11 +10,11 @@ pub enum TokenType {
 
 impl Clone for TokenType {
     fn clone(&self) -> TokenType {
-        match self {
-            &TokenType::Parser(ref parser) => {
+        match *self {
+            TokenType::Parser(ref parser) => {
                 TokenType::Parser(parser.boxed_clone())
             }
-            &TokenType::Literal(ref literal) => {
+            TokenType::Literal(ref literal) => {
                 TokenType::Literal(literal.clone())
             }
         }
@@ -27,7 +27,7 @@ pub struct CompiledPatternBuilder {
 
 impl CompiledPatternBuilder {
     pub fn new() -> CompiledPatternBuilder {
-        CompiledPatternBuilder { pattern: Vec::new() }
+        CompiledPatternBuilder::default()
     }
 
     pub fn literal<S>(&mut self, literal: S) -> &mut CompiledPatternBuilder
@@ -44,5 +44,11 @@ impl CompiledPatternBuilder {
 
     pub fn build(&self) -> CompiledPattern {
         self.pattern.clone()
+    }
+}
+
+impl Default for CompiledPatternBuilder {
+    fn default() -> Self {
+        CompiledPatternBuilder { pattern: Vec::new() }
     }
 }

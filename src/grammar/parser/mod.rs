@@ -4,6 +4,7 @@ use matcher::compiled_pattern::CompiledPattern;
 use parsers::ParserFactory;
 use self::pattern_parser::ParseResult;
 
+#[allow(clippy)]
 mod pattern_parser;
 
 pub fn pattern_with_factory<F: ParserFactory>(input: &str) -> ParseResult<CompiledPattern> {
