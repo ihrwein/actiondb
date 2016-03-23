@@ -66,13 +66,10 @@ impl serde::de::Visitor for TestMessageVisitor {
             None => try!(visitor.missing_field("message")),
         };
 
-        let values_final = match values {
-            Some(values) => values,
-            None => try!(visitor.missing_field("values")),
-        };
+        let values = values.unwrap_or_default();
 
         try!(visitor.end());
 
-        Ok(TestMessage::new(message_final, values_final, tags))
+        Ok(TestMessage::new(message_final, values, tags))
     }
 }
