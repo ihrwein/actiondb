@@ -19,6 +19,7 @@ log = "0.3"
 uuid = "0.1"
 serde = "0.7"
 serde_json = "0.7"
+serde_yaml = "0.2.3"
 # there is no reason to use THAT particular version, but every update introduces
 # new warnings, which results in compilation errors. Clippy should be updated
 # time-to-time.
