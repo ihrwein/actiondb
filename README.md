@@ -5,13 +5,9 @@
 Actiondb is a library and its associated tools to efficiently extract information from unstructured data. It's a tool
 to parse logs and extract key-value pairs with predefined patterns from them.
 
-The patterns can be specified in a JSON serialized file.
-The latter one allows you to give a name, a unique identifier (`UUID`) and to test messages to each pattern.
-
-This library is intended to used with `syslog-ng`. You can find a Docker image which uses this library
-as a parser:
-
-[actiondb-docker](https://github.com/ihrwein/actiondb-docker)
+The patterns can be specified in a JSON or YAML serialized file. Their schema is the same, only
+the format is different.
+The format allows you to give a name, a unique identifier (`UUID`) to each pattern and to test message parsing with example messages.
 
 ## [Patterns](#patterns)
 
@@ -33,11 +29,6 @@ These files contains patterns and their attributes. A JSON file looks like the f
 ```json
 {
   "patterns": [
-    {
-      "uuid": "c11c806a-766d-4a09-9f24-7de1fe02e51e",
-      "name": "SSH_PUBKEY",
-      "pattern": "Jun %{INT:day} %{INT:hour}:%{INT:min}:%{INT:sec} lobotomy sshd[%{INT:pid}]: Accepted publickey for zts from %{INT:oct0}.%{INT:oct1}.%{INT:oct2}.%{INT:oct3} port %{INT:port} ssh2"
-    },
     {
       "name": "SSH_DISCONNECT",
       "uuid": "9a49c47d-29e9-4072-be84-3b76c6814743",
@@ -68,34 +59,28 @@ A test message object has the following key-value pairs:
  must be strings.
 * `tags`: the expected tags
 
-An example test message object can be seen in the following example:
+An example test message object can be seen in the following example (in YAML):
 
-```json
-{  
-  "patterns":[  
-    {  
-      "uuid":"6d2cba0c-e241-464a-89c3-8035cac8f73e",
-      "name":"LOGGEN",
-      "pattern":"seq: %{INT:.loggen.seq}, thread: %{INT:.loggen.thread}, runid: %{INT:.loggen.runid}, stamp: %{GREEDY:.loggen.stamp} %{GREEDY:.loggen.padding}",
-      "values": {
-        "foo": "bar"
-      },
-      "tags": ["foo", "bar"],
-      "test_messages":[  
-        {  
-          "message":"seq: 0000000001, thread: 0000, runid: 1437655178, stamp: 2015-07-23T14:39:38 PADDPADDPADDPADD",
-          "values":{  
-            ".loggen.seq":"0000000001",
-            ".loggen.thread":"0000",
-            ".loggen.runid":"1437655178",
-            ".loggen.stamp":"2015-07-23T14:39:38",
-            ".loggen.padding":"PADDPADDPADDPADD"
-          }
-        }
-      ]
-    }
-  ]
-}
+```yaml
+patterns:
+  -
+    uuid: "6d2cba0c-e241-464a-89c3-8035cac8f73e"
+    name: "LOGGEN"
+    pattern: "seq: %{INT:.loggen.seq}, thread: %{INT:.loggen.thread}, runid: %{INT:.loggen.runid}, stamp: %{GREEDY:.loggen.stamp} %{GREEDY:.loggen.padding}"
+    values:
+      foo: "bar"
+    tags:
+      - "foo"
+      - "bar"
+    test_messages:
+      -
+        message: "seq: 0000000001, thread: 0000, runid: 1437655178, stamp: 2015-07-23T14:39:38 PADDPADDPADDPADD"
+        values:
+          .loggen.seq: "0000000001"
+          .loggen.thread: "0000"
+          .loggen.runid: "1437655178"
+          .loggen.stamp: "2015-07-23T14:39:38"
+          .loggen.padding: "PADDPADDPADDPADD"
 ```
 
 ### Parsers
@@ -166,7 +151,7 @@ Extracted key-value pairs:
 
 `adbtool` is a tool which can be used for the following purposes:
 * validate patterns,
-* parse texts.
+* parse text files.
 
 It support the `validate` and `parse` subcommands. For more information check
 it's `--help` option.

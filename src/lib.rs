@@ -7,6 +7,7 @@ extern crate log;
 extern crate uuid;
 extern crate serde;
 extern crate serde_json;
+extern crate serde_yaml;
 
 pub mod parsers;
 pub mod utils;
