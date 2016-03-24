@@ -40,3 +40,18 @@ fn test_given_a_non_existing_pattern_file_when_it_is_deserialized_then_we_get_io
         Ok(_) | Err(_) => unreachable!(),
     }
 }
+
+#[test]
+fn test_given_valid_yaml_pattern_file_when_it_is_deserialized_then_we_get_the_deserialized_contents() {
+    let file = PatternLoader::load_file("tests/file/ssh_ok.yaml")
+                   .ok()
+                   .expect("Failed to load YAML serialized pattern file");
+    assert_eq!(file.patterns().len(), 3);
+}
+
+#[test]
+fn test_given_not_existing_yaml_pattern_file_when_it_is_opened_we_get_io_error() {
+    let _ = PatternLoader::load_file("tests/file/ssh_non_existing.yaml")
+                   .err()
+                   .expect("Successfully opened a non-existing YAML file");
+}
