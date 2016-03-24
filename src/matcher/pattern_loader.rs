@@ -8,6 +8,7 @@ use std::fs::File;
 use std::io::Read;
 
 use serde_json;
+use serde_yaml;
 
 pub struct PatternLoader;
 
@@ -43,6 +44,11 @@ impl PatternLoader {
                     "json" => {
                         let content = try!(PatternLoader::read(pattern_file_path));
                         let file = try!(serde_json::from_str::<PatternFile>(&content));
+                        Ok(file)
+                    },
+                    "yaml" | "yml" | "YAML" | "YML" => {
+                        let content = try!(PatternLoader::read(pattern_file_path));
+                        let file = try!(serde_yaml::from_str::<PatternFile>(&content));
                         Ok(file)
                     },
                     _ => Err(BuildError::UnsupportedFileExtension),
