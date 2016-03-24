@@ -9,10 +9,8 @@ mod parse;
 use clap::{Arg, App, SubCommand, ArgMatches};
 use actiondb::matcher::PatternLoader;
 use actiondb::matcher::suffix_array::SuffixArrayMatcherSuite;
-use actiondb::matcher::FromPatternSource;
 use actiondb::matcher::MatcherSuite;
 use log::LogLevelFilter;
-use actiondb::matcher::pattern::file::PatternFile;
 use self::logger::StdoutLogger;
 
 const AUTHOR: &'static str = "Tibor Benke <tibor.benke@balabit.com>";
@@ -66,25 +64,16 @@ fn build_command_line_argument_parser<'a, 'b>() -> App<'a, 'b> {
 
 fn handle_validate<MS: MatcherSuite>(matches: &ArgMatches) {
     let pattern_file = matches.value_of(PATTERN_FILE).unwrap();
-    if matches.is_present(IGNORE_ERRORS) {
-        validate_patterns_independently::<MS>(pattern_file);
-    } else {
-        if let Err(e) = PatternLoader::from_file::<MS::MatcherFactory>(pattern_file) {
-            error!("{}", e);
-            std::process::exit(1);
-        }
-    }
-}
 
-fn validate_patterns_independently<MS: MatcherSuite>(pattern_file: &str) {
-    match PatternFile::open(pattern_file) {
-        Ok(file) => {
-            let _ = MS::Matcher::from_source_ignore_errors::<MS::MatcherFactory>(&mut file.into_iter());
-        }
-        Err(error) => {
-            error!("{}", error);
-            std::process::exit(1);
-        }
+    let matcher = if matches.is_present(IGNORE_ERRORS) {
+        PatternLoader::from_file_ignore_errors::<MS::MatcherFactory>(pattern_file)
+    } else {
+        PatternLoader::from_file::<MS::MatcherFactory>(pattern_file)
+    };
+
+    if let Err(e) = matcher {
+        error!("{}", e);
+        std::process::exit(1);
     }
 }
 
