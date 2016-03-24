@@ -1,4 +1,3 @@
-use matcher::pattern::file;
 use matcher::pattern::testmessage;
 
 use serde_json;
@@ -8,18 +7,11 @@ use std::io;
 
 #[derive(Debug)]
 pub enum BuildError {
-    FromSerialized(file::Error),
     TestMessage(testmessage::Error),
     Io(io::Error),
     DeserJson(serde_json::Error),
     UnsupportedFileExtension,
     NotUtf8FileName,
-}
-
-impl From<file::Error> for BuildError {
-    fn from(error: file::Error) -> BuildError {
-        BuildError::FromSerialized(error)
-    }
 }
 
 impl From<testmessage::Error> for BuildError {
@@ -43,7 +35,6 @@ impl From<serde_json::Error> for BuildError {
 impl fmt::Display for BuildError {
     fn fmt(&self, formatter: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         match *self {
-            BuildError::FromSerialized(ref error) => error.fmt(formatter),
             BuildError::TestMessage(ref error) => error.fmt(formatter),
             BuildError::Io(ref error) => error.fmt(formatter),
             BuildError::DeserJson(ref error) => error.fmt(formatter),
@@ -58,7 +49,6 @@ impl fmt::Display for BuildError {
 impl error::Error for BuildError {
     fn description(&self) -> &str {
         match *self {
-            BuildError::FromSerialized(ref error) => error.description(),
             BuildError::TestMessage(ref error) => error.description(),
             BuildError::Io(ref error) => error.description(),
             BuildError::DeserJson(ref error) => error.description(),
@@ -69,7 +59,6 @@ impl error::Error for BuildError {
 
     fn cause(&self) -> Option<&error::Error> {
         match *self {
-            BuildError::FromSerialized(ref error) => error.cause(),
             BuildError::TestMessage(ref error) => error.cause(),
             BuildError::Io(ref error) => error.cause(),
             BuildError::DeserJson(ref error) => error.cause(),
