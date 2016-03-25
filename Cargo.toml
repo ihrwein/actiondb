@@ -19,7 +19,7 @@ serde_yaml = "0.2.3"
 # there is no reason to use THAT particular version, but every update introduces
 # new warnings, which results in compilation errors. Clippy should be updated
 # time-to-time.
-clippy = {version = "0.0.55", optional = true}
+clippy = {version = "0.0.*", optional = true}
 
 [features]
 default=[]
