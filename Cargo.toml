@@ -9,10 +9,6 @@ keywords = ["log", "parser"]
 description = "A safe and efficient unstructured text (log) parsing library."
 license = "LGPL-2.1"
 
-[[bin]]
-name = "adbtool"
-path = "src/bin/adbtool.rs"
-
 [dependencies]
 clap = "2.1"
 log = "0.3"
