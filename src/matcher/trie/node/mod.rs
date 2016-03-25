@@ -400,27 +400,27 @@ mod test {
 
     fn create_parser_trie() -> SuffixTree {
         let mut root = SuffixTree::new();
-        let cp1 = CompiledPatternBuilder::new()
+        let cp_1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "01234")))
                       .literal("le")
                       .build();
-        let cp2 = CompiledPatternBuilder::new()
+        let cp_2 = CompiledPatternBuilder::new()
                       .literal("appletree")
                       .build();
-        let cp3 = CompiledPatternBuilder::new()
+        let cp_3 = CompiledPatternBuilder::new()
                       .literal("apple")
                       .build();
-        let mut pattern1 = Pattern::with_random_uuid();
-        pattern1.set_pattern(cp1);
-        let mut pattern2 = Pattern::with_random_uuid();
-        pattern2.set_pattern(cp2);
-        let mut pattern3 = Pattern::with_random_uuid();
-        pattern3.set_pattern(cp3);
+        let mut pattern_1 = Pattern::with_random_uuid();
+        pattern_1.set_pattern(cp_1);
+        let mut pattern_2 = Pattern::with_random_uuid();
+        pattern_2.set_pattern(cp_2);
+        let mut pattern_3 = Pattern::with_random_uuid();
+        pattern_3.set_pattern(cp_3);
 
-        root.insert(pattern1);
-        root.insert(pattern2);
-        root.insert(pattern3);
+        root.insert(pattern_1);
+        root.insert(pattern_2);
+        root.insert(pattern_3);
 
         root
     }
@@ -464,38 +464,38 @@ mod test {
 
     fn create_complex_parser_trie() -> SuffixTree {
         let mut root = SuffixTree::new();
-        let cp1 = CompiledPatternBuilder::new()
+        let cp_1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("middle", "01234")))
                       .literal("letree")
                       .parser(Box::new(SetParser::from_str("end", "012")))
                       .build();
-        let cp2 = CompiledPatternBuilder::new()
+        let cp_2 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("middle", "01234")))
                       .literal("letree")
                       .parser(Box::new(SetParser::from_str("end", "0123")))
                       .build();
-        let cp3 = CompiledPatternBuilder::new()
+        let cp_3 = CompiledPatternBuilder::new()
                       .literal("bamboo")
                       .build();
-        let cp4 = CompiledPatternBuilder::new()
+        let cp_4 = CompiledPatternBuilder::new()
                       .literal("bamba")
                       .build();
 
-        let mut pattern1 = Pattern::with_random_uuid();
-        pattern1.set_pattern(cp1);
+        let mut pattern_1 = Pattern::with_random_uuid();
+        pattern_1.set_pattern(cp_1);
         let mut pattern2 = Pattern::with_random_uuid();
-        pattern2.set_pattern(cp2);
-        let mut pattern3 = Pattern::with_random_uuid();
-        pattern3.set_pattern(cp3);
-        let mut pattern4 = Pattern::with_random_uuid();
-        pattern4.set_pattern(cp4);
+        pattern2.set_pattern(cp_2);
+        let mut pattern_3 = Pattern::with_random_uuid();
+        pattern_3.set_pattern(cp_3);
+        let mut pattern_4 = Pattern::with_random_uuid();
+        pattern_4.set_pattern(cp_4);
 
-        root.insert(pattern1);
+        root.insert(pattern_1);
         root.insert(pattern2);
-        root.insert(pattern3);
-        root.insert(pattern4);
+        root.insert(pattern_3);
+        root.insert(pattern_4);
 
         root
     }
@@ -551,16 +551,16 @@ mod test {
     #[test]
     fn test_given_node_when_the_message_is_too_short_we_do_not_try_to_unwrap_a_childs_pattern() {
         let mut root = SuffixTree::new();
-        let cp1 = CompiledPatternBuilder::new()
+        let cp_1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("middle", "01234")))
                       .literal("x")
                       .parser(Box::new(SetParser::from_str("space", " ")))
                       .build();
 
-        let mut pattern1 = Pattern::with_random_uuid();
-        pattern1.set_pattern(cp1);
-        root.insert(pattern1);
+        let mut pattern_1 = Pattern::with_random_uuid();
+        pattern_1.set_pattern(cp_1);
+        root.insert(pattern_1);
 
         let kvpairs = root.parse("app12x");
         assert_eq!(kvpairs.is_none(), true);
@@ -572,23 +572,23 @@ mod test {
     #[test]
     fn test_given_patterns_when_inserted_into_the_prefix_tree_then_the_proper_tree_is_built() {
         let mut trie = SuffixTree::new();
-        let cp1 = CompiledPatternBuilder::new()
+        let cp_1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "01234")))
                       .literal("le")
                       .build();
         {
             let mut pattern = Pattern::with_random_uuid();
-            pattern.set_pattern(cp1);
+            pattern.set_pattern(cp_1);
             trie.insert(pattern);
             println!("{:?}", &trie);
         }
         {
             let mut pattern = Pattern::with_random_uuid();
-            let cp2 = CompiledPatternBuilder::new()
+            let cp_2 = CompiledPatternBuilder::new()
                           .literal("appletree")
                           .build();
-            pattern.set_pattern(cp2);
+            pattern.set_pattern(cp_2);
             trie.insert(pattern);
         }
     }
@@ -597,13 +597,13 @@ mod test {
     fn test_given_pattern_when_inserted_into_the_parser_tree_then_the_pattern_is_stored_in_the_leaf
         () {
         let mut trie = SuffixTree::new();
-        let cp1 = CompiledPatternBuilder::new()
+        let cp_1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "01234")))
                       .literal("le")
                       .build();
         let mut pattern = Pattern::with_random_uuid();
-        pattern.set_pattern(cp1);
+        pattern.set_pattern(cp_1);
 
         trie.insert(pattern);
         println!("{:?}", &trie);
@@ -622,14 +622,14 @@ mod test {
         () {
         let mut trie = SuffixTree::new();
         let expected = BTreeMap::from_iter(vec![("test", "ccc"), ("test2", "12"), ("test3", "le")].into_iter());
-        let cp1 = CompiledPatternBuilder::new()
+        let cp_1 = CompiledPatternBuilder::new()
                       .literal("app")
                       .parser(Box::new(SetParser::from_str("test", "abcd")))
                       .parser(Box::new(IntParser::with_name("test2")))
                       .parser(Box::new(GreedyParser::with_name("test3".to_owned())))
                       .build();
         let mut pattern = Pattern::with_random_uuid();
-        pattern.set_pattern(cp1);
+        pattern.set_pattern(cp_1);
 
         trie.insert(pattern);
         println!("{:?}", &trie);
