@@ -1,5 +1,16 @@
 # Changelog
 
+## Actiondb 0.7.0
+* remove unused imports
+* update clap to 2.1
+* refactor adbtool
+* use clippy and fix all new warnings
+* update serde to 0.7
+* refactor some deserialization logic
+* refactor PatternFile and PatternLoader
+* add support of YAML configuration files
+* move adbtool into actiondb-parser repository
+
 ## Actiondb 0.6.1
 * derive Clone for TrieMatcherSuite
 * derive Clone for SuffixArrayMatcherSuite
