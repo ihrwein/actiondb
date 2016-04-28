@@ -34,7 +34,7 @@ pub trait FromPatternSource {
         let uuid = pattern.uuid().to_owned();
         let test_messages = Self::extract_test_messages(&mut pattern);
         matcher.add_pattern(pattern);
-        debug!("validating pattern: {}", uuid.to_hyphenated_string());
+        debug!("validating pattern: {}", uuid.hyphenated().to_string());
         Self::check_test_messages(matcher, &test_messages, &uuid)
     }
 
