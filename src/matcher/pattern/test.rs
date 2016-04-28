@@ -145,3 +145,9 @@ fn test_given_json_pattern_when_it_does_not_have_a_name_it_can_be_successfully_d
 
     let _ = Pattern::from_json(buffer).expect("We should be able to deserialize a pattern definition without a 'name' field");
 }
+
+#[test]
+fn test_invalid_uuid_wont_make_uuid_library_panic() {
+    let buffer = "231231212212423424324323477343246663";
+    let _ = Uuid::parse_str(buffer);
+}
