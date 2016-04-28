@@ -151,3 +151,15 @@ fn test_invalid_uuid_wont_make_uuid_library_panic() {
     let buffer = "231231212212423424324323477343246663";
     let _ = Uuid::parse_str(buffer);
 }
+
+#[test]
+fn test_new_deserialize() {
+    let buffer = r#"
+{
+  "uuid": "231231212212423424324323477343246663",
+  "pattern": "Jun %{INT:day}"
+}
+"#;
+
+    let _ = Pattern::from_json(buffer).expect("We should not panic when 'uuid' field is invalid");
+}
