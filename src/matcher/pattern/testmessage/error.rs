@@ -40,7 +40,7 @@ impl Error {
                            got_value: &str)
                            -> Error {
         Error::ValueNotMatch {
-            pattern_uuid: pattern_uuid.to_hyphenated_string(),
+            pattern_uuid: pattern_uuid.hyphenated().to_string(),
             key: key.to_owned(),
             expected_value: expected_value.to_owned(),
             got_value: got_value.to_owned(),
@@ -49,14 +49,14 @@ impl Error {
 
     pub fn key_not_found(pattern_uuid: &Uuid, key: &str) -> Error {
         Error::KeyNotFound {
-            pattern_uuid: pattern_uuid.to_hyphenated_string(),
+            pattern_uuid: pattern_uuid.hyphenated().to_string(),
             key: key.to_owned(),
         }
     }
 
     pub fn test_message_does_not_match(pattern_uuid: &Uuid, test_msg: &TestMessage) -> Error {
         Error::TestMessageDoesntMatch {
-            pattern_uuid: pattern_uuid.to_hyphenated_string(),
+            pattern_uuid: pattern_uuid.hyphenated().to_string(),
             message: test_msg.message().to_owned(),
         }
     }
@@ -66,8 +66,8 @@ impl Error {
                                     test_message: &str)
                                     -> Error {
         Error::MatchedToOtherPattern {
-            expected_uuid: expected_uuid.to_hyphenated_string(),
-            got_uuid: got_uuid.to_hyphenated_string(),
+            expected_uuid: expected_uuid.hyphenated().to_string(),
+            got_uuid: got_uuid.hyphenated().to_string(),
             message: test_message.to_owned(),
         }
     }
@@ -77,7 +77,7 @@ impl Error {
                            got: Option<Vec<String>>)
                            -> Error {
         Error::UnexpectedTags {
-            pattern_uuid: pattern_uuid.to_hyphenated_string(),
+            pattern_uuid: pattern_uuid.hyphenated().to_string(),
             expected: expected,
             got: got,
         }

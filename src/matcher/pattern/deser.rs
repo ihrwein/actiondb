@@ -54,32 +54,6 @@ impl serde::Deserialize for Field {
 
 struct PatternVisitor;
 
-impl PatternVisitor {
-    pub fn parse_uuid<V: serde::de::MapVisitor>(uuid: Option<String>) -> Result<Uuid, V::Error> {
-        let uuid = match uuid {
-            Some(uuid) => {
-                match Uuid::parse_str(&uuid) {
-                    Ok(value) => Some(value),
-                    Err(err) => {
-                        error!("Invalid field 'uuid': uuid={:?} error={}", &uuid, err);
-                        None
-                    }
-                }
-            }
-            None => {
-                None
-            }
-        };
-
-        match uuid {
-            Some(uuid) => Ok(uuid),
-            None => {
-                try!(Err(serde::de::Error::missing_field("uuid")))
-            }
-        }
-    }
-}
-
 impl serde::de::Visitor for PatternVisitor {
     type Value = Pattern;
 
@@ -87,7 +61,7 @@ impl serde::de::Visitor for PatternVisitor {
         where V: serde::de::MapVisitor
     {
         let mut name = None;
-        let mut uuid: Option<String> = None;
+        let mut uuid: Option<Uuid> = None;
         let mut pattern: Option<String> = None;
         let mut values: Option<BTreeMap<String, String>> = None;
         let mut tags: Option<Vec<String>> = None;
@@ -103,8 +77,6 @@ impl serde::de::Visitor for PatternVisitor {
                 Field::TESTMESSAGES => test_messages = Some(try!(visitor.visit_value())),
             }
         }
-
-        let uuid = try!(PatternVisitor::parse_uuid::<V>(uuid));
 
         let pattern = match pattern {
             Some(pattern) => {
@@ -126,6 +98,8 @@ impl serde::de::Visitor for PatternVisitor {
                 try!(Err(serde::de::Error::missing_field("pattern")))
             }
         };
+
+        let uuid = try!(uuid.ok_or(serde::de::Error::missing_field("pattern")));
 
         try!(visitor.end());
 
