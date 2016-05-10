@@ -68,4 +68,9 @@ mod test {
         assert_eq!("alpha".rtrunc(0), "alpha");
         assert_eq!("alpha".rtrunc(2), "alp");
     }
+
+    #[test]
+    fn test_given_a_string_with_multibyte_utf8_character_when_we_count_their_common_prefix_len_we_dont_split_the_multibyte_character() {
+        assert_eq!("¡alpha".common_prefix_len("¡beta"), 2);
+    }
 }
