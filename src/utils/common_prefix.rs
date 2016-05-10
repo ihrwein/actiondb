@@ -19,8 +19,8 @@ pub trait CommonPrefix {
 impl CommonPrefix for str {
     fn common_prefix_len(&self, other: &Self) -> usize {
         let min_len = cmp::min(self.len(), other.len());
-        let mut a_i = self.chars();
-        let mut b_i = other.chars();
+        let mut a_i = self.as_bytes().iter();
+        let mut b_i = other.as_bytes().iter();
 
         for i in 0..min_len {
             let x = a_i.next();
