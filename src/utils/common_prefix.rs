@@ -21,13 +21,18 @@ impl CommonPrefix for str {
         let min_len = cmp::min(self.len(), other.len());
         let mut a_i = self.as_bytes().iter();
         let mut b_i = other.as_bytes().iter();
+        let mut last_valid_character_boundary = 0;
 
         for i in 0..min_len {
             let x = a_i.next();
             let y = b_i.next();
 
+            if self.is_char_boundary(i) {
+                last_valid_character_boundary = i;
+            }
+
             if x != y {
-                return i;
+                return last_valid_character_boundary;
             }
         }
         min_len
