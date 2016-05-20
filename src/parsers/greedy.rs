@@ -51,14 +51,10 @@ impl ObjectSafeHash for GreedyParser {
 
 impl Parser for GreedyParser {
     fn parse<'a, 'b>(&'a self, value: &'b str) -> Option<ParseResult<'a, 'b>> {
-        if self.end_string.is_none() {
-            return Some(ParseResult::new(self, &value[..]));
-        }
-
-        if let Some(pos) = value.find(&self.end_string.as_ref().unwrap()[..]) {
-            Some(ParseResult::new(self, &value[..pos]))
+        if let Some(end_string) = self.end_string.as_ref() {
+            value.find(end_string).map(|pos| ParseResult::new(self, &value[..pos]))
         } else {
-            None
+            Some(ParseResult::new(self, &value[..]))
         }
     }
 
