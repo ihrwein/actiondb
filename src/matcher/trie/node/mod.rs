@@ -8,7 +8,7 @@ mod literal;
 mod parser;
 pub mod interface;
 
-use self::interface::{Entry, LiteralEntry, ParserEntry};
+use self::interface::Entry;
 
 pub use self::literal::LiteralNode;
 pub use self::parser::ParserNode;
@@ -225,7 +225,7 @@ impl SuffixTree {
                                                      .get(pos)
                                                      .unwrap()
                                                      .literal()
-                                                     .has_common_prefix(&tail) {
+                                                     .has_common_prefix(tail) {
                     trace!("insert_literal_tail(): common_prefix_len = {}",
                            common_prefix_len);
                     let hit = self.literal_children
@@ -320,7 +320,7 @@ impl self::interface::SuffixTree for SuffixTree {
 #[cfg(test)]
 mod test {
     use matcher::trie::node::SuffixTree;
-    use parsers::{Parser, SetParser, IntParser, GreedyParser};
+    use parsers::{SetParser, IntParser, GreedyParser};
     use matcher::compiled_pattern::CompiledPatternBuilder;
     use matcher::pattern::Pattern;
     use matcher::trie::node::interface::SuffixTree as STree;

@@ -1,5 +1,5 @@
 use matcher::compiled_pattern::TokenType;
-use parsers::{SetParser, Parser, ObjectSafeHash, IntParser, GreedyParser, HasLengthConstraint};
+use parsers::{SetParser, Parser, IntParser, GreedyParser, HasLengthConstraint};
 
 fn assert_parser_name_equals(item: Option<&TokenType>, expected_name: Option<&str>) {
     if let Some(&TokenType::Parser(ref parser)) = item {

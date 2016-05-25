@@ -146,3 +146,18 @@ fn test_given_suffix_array_when_literals_are_inserted_then_it_can_find_the_strin
 
     assert_eq!("app", root.longest_common_prefix("app42").unwrap().literal());
 }
+
+#[test]
+fn test_given_parser_when_it_receives_utf_8_strings_then_it_does_not_panic() {
+    let pattern = "%{GREEDY}¡%{GREEDY}";
+    let compiled_pattern = ::grammar::parser::pattern(pattern)
+                  .expect("Failed to compile pattern when it includes UTF-8 multibyte characters");
+
+    let mut pattern = Pattern::with_random_uuid();
+    pattern.set_pattern(compiled_pattern);
+
+    let mut root = SuffixTable::new();
+    root.insert(pattern);
+
+    assert_eq!(true, root.parse("micek ¡micek").is_some());
+}
